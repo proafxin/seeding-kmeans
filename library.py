@@ -21,8 +21,8 @@ def distance_sqrd(A, B):
 
 def pearson(A, B):
     # print(A, B)
-    a = np.sum(A)
-    b = np.sum(B)
+    a = norm(A)
+    b = norm(B)
     if a*b == 0.0:
         if a+b == 0.0:
             return 1.0
@@ -38,8 +38,8 @@ def cosine(A, B):
         if a+b == 0.0:
             return 1.0
         return 0.0
-    return ab/(a*b)
-
+    c = ab/(a*b)
+    return (c+1.0)/2.0
 def similarity(A, B):
     p = pearson(A, B)
     c = cosine(A, B)
@@ -70,11 +70,26 @@ class SBKMeans:
             self.n_iters = n_iters
         self.centers = []
 
+    def check_validity(self, X):
+        for x in X:
+            for a in x:
+                if np.isnan(a):
+                    raise ValueError('Dataset can not have nan values')
+                elif np.isinf(a):
+                    raise ValueError('Dataset can not have infinite values')
+                elif np.isneginf(a):
+                    raise ValueError('Dataset can not have negative infinite values')
+                elif norm(a) == 0.0:
+                    raise ValueError('Datapoint can not have all 0. Remove such points')
+        return True
+
     def fit(self, X):
         k = self.n_clusters
         n = len(X)
         if n <= k:
             raise ValueError('Number of data points should be higher than number of clusters')
+        if self.check_validity(X) != True:
+            raise ValueError('Clean your dataset')
         # print(X[:5])
         # print('Number of data points:', len(X))
         # print('number of clusters:', self.n_clusters, 'number of iterations:', self.n_iters)
@@ -95,13 +110,19 @@ class SBKMeans:
                     D,
                     np.min(d),
                 )
-            probabilities = D/np.sum(D)
+            for d in D:
+                assert(d >= 0.0)
+            if np.sum(D) > 0:
+                probabilities = D/np.sum(D)
+            else:
+                raise ValueError('All distances are zero for ', i, 'th center')
             cdf = np.cumsum(probabilities)
+            assert(len(cdf) == n)
             rand_float = random.random()
             # print('Probability array length:', len(probabilities), len(cdf))
             # print('Distance array length:', len(D))
             for (a, p) in enumerate(cdf):
-                if p > rand_float:
+                if p > rand_float and a < n:
                     # print(a, np.array(X[a]))
                     centers = append(
                         centers,
@@ -122,6 +143,9 @@ class SBKMeans:
                 cluster = 0
                 for i in range(k):
                     cur = closeness(x, centers[i])
+                    if cur < 0.0:
+                        print(x, i, cur)
+                        raise ValueError('Similarity negative')
                     # cur = distance_sqrd(x, centers[i])
                     if cur < min_dist:
                         min_dist = cur
