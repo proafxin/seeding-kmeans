@@ -21,6 +21,12 @@ def distance_sqrd(A, B):
 
 def pearson(A, B):
     # print(A, B)
+    a = np.sum(A)
+    b = np.sum(B)
+    if a*b == 0.0:
+        if a+b == 0.0:
+            return 1.0
+        return 0.0
     corr = pearsonr(A, B)
     return (corr[0]+1.0)/2.0
 
@@ -28,8 +34,10 @@ def cosine(A, B):
     a = norm(A)
     b = norm(B)
     ab = dot(A, B)
-    if (a*b) == 0.0:
-        return 1
+    if a*b == 0.0:
+        if a+b == 0.0:
+            return 1.0
+        return 0.0
     return ab/(a*b)
 
 def similarity(A, B):
@@ -65,6 +73,8 @@ class SBKMeans:
     def fit(self, X):
         k = self.n_clusters
         n = len(X)
+        if n <= k:
+            raise ValueError('Number of data points should be higher than number of clusters')
         # print(X[:5])
         # print('Number of data points:', len(X))
         # print('number of clusters:', self.n_clusters, 'number of iterations:', self.n_iters)
