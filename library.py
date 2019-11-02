@@ -15,6 +15,17 @@ def distance(A, B):
     d = dot(d, d)
     return sqrt(d)
 
+def minkowski(A, B, p):
+    d = subtract(A, B)
+    d = np.power(d, p)
+    k = len(d)
+    if k < 1:
+        return 0
+    d = np.sum(d)
+    d /= k
+    d = np.power(d, 1.0/k)
+    return d
+
 def distance_sqrd(A, B):
     d = subtract(A, B)
     return dot(d, d)
@@ -23,23 +34,29 @@ def pearson(A, B):
     # print(A, B)
     a = norm(A)
     b = norm(B)
-    if a*b == 0.0:
-        if a+b == 0.0:
-            return 1.0
+    if a is 0.0 and b is 0.0:
+        return 1.0
+    elif a is 0.0 or b is 0.0:
         return 0.0
-    corr = pearsonr(A, B)
-    return (corr[0]+1.0)/2.0
+    else:
+        corr = pearsonr(A, B)
+        sim = (corr[0]+1.0)/2.0
+        dis = 1.0-sim
+        return dis
 
 def cosine(A, B):
     a = norm(A)
     b = norm(B)
     ab = dot(A, B)
-    if a*b == 0.0:
-        if a+b == 0.0:
-            return 1.0
+    if a is 0.0 and b is 0.0:
         return 0.0
-    c = ab/(a*b)
-    return (c+1.0)/2.0
+    elif a is 0.0 or b is 0.0:
+        return 1.0
+    else:
+        c = ab/(a*b)
+        sim = (c+1.0)/2.0
+        dis = 1.0-sim
+        return dis
 def similarity(A, B):
     p = pearson(A, B)
     c = cosine(A, B)
@@ -104,7 +121,8 @@ class SBKMeans:
                     # print(c, x)
                     d = append(
                         d,
-                        distance_sqrd(c, x),
+                        # distance_sqrd(c, x),
+                        closeness(c, x),
                     )
                 D = append(
                     D,
@@ -165,7 +183,7 @@ class SBKMeans:
             cluster = 0
             min_dist = 1e50
             for i in range(k):
-                cur = closeness(x, self.centers[i])
+                # cur = closeness(x, self.centers[i])
                 cur = distance_sqrd(x, self.centers[i])
                 if cur < min_dist:
                     min_dist = cur
