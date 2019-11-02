@@ -75,49 +75,46 @@ def get_randoms(n, k, weights):
     
 class SBKMeans:
     n_clusters = 3
-    labels = []
+    labels_ = []
     n_iters = 500
-    centers = []
+    cluster_centers_ = []
+    verbose = False
 
-    def __init__(self, n_clusters, n_iters):
+    def __init__(self, n_clusters, n_iters, verbose=False):
         if self.n_clusters > 1:
             self.n_clusters = n_clusters
-        self.labels = []
+        self.labels_ = []
         if n_iters > 0:
             self.n_iters = n_iters
-        self.centers = []
+        self.cluster_centers_ = []
+        if verbose != None:
+            self.verbose = verbose
+        else:
+            self.verbose = False
 
     def check_validity(self, X):
         for x in X:
             for a in x:
+                if type(a) != type(np.float64(1.0)) and type(a) != type(np.int64(1)):
+                    print(x, a, type(a))
+                    raise(TypeError('Arrays should contain either integers or floats'))
                 if np.isnan(a):
                     raise ValueError('Dataset can not have nan values')
                 elif np.isinf(a):
                     raise ValueError('Dataset can not have infinite values')
                 elif np.isneginf(a):
                     raise ValueError('Dataset can not have negative infinite values')
-                elif norm(a) == 0.0:
-                    raise ValueError('Datapoint can not have all 0. Remove such points')
         return True
 
-    def fit(self, X):
-        k = self.n_clusters
+    def get_centers_d_sqrd(self, X, k):
         n = len(X)
-        if n <= k:
-            raise ValueError('Number of data points should be higher than number of clusters')
-        if self.check_validity(X) != True:
-            raise ValueError('Clean your dataset')
-        # print(X[:5])
-        # print('Number of data points:', len(X))
-        # print('number of clusters:', self.n_clusters, 'number of iterations:', self.n_iters)
         c0 = randint(0, n)
-        centers = np.array([X[c0]])
-        # print(c0, centers)
+        cluster_centers_ = np.array([X[c0]])
         for i in range(1, k):
             D = np.array([])
             for x in X:
                 d = np.array([])
-                for c in centers:
+                for c in cluster_centers_:
                     # print(c, x)
                     d = append(
                         d,
@@ -142,16 +139,35 @@ class SBKMeans:
             for (a, p) in enumerate(cdf):
                 if p > rand_float and a < n:
                     # print(a, np.array(X[a]))
-                    centers = append(
-                        centers,
+                    cluster_centers_ = append(
+                        cluster_centers_,
                         [X[a]],
                         axis=0,
                     )
                     break
                 pass
             pass
-        print('Initial centers:')
-        print(centers)
+        return cluster_centers_
+
+    def fit(self, X):
+        k = self.n_clusters
+        n = len(X)
+        if n <= k:
+            raise ValueError('Number of data points should be higher than number of clusters')
+        if self.check_validity(X) != True:
+            raise ValueError('Clean your dataset')
+        if self.verbose is True:
+            print(X[:5])
+            print('Number of data points:', len(X))
+            print('number of clusters:', self.n_clusters, 'number of iterations:', self.n_iters)
+        # print(c0, cluster_centers_)
+        cluster_centers_ = self.get_centers_d_sqrd(X, k)
+        self.cluster_centers_ = cluster_centers_
+        if self.check_validity(self.cluster_centers_) != True:
+            raise ValueError('cluster_centers_ are not valid')
+        if self.verbose is True:
+            print('Initial cluster_centers_:')
+            print(cluster_centers_)
         for i in range(self.n_iters):
             C = {}
             for i in range(k):
@@ -160,68 +176,69 @@ class SBKMeans:
                 min_dist = 1.0e50
                 cluster = 0
                 for i in range(k):
-                    cur = closeness(x, centers[i])
+                    cur = closeness(x, cluster_centers_[i])
                     if cur < 0.0:
                         print(x, i, cur)
-                        raise ValueError('Similarity negative')
-                    # cur = distance_sqrd(x, centers[i])
+                        raise ValueError('Closeness found negative')
+                    # cur = distance_sqrd(x, cluster_centers_[i])
                     if cur < min_dist:
                         min_dist = cur
                         cluster = i
                 C[cluster].append(x)
             for i in range(k):
-                centers[i] = np.mean(C[i], axis=0)
-        self.centers = centers
-        return centers
+                cluster_centers_[i] = np.mean(C[i], axis=0)
+        self.cluster_centers_ = cluster_centers_
+        return self
+
     def predict(self, X):
         n = len(X)
-        k = len(self.centers)
-        labels = []
+        k = len(self.cluster_centers_)
+        labels_ = []
         if (n < 3) or (k < 1):
-            self.labels = [i for i in range(n)]
+            self.labels_ = [i for i in range(n)]
         for x in X:
             cluster = 0
             min_dist = 1e50
             for i in range(k):
-                # cur = closeness(x, self.centers[i])
-                cur = distance_sqrd(x, self.centers[i])
+                cur = closeness(x, self.cluster_centers_[i])
+                # cur = distance_sqrd(x, self.cluster_centers_[i])
                 if cur < min_dist:
                     min_dist = cur
                     cluster = i
-            labels.append(cluster)
-        self.labels = labels
-        return labels
+            labels_.append(cluster)
+        self.labels_ = labels_
+        return labels_
     
     def fit_predict(self, X):
-        self.centers = self.fit(X)
-        self.labels = self.predict(X)
-        return self.labels
+        self.cluster_centers_ = self.fit(X)
+        self.labels_ = self.predict(X)
+        return self.labels_
 
 class ErrorChecker:
     dist_tot = 0
-    centers = []
+    cluster_centers_ = []
     X = []
-    labels = []
+    labels_ = []
     n_clusters = 0
-    def __init__(self, X, centers, labels):
-        self.centers = centers
+    def __init__(self, X, cluster_centers_, labels_):
+        self.cluster_centers_ = cluster_centers_
         self.X = X
-        self.n_clusters = len(centers)
-        self.labels = labels
+        self.n_clusters = len(cluster_centers_)
+        self.labels_ = labels_
     def potential_function(self, X=None, n_clusters=None):
         if X is not None:
             self.X = X
         if n_clusters is not None:
-            assert(len(self.centers) == n_clusters)
+            assert(len(self.cluster_centers_) == n_clusters)
         n = len(self.X)
         assert(n > 0)
-        assert(len(self.centers) > 2)
-        assert(len(self.labels) == n)
+        assert(len(self.cluster_centers_) > 2)
+        assert(len(self.labels_) == n)
         dist_tot = 0
         # print(self.X[:5])
-        # print(self.centers)
+        # print(self.cluster_centers_)
         for x in self.X:
-            for c in self.centers:
+            for c in self.cluster_centers_:
                 # print(c, x)
                 dist_tot += distance_sqrd(c, x)
                 pass
