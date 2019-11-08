@@ -25,6 +25,7 @@ class IKMeans:
     verbose = 0
     n_jobs = 0
     init = 'auto'
+    num_iter = max_iter
 
     def __init__(self, n_clusters=5, max_iter=300, verbose=0, n_jobs=0, init='auto'):
         if n_clusters is not None:
@@ -85,6 +86,36 @@ class IKMeans:
                     )
                     break
         return centers
+    
+    def get_centers_kmeans_triple_plus(self, X):
+        n = X.shape[0]
+        k = self.n_clusters
+        r = randint(0, n)
+        centers = array([X[r]])
+        for i in range(1, k):
+            D = array([])
+            for x in X:
+                d = []
+                for c in centers:
+                    d.append(np.sum((c-x)**2))
+                    # d.append(correlation(c, x))
+                D = append(
+                    D,
+                    np.min(d),
+                )
+            probs = D/sum(D)
+            probs_cumulative = cumsum(probs)
+            r = random()
+            for (x, p) in zip(X, probs_cumulative):
+                if p > r:
+                    # print(x)
+                    centers = append(
+                        centers,
+                        [x],
+                        axis=0,
+                    )
+                    break
+        return centers
 
     def get_centers_ikmeans(self, X):
         n = X.shape[0]
@@ -94,13 +125,13 @@ class IKMeans:
         # s = randint(0, n)
         # centers = append(centers, [X[s]], axis=0)
         D = sum((X-centers[0])**2, axis=1)
-        D = [sqrt(d) for d in D]
+        # D = [sqrt(d) for d in D]
         D = array(D)
         median_dist = np.median(D)
         second_centers = []
         dists = cdist(X, centers, 'euclidean')
         for (x, d) in zip(X, dists):
-            if d > median_dist:
+            if d >= median_dist:
                 second_centers.append(x)
         second_centers = array(second_centers)
         s = choice(range(len(second_centers)))
@@ -155,7 +186,7 @@ class IKMeans:
         centers = array([])
         if self.__check_validity(X) is not True:
             raise ValueError('Clean up dataset')
-        if self.init == 'auto' or self.init == 'k-means++':
+        if self.init == 'auto' or self.init == 'kmeans++':
             centers = self.get_centers_kmeans_plus(X)
         elif self.init == 'ikmeans':
             centers = self.get_centers_ikmeans(X)
@@ -187,10 +218,14 @@ class IKMeans:
             for i in range(k):
                 cur_center = centers[i]
                 centers[i] = mean(clusters[i], axis=0)
-                center_dist += norm(cur_center-centers[i])
+                center_dist += sum((cur_center-centers[i])**2)
                 # print(cur_center, centers[i], center_dist)
-            if iter > 1 and center_dist == 0.0:
-                print('Iterations for convergence:', iter)
+            if iter > 1 and abs(inertia-cur_inertia) < 1e-10:
+                self.inertia_ = inertia
+                self.cluster_centers_ = centers
+                self.num_iter = iter
+                if self.verbose == 1:
+                    print(self.init.upper(), 'Iterations for convergence:', iter, 'Inertia:', self.inertia_)
                 break
             inertia = cur_inertia
         self.cluster_centers_ = centers
@@ -198,6 +233,8 @@ class IKMeans:
     
     def predict(self, X):
         k = self.n_clusters
+        if len(self.cluster_centers_) < 1:
+            raise ValueError('Centers not calculated properly')
         clusters = {}
         for i in range(k):
             clusters[i] = array([])
