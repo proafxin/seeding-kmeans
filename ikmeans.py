@@ -113,6 +113,13 @@ class IKMeans:
         for i in range(2, k):
             dists = cdist(X, centers, 'euclidean')
             # print(dists)
+            D = array([])
+            for x in X:
+                D = append(
+                    D,
+                    np.min(sum((centers-x)**2)),
+                )
+            D /= sum(D)
             variances = np.var(dists, axis=1)
             tot_variance = sum(variances)
             # print(tot_variance, variances)
@@ -136,7 +143,7 @@ class IKMeans:
         )
         centers = array([X[rs[0]]])
         for i in range(1, self.n_clusters):
-            print(X[rs[i]], centers)
+            # print(X[rs[i]], centers)
             centers = append(
                 centers,
                 [X[rs[i]]],
@@ -145,6 +152,7 @@ class IKMeans:
         return centers
 
     def fit(self, X):
+        centers = array([])
         if self.__check_validity(X) is not True:
             raise ValueError('Clean up dataset')
         if self.init == 'auto' or self.init == 'k-means++':
@@ -161,23 +169,30 @@ class IKMeans:
             print('Number of clusters:', self.n_clusters)
             print('Centers:')
             print(centers)
+        inertia = 0
         for iter in range(self.max_iter):
-            iter += 0
             clusters = {}
             for i in range(k):
                 clusters[i] = []
+            cur_inertia = 0
             for x in X:
-                min_dist = 1.0e50
-                cur = 0
-                for (j, c) in enumerate(centers):
-                    cur_dist = sum((c-x)**2)
-                    # cur_dist = correlation(c, x)
-                    if min_dist > cur_dist:
-                        cur = j
-                        min_dist = cur_dist
-                clusters[cur].append(x)
+                dists = sum((centers-x)**2, axis=1)
+                min_dist = np.min(dists)
+                cur_inertia += min_dist
+                for (i, dist) in enumerate(dists):
+                    if dist == min_dist:
+                        clusters[i].append(x)
+                        break
+            center_dist = 0
             for i in range(k):
+                cur_center = centers[i]
                 centers[i] = mean(clusters[i], axis=0)
+                center_dist += norm(cur_center-centers[i])
+                # print(cur_center, centers[i], center_dist)
+            if iter > 1 and center_dist == 0.0:
+                print('Iterations for convergence:', iter)
+                break
+            inertia = cur_inertia
         self.cluster_centers_ = centers
         return self
     
