@@ -23,14 +23,14 @@ class KMeansClustering():
     labels_ = array([])
     random_state = None
     sse_ = 0.0
-    wcss_ = 0.0
     iter_convergence_ = 10000
+    time = 0
 
     def __init__(self, init, max_iter, n_clusters, verbose, random_state=None):
         if init is not None:
             self.init = init    
         if max_iter is not None:
-            self.max_iter = math
+            self.max_iter = max_iter
         if n_clusters is not None:
             self.n_clusters = n_clusters
         if verbose is not None:
@@ -95,7 +95,6 @@ class KMeansClustering():
         for i in range(1, k-1):
             D = []
             for x in X:
-                # print(centers, x)
                 D.append(np.min(np.sum((centers-x)**2, axis=1)))
             D = array(D)
             probs = D/sum(D)
@@ -122,7 +121,6 @@ class KMeansClustering():
             init_centers.append({'x':r, 'y':s})
         D = array(D)
         probs = D/sum(D)
-        probs = 1.0-probs
         probs_cuml = cumsum(probs)
         r = random()
         centers = []
@@ -133,7 +131,6 @@ class KMeansClustering():
                 centers.append(X[x].tolist())
                 centers.append(X[y].tolist())
                 break
-        # print(probs_cuml, centers)
         for i in range(1, k-1):
             V = []
             for x in X:
@@ -144,17 +141,37 @@ class KMeansClustering():
                 V.append(np.var(D))
             V = array(V)
             probs = V/sum(V)
+            probs = 1.0-probs
             probs_cuml = cumsum(probs)
             r = random()
             for (j, p) in enumerate(probs_cuml):
-                # print(X[j].tolist())
                 if X[j].tolist() in centers:
                     continue
                 if p > r:
                     centers.append(X[j].tolist())
                     break
         centers = array(centers)
-        return centers 
+        return centers
+
+    def __converge_centers(self, X, centers):
+        for i in range(self.max_iter):
+            C = {}
+            for i in range(self.n_clusters):
+                C[i] = []
+            for x in X:
+                D = []
+                for c in centers:
+                    D.append(dot(c-x, c-x))
+                dist_min = min(D)
+                for (i, d) in enumerate(D):
+                    if d == dist_min:
+                        C[i].append(x)
+                        break
+            for i in range(self.n_clusters):
+                if len(C[i]) > 0:
+                    centers[i] = mean(C[i], axis=0)
+            self.max_iter = i+1
+        return centers
         
     def fit(self, X):
         k = self.n_clusters
@@ -172,16 +189,31 @@ class KMeansClustering():
             self.cluster_centers_ = self.__get_ostrovsky_centers(X, k)
         elif self.init == 'variance':
             self.cluster_centers_ = self.__get_variance_based_centers(X, k)
-        if self.verbose is not None:
-            # print(X[:5])
-            print('Initializtion', self.init)
-            print(self.cluster_centers_)
         for c in self.cluster_centers_:
             for a in c:
                 if type(a) != type(np.float64(1.0)):
                     raise ValueError('Centers not initialized properly')
+        if self.verbose is True:
+            print('Initializtion', self.init)
+            print(self.cluster_centers_)
+        self.cluster_centers_ = self.__converge_centers(X, self.cluster_centers_)
+        if self.verbose is True:
+            print(self.init, 'centers after fitting')
+            print(self.cluster_centers_)
         return self
-    
-    def predict(self, X):
-        pass
 
+    def predict(self, X):
+        labels = []
+        self.sse_ = 0
+        for x in X:
+            D = []
+            for c in self.cluster_centers_:
+                D.append(dot(c-x, c-x))
+            dist_min = min(D)
+            self.sse_ += dist_min
+            for (i, d) in enumerate(D):
+                if d == dist_min:
+                    labels.append(i)
+                    break
+        self.labels_ = labels
+        return labels

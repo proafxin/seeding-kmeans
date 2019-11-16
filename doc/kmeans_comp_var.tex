@@ -1,6 +1,6 @@
 \documentclass[10pt, leqno]{article}
 
-\usepackage{amsthm, amssymb, amsfonts, amsmath, geometry}
+\usepackage{amsthm, amssymb, amsfonts, amsmath, geometry, enumerate}
 \geometry{left=1in,right=1in,top=.5in,bottom=1in,headheight=4pt,headsep=0.3in}
 
 \newcommand{\x}{\mathbf{x}}
@@ -12,7 +12,7 @@
 \begin{document}
 	\maketitle
 		\begin{abstract}
-			$k$-Means is a popular clustering algorithm that reduces sum of minimum distances from data points to the centers. In this paper, we introduce a new way of initializing the centers. We also show comparison of different initialization for $k$-Means centers in terms of inertia, convergence speed and variance.
+			$k$-Means is a popular clustering algorithm that reduces sum of minimum distances from data points to the centers. In this paper, we introduce a new way of initializing the centers. We also show comparison of different initialization for $k$-Means centers in terms of inertia, convergence speed and variance. Experiments show that our variance based algorithm performs better than $k$-Means, Ostrovsky-Rabani-Schulman-Swamy (ORSS) and $k$-Means++ algorithm in terms of minimizing sum of squared distances from each point to their respective clusters.
 		\end{abstract}
 	\section{Introduction}
 	Widely regarded as the most popular clustering techniques, $k$-Means remains a humble interesting topic in machine learning as well as computational geometry. Roughly the problem is: given a set of points $\mathbb{X}$ in $\mathbb{R}^d$. Find a set of centers $\mathcal{C}$ such that the function \textit{inertia}
@@ -31,21 +31,83 @@
 		\end{align*}
 	where $I$ is the identity matrix of the same rank as $\x$. This pretty much shows why taking the average of all the coordinates in a cluster minimizes the sum of squared distances.
 	\section{Related Work}
-	There has been multiple surveys on $k$-Means in the literature. Probably the most relevant work in this regard is done by Celebi, Kingravi and Vela \cite{celebi}. However, most of the algorithms used for comparison are practically not used very much, as also noted by the authors themselves that \texttt{k-means++} and its greedy version work better than most. They also mention that probabilistic algorithms work better than deterministic ones. Moreover, it seems the first of the most influential center initialization algorithm \cite{ostrovsky} was not considered for their experiments. There is no mention of Ostrovsky's algorithm in their paper whatsoever.
+	There has been multiple surveys on $k$-Means in the literature. Probably the most relevant work in this regard is done by Celebi, Kingravi and Vela \cite{celebi}. However, most of the algorithms used for comparison are practically not used very much, as also noted by the authors themselves that \texttt{k-means++} and its greedy version work better than most. They also mention that probabilistic algorithms work better than deterministic ones. Moreover, it seems the first of the most influential center initialization algorithm \cite{ostrovsky} was not considered for their experiments. There is no mention of Ostrovsky's algorithm in their paper whatsoever. Therefore, we should compare the probabilistic algorithms and so we take a look at exactly how good \texttt{k-means++} algorithm is. We propose another way of initialization. Experiments show that this performs better than Lloyd random initialization but 
 	
 	The other reason why we need to take a second look at the results in \cite{kmeans++} is that, experiments suggest that some standard procedures were not performed for comparison in \cite{kmeans++}. Moreover, even without following those procedures, our results seem to differ a little bit from theirs. This may not be any technical error in coding, most likely this is just different ways of implementation coupled with the fact that these are probabilistic algorithms.
 	
 	We would also like to point out that to our knowledge no surveys were done after removing linear dependency prior to running the experiments. This is a very important step if we are to get a meaningful clustering out of $k$-Means algorithm. Specially, if we use PCA (principal component analysis) before running a clustering algorithm, this helps us redefine the variables into linearly independent variables since PCA decomposes the existing variables into orthogonal\footnote{It is easy to prove that orthogonal vectors are linearly independent.} ones. For our experiment, we have used PCA on every dataset before running cluster algorithm\footnote{Number of components was set to $2$ for simpler visualization and verification.}.
 	
-	While experimenting on such algorithms, it is of utmost importance to run the same experiment more than once under the same parameters and conditions. For example, assume that we want to compare \texttt{k-means++} and Forgy's algorithm \cite{forgy} for $k=5$ clusters. We should run this experiment at least $m$ times where $m>1$ in order to eliminate bias and account for randomness. It is commendable that \cite{celebi} follows the literature in using $m=100$ as mentioned in the paper. In this paper, we use $m=100$ as well. We will also take variance of the distances between the centers into account. The reason behind doing so is not just to make sure that the cluster centers are not too close to each other, but also to keep the clusters as balanced as possible. It is surprising that variance of these distances is not particularly a standard metric that is usually used for K-Means type algorithm. 
+	While experimenting on such algorithms, it is of utmost importance to run the same experiment more than once under the same parameters and conditions. For example, assume that we want to compare \texttt{k-means++} and Forgy's algorithm \cite{forgy} for $k=5$ clusters. We should run this experiment at least $m$ times where $m>1$ in order to eliminate bias and account for randomness. It is commendable that \cite{celebi} follows the literature in using $m=100$ as mentioned in the paper. In this paper, we use $m=100$ as well.
 	
-	To summarize, we will be mostly looking at these variations of initial seeding of centers: Lloyd, Ostrovsky, \texttt{k-means++} and a variance based seeding. Then we will be comparing inertia, variance and convergence speed for a comparative study among these algorithms.
+	To summarize, we will be mostly looking at these variations of initial seeding of centers: Lloyd, Ostrovsky, \texttt{k-means++} and a variance based seeding. Then we will be comparing inertia for a comparative study among these algorithms.
+	\section{Variance Based Initialization}
+	We will describe $k$-Means, Ostrovsky's and $k$-Means++ algorithm. Then we describe our proposed method of center initialization.
+	\subsection{$k$-Means Algorithm}
+	$k$-Means is the simplest of all algorithms.
+		\begin{enumerate}[i]
+			\item Choose $k$ centers $\mathcal{C}=\{c_1,c_2,\cdots,c_k\}$ randomly.
+			\item For each $i$, $C_i$ is the set of points $\mathbf{x}\in\mathbf{X}$ such that $||\mathbf{x}-c_i||\leq ||\mathbf{x}-c_j||$ for all $1\leq j\leq n$.
+			\item Set $c_i=\frac{1}{|C_i|}\sum_{\mathbf{x}\in\mathbf{X}}\mathbf{x}$.
+			\item Repeat step $2$ and $3$.
+		\end{enumerate}
+	The initial centers are chosen at random uniformly.
+	\subsection{ORSS Algorithm}
+	\subsection{$k$-Means++ Algorithm}
+	$k$-Means 
 	\section{Experiment Setup}
 	We ensure that all algorithms are run under the same conditions. All of them share the same environment and no special optimizations were made for any particular algorithm. Only CPU was used to determine the values we are interested in and no parallelism mechanism was in place for speeding up the process. This way, we can get an idea about the raw performance metrics of the algorithms involved.
 	
 	Python is used as the programming language to write necessary codes. Some common auxiliary packages such as \textit{scipy, scikit-learn, numpy} etc are used to help with the code. All the algorithms are simply different methods of the same class, so they share the same fitting and prediction function. Only the initialization differs for different algorithm. It should be mentioned that even though some packages have native support for $k$-Means implementation, we did not use them to run the experiments. The reason is simple. Not all the algorithms we want to test are available in those packages. Therefore, in order to ensure same environment and optimizations for every algorithm, we wrote every algorithm from scratch so that we could be sure they are done in the same setting.
 	
-	The datasets used are some popular ones: Iris dataset, Mall customers dataset, Airline clustering dataset, Wine testing dataset. We did not duel too much on using too many datasets. The number of datasets does not really mean very much for $k$-Means. It is the quality of clustering we are interested in, not the quality of dataset itself. And a good clustering algorithm should be able to handle all type of datasets. For a fixed number of clusters $k$, we choose a dataset we want to run the experiment on. After loading and cleaning the data, we use PCA with number of components set to either $2$ or $3$. Then we run the experiment on the modified dataset. For every dataset, we repeat the experiment a total of $100$ times as mentioned before. Finally, we use the average and minimum values of inertia, number of steps taken for convergence and variance. We would like to mention that for convergence, we checked if the sum of distance between new centers and old centers is less than a certain value $\epsilon$ where $\epsilon$ is a very small real number. For our experiment, we chose $\epsilon=10^{-15}$ which practically says that the change in the position of the centers is negligible.
+	The datasets used are some popular ones: Iris dataset, Mall customers dataset, Airline clustering dataset, Wine testing dataset. We did not duel too much on using too many datasets. The number of datasets does not really mean very much for $k$-Means. It is the quality of clustering we are interested in. And a good clustering algorithm should be able to handle all type of datasets. For a fixed number of clusters $k$, we choose a dataset we want to run the experiment on. After loading and cleaning the data, we use PCA with number of components set to either $2$ or $3$. Then we run the experiment on the modified dataset. For every dataset, we repeat the experiment a total of $100$ times as mentioned before. Finally, we use the average and minimum values of inertia, and variance.
+	\section{Results}
+	We present the results on those four algorithms based on inertia and time required to runt them. These are average values of inertia after $100$ iterations on each dataset, as mentioned before. After seeing the results, one may argue that the difference is negligible. We beg to differ. We standardized the datasets and used PCA before running the cluster algorithms like we mentioned. Therefore, these very small differences actually signify a lot higher value if converted to original values. Moreover, instead of checking how many iterations it take for the centers to converge, we have let each algorithm run exactly the same number of times ($500$) which is more than enough for convergence. The time registered here is the time taken by each algorithm for those $100$ iterations. As expected, default $k$-Means is the fastest algorithm. However, if we were to define convergence, that leads to a separate problem which we think other implementations suffer from. We also mentioned something similar before. This might also be one of the reasons why our results of $k$-Means++ differ from the authors implementation. Our argument is also complemented by the experiments. All algorithms seem to reach the same minimum inertia. Therefore, it is the average of inertia that we should focus on.
+	
+	Here are the results for $k=5$ clusters.
+		\begin{table}[h]
+			\begin{center}
+				\begin{tabular}{|l|l|l|l|}
+					\hline
+					Algorithm & Average & Minimum & Time\\\hline
+					$k$-Means & 4.582897752536098& 4.075902609386082& 1.7800957500000003s\\\hline
+					ORSS & 4.3710321716046785& 4.075902609386082& 1.7859569949999994s\\\hline
+					$k$-Means++ &4.284250240984546& 4.075902609386082& 1.786941793000002s\\\hline
+					Var-based & 4.265397551315433& 4.075902609386082& 1.8023865810000048s\\\hline
+				\end{tabular}
+			\caption{Results on Mall customers dataset}
+			\end{center}
+		\label{tbl:mall}
+		\end{table}
+	
+		\begin{table}[h]
+			\begin{center}
+				\begin{tabular}{|l|l|l|l|}
+					\hline
+					Algorithm & Average & Minimum & Time\\\hline
+					$k$-Means & 2.1264993964151784 & 1.4774401153809424& 0.12384454899999969s\\\hline
+					ORSS & 1.8621443053327922 & 1.4774401153809424&0.13034087000000005s \\\hline
+					$k$-Means++ &1.8327558137236732 & 1.4774401153809424& 0.13094220199999967s\\\hline
+					Var-based &1.7742336610964762 & 1.4774401153809424& 0.13951454999999968s\\\hline
+				\end{tabular}
+				\caption{Results on IRIS dataset}
+			\end{center}
+			\label{tbl:mall}
+		\end{table}
+
+		\begin{table}[h]
+			\begin{center}
+				\begin{tabular}{|l|l|l|l|}
+					\hline
+					Algorithm & Average & Minimum & Time\\\hline
+					$k$-Means &  & & \\\hline
+					ORSS &  & & \\\hline
+					$k$-Means++ & & & \\\hline
+					Var-based & & & \\\hline
+				\end{tabular}
+				\caption{Results on Cloud dataset}
+			\end{center}
+			\label{tbl:mall}
+		\end{table}	
 	\begin{thebibliography}{99}
 		\bibitem{kmeans++} David Arthur and Sergei Vassilvitskii. \texttt{k-means++}: The Advantages of Careful Seeding. Proceedings of the eighteenth annual ACM-SIAM symposium on Discrete algorithms. Society for Industrial and Applied Mathematics Philadelphia, PA, USA. pp. $1027–1035$.
 		\bibitem{lloyd} Stuart P. Lloyd. Least squares quantization in pcm. IEEE Transactions on Information Theory, $28(2):129–136, 1982$.
