@@ -1,6 +1,7 @@
 \documentclass[10pt, leqno]{article}
 
 \usepackage{amsthm, amssymb, amsfonts, amsmath, geometry, enumerate}
+%\usepackage{jmlr2e}
 \geometry{left=1in,right=1in,top=.5in,bottom=1in,headheight=4pt,headsep=0.3in}
 
 \newcommand{\x}{\mathbf{x}}
@@ -75,7 +76,7 @@
 	\section{Experiment Setup}
 	We ensure that all algorithms are run under the same conditions. All of them share the same environment and no special optimizations were made for any particular algorithm. Only CPU was used to determine the values we are interested in and no parallelism mechanism was in place for speeding up the process. This way, we can get an idea about the raw performance metrics of the algorithms involved.
 	
-	Python is used as the programming language to write necessary codes. Some common auxiliary packages such as \textit{scipy, scikit-learn, numpy} etc are used to help with the code. All the algorithms are simply different methods of the same class, so they share the same fitting and prediction function. Only the initialization differs for different algorithm. It should be mentioned that even though some packages have native support for $k$-Means implementation, we did not use them to run the experiments. The reason is simple. Not all the algorithms we want to test are available in those packages. Therefore, in order to ensure same environment and optimizations for every algorithm, we wrote every algorithm from scratch so that we could be sure they are done in the same setting.
+	Python is used as the programming language to write necessary codes. Some common auxiliary packages such as \textit{scipy, scikit-learn, numpy} etc are used to help with the code. All the algorithms are simply different methods of the same class, so they share the same fitting and prediction function. Only the initialization differs for different algorithm. It should be mentioned that even though some packages have native support for $k$-Means implementation, we did not use them to run the experiments. The reason is simple. Not all the algorithms we want to test are available in those packages. Therefore, in order to ensure same environment and optimizations for every algorithm, we wrote every algorithm from scratch so that we could be sure they are done in the same setting. In order to check performance bias, we have used both normalization and standardization. Some datasets were normalized and others were standardized instead.
 	
 	The datasets used are some popular ones: Iris dataset, Mall customers dataset, Airline clustering dataset, Wine testing dataset. We did not duel too much on using too many datasets. The number of datasets does not really mean very much for $k$-Means. It is the quality of clustering we are interested in. And a good clustering algorithm should be able to handle all type of datasets. For a fixed number of clusters $k$, we choose a dataset we want to run the experiment on. After loading and cleaning the data, we use PCA with number of components set to either $2$ or $3$. Then we run the experiment on the modified dataset. For every dataset, we repeat the experiment a total of $100$ times as mentioned before. Finally, we use the average and minimum values of inertia, and variance.
 	\section{Results}
@@ -117,15 +118,30 @@
 				\begin{tabular}{|l|l|l|l|}
 					\hline
 					Algorithm & Average & Minimum & Time\\\hline
-					$k$-Means &  & & \\\hline
-					ORSS &  & & \\\hline
-					$k$-Means++ & & & \\\hline
-					Var-based & & & \\\hline
+					$k$-Means &  1388.694358670742& 1387.3919240019864& 5.6806866900000115s\\\hline
+					ORSS &  1392.3920454250817& 1387.3919240019864& 5.641342363999997s\\\hline
+					$k$-Means++ & 1392.0420776007209& 1387.3919240019864& 5.672814887999994s\\\hline
+					Var-based & 1387.6963754678748& 1387.3919240019864& 5.730628591999996s\\\hline
 				\end{tabular}
 				\caption{Results on Cloud dataset}
 			\end{center}
 			\label{tbl:mall}
-		\end{table}	
+		\end{table}
+	
+		\begin{table}[h]
+			\begin{center}
+				\begin{tabular}{|l|l|l|l|}
+					\hline
+					Algorithm & Average & Minimum & Time\\\hline
+					$k$-Means &  151.77628080921232& 145.4648931505064& 1.445791673000001s\\\hline
+					ORSS &  150.59855263211452& 145.4648931505064& 1.4534875189999985s\\\hline
+					$k$-Means++ & 148.90907392065532& 145.4648931505064& 1.4551421590000013s\\\hline
+					Var-based & 148.86819005795846& 145.4648931505064& 1.4661181270000034s\\\hline
+				\end{tabular}
+				\caption{Results on Wine dataset}
+			\end{center}
+			\label{tbl:mall}
+		\end{table}
 	\begin{thebibliography}{99}
 		\bibitem{kmeans++} David Arthur and Sergei Vassilvitskii. \texttt{k-means++}: The Advantages of Careful Seeding. Proceedings of the eighteenth annual ACM-SIAM symposium on Discrete algorithms. Society for Industrial and Applied Mathematics Philadelphia, PA, USA. pp. $1027–1035$.
 		\bibitem{lloyd} Stuart P. Lloyd. Least squares quantization in pcm. IEEE Transactions on Information Theory, $28(2):129–136, 1982$.
