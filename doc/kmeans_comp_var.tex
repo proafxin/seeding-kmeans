@@ -33,7 +33,7 @@
 	\section{Related Work}
 	There has been multiple surveys on $k$-Means in the literature. Probably the most relevant work in this regard is done by Celebi, Kingravi and Vela \cite{celebi}. However, most of the algorithms used for comparison are practically not used very much, as also noted by the authors themselves that \texttt{k-means++} and its greedy version work better than most. They also mention that probabilistic algorithms work better than deterministic ones. Moreover, it seems the first of the most influential center initialization algorithm \cite{ostrovsky} was not considered for their experiments. There is no mention of Ostrovsky's algorithm in their paper whatsoever. Therefore, we should compare the probabilistic algorithms and so we take a look at exactly how good \texttt{k-means++} algorithm is. We propose another way of initialization. Experiments show that this performs better than Lloyd random initialization but 
 	
-	The other reason why we need to take a second look at the results in \cite{kmeans++} is that, experiments suggest that some standard procedures were not performed for comparison in \cite{kmeans++}. Moreover, even without following those procedures, our results seem to differ a little bit from theirs. This may not be any technical error in coding, most likely this is just different ways of implementation coupled with the fact that these are probabilistic algorithms.
+	The other reason why we need to take a second look at the results in \cite{kmeans++} is that, experiments suggest that some standard procedures were not performed for comparison in \cite{kmeans++}. They were not normalized or standardized as their high inertia values  indicate. Moreover, even without following those procedures, our results seem to differ a little bit from theirs. This may not be any technical error in coding, most likely this is just different ways of implementation coupled with the fact that these are probabilistic algorithms.
 	
 	We would also like to point out that to our knowledge no surveys were done after removing linear dependency prior to running the experiments. This is a very important step if we are to get a meaningful clustering out of $k$-Means algorithm. Specially, if we use PCA (principal component analysis) before running a clustering algorithm, this helps us redefine the variables into linearly independent variables since PCA decomposes the existing variables into orthogonal\footnote{It is easy to prove that orthogonal vectors are linearly independent.} ones. For our experiment, we have used PCA on every dataset before running cluster algorithm\footnote{Number of components was set to $2$ for simpler visualization and verification.}.
 	
@@ -47,13 +47,31 @@
 		\begin{enumerate}[i]
 			\item Choose $k$ centers $\mathcal{C}=\{c_1,c_2,\cdots,c_k\}$ randomly.
 			\item For each $i$, $C_i$ is the set of points $\mathbf{x}\in\mathbf{X}$ such that $||\mathbf{x}-c_i||\leq ||\mathbf{x}-c_j||$ for all $1\leq j\leq n$.
-			\item Set $c_i=\frac{1}{|C_i|}\sum_{\mathbf{x}\in\mathbf{X}}\mathbf{x}$.
+			\item Set $c_i=\frac{1}{|C_i|}\sum_{\mathbf{x}\in C_i}\mathbf{x}$.
 			\item Repeat step $2$ and $3$.
 		\end{enumerate}
 	The initial centers are chosen at random uniformly.
 	\subsection{ORSS Algorithm}
+	ORSS algorithm does not choose initial centers uniformly.
+		\begin{enumerate}[i]
+			\item Choose two points $\mathbf{x},\mathbf{y}$ with probability proportional to $||x-y||^2$.
+			\item For already $i$ existing centers, choose a random point $\mathbf{x}\in\mathbf{X}$ with probability proportional to $\min(||x-c_j||^2)$ for $1\leq j\leq j$. Set $c_{i+1}=x$.
+			\item Repeat previous step until $i=k$ while recalculating centers as in $k$-Means.
+		\end{enumerate}
 	\subsection{$k$-Means++ Algorithm}
-	$k$-Means 
+	$k$-Means++ is supposed to be an improvement on ORSS algorithm. Although it is fair to say that $k$-Means++ is an inspired modification of ORSS.
+		\begin{enumerate}[i]
+			\item Choose a point $\mathbf{x}\in\mathbf{X}$ at random uniformly. This is the first center.
+			\item Choose a new center $\mathbf{x}\in\mathbf{X}$ with probability $\dfrac{D(x)}{\sum_{\mathbf{x}\in\mathbf{X}}D(x)}$ where $D(x)$ is the minimum distance of $\mathbf{x}$ from the centers $c_{1},\cdots,c_i$.
+			\item Repeat previous step until $k$ centers are chosen and update them as in $k$-Means.
+		\end{enumerate}
+	\subsection{Var-based Algorithm}
+	We do not provide any mathematical analysis of our algorithm right now. However, we want to mention the idea behind this initialization. Roughly, we want to minimize the variance of distances from the new center to existing ones. The reason why this is so important and also works better experiment-wise is that it tries to keep the clusters as balanced as possible, hence possibly eliminating some anomalies within a cluster and reducing inertia. However, since the new centers are taken based on variances, we need two initial centers. We chose to initialize the first two centers as in ORSS algorithm. Assume that for a new point $\mathbf{x}$ and a set of centers $\mathcal{C}_k=\{c_1,\cdots,c_k\}$, the variance of the squared distances $\{||c_1-\mathbf{x}||^2,||c_2-\mathbf{x}||^2\cdots,||c_k-\mathbf{x}||^2\}$ is $\nu_\mathbf{x}(\mathcal{C}_k)$.
+		\begin{enumerate}[i]
+			\item Choose two centers $\mathbf{x},\mathbf{y}$ with probability proportional to $||\mathbf{x}-\mathbf{y}||^2$.
+			\item For already existing set of $i$ centers $\mathcal{C}_i=\{c_1,\cdots,c_i\}$, choose a new center $\mathbf{x}\in\mathbf{X}$ with probability $\dfrac{\nu_\mathbf{x}(\mathcal{C}_i)}{\sum_{\mathbf{x}\in\mathbf{X}}\nu_\mathbf{x}(\mathcal{C}_i)}$.
+			\item Repeat previous step and recalculate centers as in $k$-Means.
+		\end{enumerate}
 	\section{Experiment Setup}
 	We ensure that all algorithms are run under the same conditions. All of them share the same environment and no special optimizations were made for any particular algorithm. Only CPU was used to determine the values we are interested in and no parallelism mechanism was in place for speeding up the process. This way, we can get an idea about the raw performance metrics of the algorithms involved.
 	
