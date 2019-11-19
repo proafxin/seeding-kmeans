@@ -32,7 +32,7 @@
 		\begin{align*}
 			\mathcal{I} & = \sum_{\x\in\X}\min_{\c\in\C}(\|\c-\x\|^2)
 		\end{align*}
-	is minimum where $\|\cdot\|$ is the $L_2$ norm\footnote{Simply put, it is the distance between the center $\c$ and point $\x$ or the magnitude of the vector $\c-\x$}.
+	is minimum where $\|\cdot\|$ is the $L_2$ norm\footnote{$\|c-x\|$ or $L_2$ norm of $\c-\x$ is the distance between the center $\c$ and point $\x$ or the magnitude of the vector $\c-\x$.}.
 	
 	Default $k$-Means algorithm starts with random centers and then converge based on minimum distances of the centers from the data points. New centers are calculated based on the centroid. This is known as Lloyd's algorithm\cite{lloyd}. This is done until no more change is possible. $k$-Means++ takes it one step further by choosing the initial centers carefully. Only the first center is chosen at random. Then the rest of the $k-1$ centers are chosen using \textit{$D^2$ weighting} as \cite{kmeans++} call it. At first it seems very surprising that no one really wants to work on improving on the centers. However, that is easily explained with the following.
 		\begin{align*}
@@ -44,7 +44,7 @@
 		\end{align*}
 	where $I$ is the identity matrix of the same rank as $\x$. This pretty much shows why taking the average of all the coordinates in a cluster minimizes the sum of squared distances.
 	\section{Related Work}
-	There has been multiple surveys on $k$-Means in the literature. Probably the most relevant work in this regard is done by \cite{celebi}. However, most of the algorithms used for comparison are practically not used very much, as also noted by the authors themselves that $k$-Means++ and its greedy version work better than most. They also mention that probabilistic algorithms work better than deterministic ones. Moreover, another highly influential center initialization algorithm \cite{ostrovsky} was not considered in their experiments. There is no mention of Ostrovsky's algorithm in their paper whatsoever.
+	There has been multiple surveys on $k$-Means in the literature. Probably the most relevant work in this regard is done by \cite{celebi}. However, most of the algorithms used for comparison are practically not used very much, as also noted by the authors themselves that $k$-Means++ and its greedy version work better than most. They also mention that probabilistic algorithms perform better than deterministic ones. Moreover, another highly influential center initialization algorithm \cite{ostrovsky} was not considered in their experiments. There is no mention of Ostrovsky's algorithm in their paper whatsoever.
 	
 	We suspect that standard procedures were not followed for comparison in \cite{kmeans++}. While the authors provided theoretical limits, data sets were not normalized or standardized as their high inertia values indicate. Even without following those procedures, our results seem to differ quite a little bit from theirs. This may not be any technical error in implementation. Most likely this is due to different ways of implementations coupled with the fact that these are probabilistic algorithms.
 	
@@ -54,36 +54,44 @@
 	
 	To summarize, we will be mostly looking at these variations of initial seeding of centers: Lloyd, ORSS, $k$-Means++ and our variance based method. Then we will be comparing inertia for a comparative study among these algorithms.
 	\section{Proposed Initialization}
-	First we describe $k$-Means, Ostrovsky's and $k$-Means++ algorithm. Then we describe our proposed method of center initialization. For a set of points $S$ and a point $x$, we use $\min(\|x-S\|)$ to denote the minimum distance from $x$ to a point of $S$ i.e. $\min(\| x-S\|)=\min_{a\in S}(\| x-a\|)$.
+	First we describe $k$-Means, Ostrovsky's and $k$-Means++ algorithm. Then we describe our proposed method of center initialization. For a set of points $S$ and a point $x$, we use $\min(\|x-S\|)$ to denote the minimum of distances from $x$ to the points of $S$ that is $\min(\| x-S\|)=\min_{a\in S}(\| x-a\|)$. Set $D(\x)=\min(\|\x-\C\|)$ for a point $x$ and a set of centers $\C$. Let us denote the centroid of $S$ by $\bar{S}$ that is $\bar{S}=\dfrac{1}{|S|}\sum_{x\in S}x$.
 	\subsection{Lloyd}
 	Lloyd's algorithm is the simplest way of solving the $k$-Means problem.
 		\begin{enumerate}[i]
-			\item Choose $k$ centers $\mathcal{C}=\{c_1,c_2,\cdots,c_k\}$ randomly.
-			\item For each $i$, $C_i$ is the set of points $\x\in\X$ such that $\|\x-c_i\|\leq \|\x-c_j\|$ for all $1\leq j\leq n$.
-			\item Set $c_i=\frac{1}{|C_i|}\sum_{\x\in C_i}\x$.
-			\item Repeat step $2$ and $3$.
+			\item Choose $k$ centers $\C=\{c_1,c_2,\cdots,c_k\}$ at random uniformly.
+			\item For each $1\leq i\leq k$, set $\C_i=\{\x\in\X:\|\x-c_i\|=\min(x-\C)\}$.
+			\item Set $c_i=\bar{\C_i}$.
+			\item Repeat step $2$ and $3$ until convergence is reached or the number of iterations is reached.
 		\end{enumerate}
-	The initial centers are chosen at random uniformly.
 	\subsection{ORSS}
 	ORSS algorithm \cite{ostrovsky} chooses two initial centers instead of one.
 		\begin{enumerate}[i]
-			\item Choose two points $\x,\y\in\X$ with probability proportional to $\|\x-\y\|^2$. Set $\C=\{\x,\y\}$.
-			\item For already $i$ existing centers, choose a random point $\x\in\X$ with probability proportional to $\min(\| \x-\C\|^2)$.
-			\item Repeat previous step until $i=k$ while recalculating centers as in $k$-Means.
+			\item Choose two points $\x,\y\in\X$ with probability proportional to $\|\x-\y\|^2$. Set $\C_2=\{\x,\y\}$.
+			\item For a set of $i\geq2$ existing centers $\C_i$, choose a random point $\x\in\X$ with probability $\dfrac{D(\x)^2}{\sum_{\y\in\X}D(\y)^2}$. Set $c_{i+1}=\x$ and $\C_{i+1}=\C_i\cup\{c_{i+1}\}$.\label{step:orss_center}
+			\item Repeat step \eqref{step:orss_center} until $i=k$.
+			\item For each $1\leq i\leq k$, set $\C_i=\{\x\in\X:\|\x-c_i\|=\min(x-\C)\}$.\label{step:orss_cluster}
+			\item Set $c_i=\bar{\C_i}$.\label{step:orss_update}
+			\item Repeat \eqref{step:orss_cluster} and \eqref{step:orss_update} until convergence or number of iteration is reached.
 		\end{enumerate}
 	\subsection{$k$-Means++}
 	$k$-Means++ \cite{kmeans++} can be considered as an improvement on ORSS algorithm.
 		\begin{enumerate}[i]
-			\item Choose a point $\x\in\X$ at random uniformly. Add this to the list of centers $\C=\{\x\}$.
-			\item Choose a new center $\x\in\X$ with probability $\dfrac{D(\x)^2}{\sum_{\x\in\X}D(\x)^2}$ where $D(\x)=\min(\|\x-\C\|)$.
-			\item Repeat previous step until $k$ centers are chosen and update them as in $k$-Means.
+			\item Choose a point $\x\in\X$ at random uniformly and set $\C_1=\{\x\}$.
+			\item For a set of $i\geq1$ existing centers $\C_i$, choose a random point $\x\in\X$ with probability $\dfrac{D(\x)^2}{\sum_{\y\in\X}D(\y)^2}$. Set $c_{i+1}=\x$ and $\C_{i+1}=\C_i\cup\{c_{i+1}\}$.\label{step:kmeans++_center}
+			\item Repeat step \eqref{step:kmeans++_center} until $i=k$.
+			\item For each $1\leq i\leq k$, set $\C_i=\{\x\in\X:\|\x-c_i\|=\min(x-\C)\}$.\label{step:kmeans++_cluster}
+			\item Set $c_i=\bar{\C_i}$.\label{step:kmeans++_update}
+			\item Repeat \eqref{step:kmeans++_cluster} and \eqref{step:kmeans++_update} until convergence or number of iteration is reached.
 		\end{enumerate}
 	\subsection{Variance Based}
-	Roughly our idea is that we want to minimize the variance of distances from the new center to existing ones. The intuition behind this is that it helps keep the clusters as balanced as possible, hence possibly eliminating some anomalies within a cluster and reducing inertia. However, since the new centers are taken based on variances, we need two initial centers. We chose to initialize the first two centers as in ORSS algorithm. Assume that for a new point $\x$ and a set of centers $\C_k=\{c_1,\cdots,c_k\}$, the variance of the squared distances $\{\| c_1-\x\|^2,\|c_2-\x\|^2\cdots,\| c_k-\x\|^2\}$ is $\nu_\x(\C_k)$.
+	Roughly our idea is that we want to minimize the variance of distances from the new center to existing ones. The intuition behind this is to make the clusters as balanced as possible, hence possibly eliminating some anomalies within a cluster and reducing inertia. However, since the new centers are taken based on variances, we need two initial centers. We chose to initialize the first two centers as in ORSS algorithm. Assume that for a new point $\x$ and a set of centers $\C_k=\{c_1,\cdots,c_k\}$, the variance of the squared distances $\{\| c_1-\x\|^2,\|c_2-\x\|^2\cdots,\| c_k-\x\|^2\}$ is $\nu_\x(\C_k)$.
 		\begin{enumerate}[i]
 			\item Choose two centers $\x,\y$ with probability proportional to $\|\x-\y\|^2$. Set $C_2=\{\x,\y\}$.
-			\item For already existing set of $i$ centers $\mathcal{C}_i=\{c_1,\cdots,c_i\}$, choose a new center $\x\in\X$ with probability $\dfrac{\nu_\x(\C_i)}{\sum_{\x\in\X}\nu_\x(\C_i)}$.
-			\item Repeat previous step and recalculate centers as in $k$-Means.
+			\item For already existing set of $i$ centers $\mathcal{C}_i=\{c_1,\cdots,c_i\}$, choose a new center $\x\in\X$ with probability $\rho(\x)=1-\dfrac{\nu_\x(\C_i)}{\sum_{\y\in\X}\nu_\y(\C_i)}$.\label{step:var_center}
+			\item Repeat step \eqref{step:var_center} until $i=k$.
+			\item For each $1\leq i\leq k$, set $\C_i=\{\x\in\X:\|\x-c_i\|=\min(x-\C)\}$.\label{step:var_cluster}
+			\item Set $c_i=\bar{\C_i}$.\label{step:var_update}
+			\item Repeat \eqref{step:var_cluster} and \eqref{step:var_update} until convergence or number of iteration is reached.
 		\end{enumerate}
 	\section{Analysis}
 	We will use the following easily proven lemma.
@@ -96,7 +104,7 @@
 		\end{lemma}
 	Next lemma was proven in \cite[Lemma $3.2$]{ostrovsky}.
 		\begin{lemma}
-			If $\rho=\Omega(\epsilon^{\frac{2}{3}})$ for some real number $\epsilon$, then the first two centers lie in different cores with probability $1-O(p)$.
+			 The first two centers lie in different cores with probability $1-O(p)$ where $\rho=\Omega(\epsilon^{\frac{2}{3}})$ for some real number $\epsilon$.
 		\end{lemma}
 	We will analyze the performance of this algorithm in terms of inertia. To be more specific, we will analyze the expected value of inertia since this is a probabilistic algorithm.
 	\section{Experiment Setup}
@@ -110,7 +118,7 @@
 	\section{Results}
 	We present the results on those four algorithms based on inertia and time required to runt them. These are average values of inertia after $100$ iterations on each data set, as mentioned before. Instead of checking how many iterations it take for the centers to converge, we have let each algorithm run exactly the same number of times ($500$) which is more than enough for convergence. The time registered here is the time taken by each algorithm for those $500$ iterations. As expected, default $k$-Means is the fastest algorithm. However, if we were to define convergence, that leads to a separate problem which we think other implementations suffer from. We also mentioned something similar before. This might also be one of the reasons why our results of $k$-Means++ differ from the authors implementation. Our argument is also complemented by the experiments. All algorithms seem to reach the same minimum inertia. Therefore, it is the average of inertia that we should focus on.
 	
-	Here are the results for $k=5$ clusters.
+	Here are the results for $k=10$ clusters.
 		\begin{table}[h]
 			\begin{center}
 				\begin{tabular}{|l|l|l|l|}
@@ -121,9 +129,9 @@
 					ORSS & 1569.41& 1530.46& 9.44s\\\hline
 					Var-based & 1552.37& 1510.91& 9.69s\\\hline
 				\end{tabular}
-			\caption{Results on Mall customers dataset}
+			\caption{Results on Mall Cloud data set}
 			\end{center}
-		\label{tbl:mall}
+		\label{tbl:cloud}
 		\end{table}
 	
 		\begin{table}[h]
@@ -136,9 +144,9 @@
 					$k$-Means++ & 49.19& 43.83& 2.28s\\\hline
 					Var-based & 47.05& 44.79& 2.32s\\\hline
 				\end{tabular}
-				\caption{Results on IRIS dataset}
+				\caption{Results on IRIS data set}
 			\end{center}
-			\label{tbl:mall}
+			\label{tbl:iris}
 		\end{table}
 
 		\begin{table}[h]
@@ -151,7 +159,7 @@
 					$k$-Means++ & & & \\\hline
 					Var-based & & & \\\hline
 				\end{tabular}
-				\caption{Results on Cloud dataset}
+				\caption{Results on mall customers data set}
 			\end{center}
 			\label{tbl:mall}
 		\end{table}
@@ -168,7 +176,7 @@
 				\end{tabular}
 				\caption{Results on Wine dataset}
 			\end{center}
-			\label{tbl:mall}
+			\label{tbl:wine}
 		\end{table}
 	\begin{thebibliography}{99}
 		\bibitem[Arthur et al.(2007)]{kmeans++} D. Arthur and S. Vassilvitskii. \texttt{k-means++}: The Advantages of Careful Seeding. Proceedings of the eighteenth annual ACM-SIAM symposium on Discrete algorithms. Society for Industrial and Applied Mathematics Philadelphia, PA, USA. pp. $1027–1035$.
