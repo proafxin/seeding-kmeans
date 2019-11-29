@@ -12,7 +12,7 @@ from numpy.linalg import norm
 from scipy.stats import pearsonr
 from scipy.spatial.distance import cdist
 from sklearn.cluster import KMeans
-from metrics import cos, pearson, correlation
+from metrics import cos, pearson, correlation, distance_squared
 
 class KMeansClustering():
     init = 'auto'
@@ -25,6 +25,8 @@ class KMeansClustering():
     sse_ = 0.0
     iter_convergence_ = 10000
     time = 0
+    n_iters_ = 0
+    best_inertia_ = 0
 
     def __init__(self, init, max_iter, n_clusters, verbose, random_state=None):
         if init is not None:
@@ -37,6 +39,7 @@ class KMeansClustering():
             self.verbose = verbose
         if random_state is not None:
             self.random_state = random_state
+        self.n_iters_ = max_iter
 
     def __get_kmeans_centers(self, X, k):
         randoms = choice(
@@ -49,10 +52,7 @@ class KMeansClustering():
         centers = array(centers)
         return centers
     
-    def __get_kmeans_plus_plus_centers(self, X, k):
-        r = randint(0, X.shape[0]-1)
-        centers = []
-        centers.append(X[r].tolist())
+    def __get_kmeans_pluss_centers_step2(self, X, k, centers):
         for i in range(1, k):
             D = []
             for x in X:
@@ -70,7 +70,36 @@ class KMeansClustering():
         centers = array(centers)
         return centers
 
-    def __get_ostrovsky_centers(self, X, k):
+
+    def __get_kmeans_plus_plus_centers(self, X, k):
+        centers = []
+        r = randint(0, X.shape[0]-1)
+        centers.append(X[r].tolist())
+        return self.__get_kmeans_pluss_centers_step2(X, k, centers)
+
+    def __get_kmeans_plus_plus_improved_centers(self, X, k):
+        centers = []
+        S = 0
+        S_2 = 0
+        n = X.shape[0]
+        for x in X:
+            S += x
+            S_2 += dot(x, x)
+        denr = 2*(n*S_2-dot(S, S))
+        probs = []
+        for x in X:
+            numr = n*dot(x,x)-2*dot(x,S)+S_2
+            probs.append(1.0-(numr/denr))
+        probs_cuml = cumsum(probs)
+        r = random()
+        for (i, p) in enumerate(probs_cuml):
+            if p > r:
+                centers.append(X[i].tolist())
+                break
+        centers = self.__get_kmeans_pluss_centers_step2(X, k, centers)
+        return centers
+        
+    def __get_ostrovsky_init_centers(self, X):
         D = []
         init_centers = []
         for i in range(X.shape[0]):
@@ -92,6 +121,10 @@ class KMeansClustering():
                 centers.append(X[x].tolist())
                 centers.append(X[y].tolist())
                 break
+        return centers
+
+    def __get_ostrovsky_centers(self, X, k):
+        centers = self.__get_ostrovsky_init_centers(X)
         for i in range(1, k-1):
             D = []
             for x in X:
@@ -110,27 +143,7 @@ class KMeansClustering():
         return centers
 
     def __get_variance_based_centers(self, X, k):
-        D = []
-        init_centers = []
-        for i in range(X.shape[0]):
-            r = randint(0, X.shape[0]-1)
-            s = randint(0, X.shape[0]-1)
-            if r == s:
-                continue
-            D.append(dot(X[r]-X[s], X[r]-X[s]))
-            init_centers.append({'x':r, 'y':s})
-        D = array(D)
-        probs = D/sum(D)
-        probs_cuml = cumsum(probs)
-        r = random()
-        centers = []
-        for (i, p) in enumerate(probs_cuml):
-            if p > r:
-                x = init_centers[i]['x']
-                y = init_centers[i]['y']
-                centers.append(X[x].tolist())
-                centers.append(X[y].tolist())
-                break
+        centers = self.__get_ostrovsky_init_centers(X)
         for i in range(1, k-1):
             V = []
             for x in X:
@@ -141,7 +154,7 @@ class KMeansClustering():
                 V.append(np.var(D))
             V = array(V)
             probs = V/sum(V)
-            probs = 1.0-probs
+            probs = probs
             probs_cuml = cumsum(probs)
             r = random()
             for (j, p) in enumerate(probs_cuml):
@@ -153,24 +166,34 @@ class KMeansClustering():
         centers = array(centers)
         return centers
 
+    def __get_tolerance(self, X, tol):
+        variances = np.var(X, axis=0)
+        return mean(variances)*tol
+
     def __converge_centers(self, X, centers):
+        best_inertia = None
         for i in range(self.max_iter):
             C = {}
             for i in range(self.n_clusters):
                 C[i] = []
+            inertia = 0
             for x in X:
                 D = []
                 for c in centers:
                     D.append(dot(c-x, c-x))
                 dist_min = min(D)
+                inertia += dist_min
                 for (i, d) in enumerate(D):
                     if d == dist_min:
                         C[i].append(x)
                         break
+            if best_inertia is None or inertia < best_inertia:
+                best_inertia = inertia
+                self.n_iters_ = i
             for i in range(self.n_clusters):
                 if len(C[i]) > 0:
                     centers[i] = mean(C[i], axis=0)
-            self.max_iter = i+1
+            self.best_inertia_ = best_inertia
         return centers
         
     def fit(self, X):
@@ -189,6 +212,10 @@ class KMeansClustering():
             self.cluster_centers_ = self.__get_ostrovsky_centers(X, k)
         elif self.init == 'variance':
             self.cluster_centers_ = self.__get_variance_based_centers(X, k)
+        elif self.init == 'kmeans++_improved':
+            self.cluster_centers_ = self.__get_kmeans_plus_plus_improved_centers(X, k)
+        else:
+            raise ValueError('init not defined')
         for c in self.cluster_centers_:
             for a in c:
                 if type(a) != type(np.float64(1.0)):
