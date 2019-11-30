@@ -46,15 +46,13 @@
 		\end{align*}
 	where $I$ is the identity matrix of the same rank as $\x$. This pretty much shows why taking the average of all the coordinates in a cluster minimizes the sum of squared distances.
 	\section{Related Work}
-	There has been multiple surveys on $k$-Means in the literature. Probably the most relevant work in this regard is done by \cite{celebi}. However, most of the algorithms used for comparison are practically not used very much, as also noted by the authors themselves that $k$-Means++ and its greedy version work better than most. They also mention that probabilistic algorithms perform better than deterministic ones. Moreover, another highly influential center initialization algorithm \cite{ostrovsky} was not considered in their experiments. There is no mention of Ostrovsky's algorithm in their paper whatsoever.
+	There has been multiple surveys on $k$-Means in the literature. Probably the most relevant work in this regard is done by \cite{celebi}. However, most of the algorithms used in that paper are not used practically very much. It was also noted by the authors themselves that $k$-Means++ and its greedy version work better than most. They also mention that probabilistic algorithms perform better than deterministic ones. Moreover, another highly influential center initialization algorithm \cite{ostrovsky} was not considered in their experiments. There is no mention of Ostrovsky's algorithm in their paper whatsoever.
 	
-	We suspect that standard procedures were not followed for comparison in \cite{kmeans++}. While the authors provided theoretical limits, data sets were not normalized or standardized as their high inertia values indicate. Even without following those procedures, our results seem to differ quite a little bit from theirs. This may not be any technical error in implementation. Most likely this is due to different ways of implementations coupled with the fact that these are probabilistic algorithms.
+	We suspect that standard procedures were not followed for comparison among algorithms in \cite{kmeans++}. While the authors provided theoretical limits, data sets were not normalized or standardized as their high inertia values indicate. Even without following those procedures, our results seem to differ quite a little bit from theirs. This may not be any technical error in implementation. Most likely this is due to different ways of implementations coupled with the fact that these are probabilistic algorithms.
 	
 	We would also like to point out that to our knowledge no surveys were done after removing linear dependency prior to running the experiments. This is a very important step if we are to get a meaningful clustering out of $k$-Means algorithm. More specifically, PCA decomposes the existing variables into orthogonal\footnote{It is well known that orthogonal vectors are linearly independent.} ones. If we use PCA (principal component analysis) before running a clustering algorithm, we can redefine the variables into linearly independent ones. For our experiment, we have used PCA on every dataset before running cluster algorithm.
 	
-	While experimenting on such algorithms, it is of utmost importance to run the same experiment more than once under the same parameters and conditions. For example, assume that we want to compare $k$-Means++ and Forgy's algorithm \cite{forgy} for $k=10$ clusters. We should run this experiment at least $m$ times where $m>1$ in order to eliminate bias and account for randomness. We run each experiment a total of $20$ times and take the average and minimum values of inertia. The number of iterations was set to $300$.
-	
-	To summarize, we will be mostly looking at these variations of initial seeding of centers: Lloyd, ORSS, $k$-Means++ and our variance based method. Then we will be comparing inertia for a comparative study among these algorithms.
+	While experimenting on such algorithms, it is of utmost importance to run the same experiment more than once under the same parameters and conditions. For example, assume that we want to compare $k$-Means++ and Forgy's algorithm \cite{forgy} for $k=5$ clusters. We should run this experiment at least $m$ times where $m>1$ in order to eliminate bias and account for randomness. We run each experiment a total of $20$ times and take the average and minimum values of inertia. The number of iterations was set to $300$.
 	\section{Proposed Initialization}
 	First we describe $k$-Means, Ostrovsky's and $k$-Means++ algorithm. Then we describe our proposed method of center initialization. For a set of points $S$ and a point $x$, we use $\min(\|x-S\|)$ to denote the minimum of distances from $x$ to the points of $S$ that is $\min(\| x-S\|)=\min_{a\in S}(\| x-a\|)$. Set $D(\x)=\min(\|\x-\C\|)$ for a point $x$ and a set of centers $\C$. Let us denote the centroid of $S$ by $\bar{S}$ that is $\bar{S}=\dfrac{1}{|S|}\sum_{x\in S}x$.
 	\subsection{Lloyd}
@@ -83,7 +81,7 @@
 			\item Repeat step \eqref{step:kmeans++_center} until $i=k$.
 			\item For each $1\leq i\leq k$, set $\C_i=\{\x\in\X:\|\x-c_i\|=\min(x-\C)\}$.\label{step:kmeans++_cluster}
 			\item Set $c_i=\bar{\C_i}$.\label{step:kmeans++_update}
-			\item Repeat \eqref{step:kmeans++_cluster} and \eqref{step:kmeans++_update} until convergence or number of iteration is reached.
+			\item Repeat \eqref{step:kmeans++_cluster} and \eqref{step:kmeans++_update} until convergence or number of iteration is reached.\label{step:kmeans++_repeat}
 		\end{enumerate}
 	\subsection{Variance Based}
 	Roughly our idea is that we want to minimize the variance of distances from the new center to existing ones. The intuition behind this is to make the clusters as balanced as possible, hence possibly eliminating some anomalies within a cluster and reducing inertia. However, since the new centers are taken based on variances, we need two initial centers. We chose to initialize the first two centers as in ORSS algorithm. Assume that for a new point $\x$ and a set of centers $\C_k=\{c_1,\cdots,c_k\}$, the variance of the squared distances $\{\| c_1-\x\|^2,\|c_2-\x\|^2\cdots,\| c_k-\x\|^2\}$ is $\nu_\x(\C_k)$.
@@ -96,10 +94,10 @@
 			\item Repeat \eqref{step:var_cluster} and \eqref{step:var_update} until convergence or number of iteration is reached.
 		\end{enumerate}
 	\subsection{First center for $k$-Means++}
-	Our idea is to choose a point $\x$ with probability that has the most variance among $\X$.
+	In $k$-Means++ algorithm, the first center is chosen uniformly at random. However, not all points have the same contribution to inertia. Therefore, we choose a point $\x$ with probability equal to the most variance among $\X$.
 		\begin{enumerate}[i]
 			\item Choose $\x$ with probability $\dfrac{f(\x)}{\sum_{\y\in\X}f(\y)}$ where $f(x)=\sum_{\y\in\X}\|\x-\y\|^2$. Set $\C_1=\{\x\}$.
-			\item Proceed as in $k$-Means++.
+			\item Repeat steps \eqref{step:kmeans++_center} to \eqref{step:kmeans++_repeat} in $k$-Means++.
 		\end{enumerate}
 	\section{Analysis}
 	Denote the sum of $k$-th powers of modulus of $\x\in\X$ as $\S_k(\X)$ or in short $\S_k$ when the context is clear. That is,
@@ -170,11 +168,11 @@
 	
 	The data sets we have used are some popular ones: Iris data set, Mall customers data set, Airline clustering data set, Wine testing dataset. We did not duel too much on using too many data sets. The number of datasets does not really mean very much for $k$-Means. It is the quality of clustering we are interested in. And a good clustering algorithm should be able to handle all type of data sets.
 	
-	For a particular data set, we have first normalized the data using min max scalar. \cite{miligan} shows that using $z$-score to standardize the data is not favorable for clustering because it loses between-cluster variation. Then we have used PCA to remove linear dependency among variables. For every data set, we run the experiment a total of $100$ times as mentioned before.
+	For a particular data set, we have first normalized the data using min max scalar. \cite{miligan} shows that using $z$-score to standardize the data is not favorable for clustering because it loses between-cluster variation. Then we have used PCA to remove linear dependency among variables. For every data set, we run the experiment a total of $20$ times as mentioned before.
 	\section{Results}
-	We present the results on those four algorithms based on inertia and time required to runt them. These are average values of inertia after $100$ iterations on each data set, as mentioned before. Instead of checking how many iterations it take for the centers to converge, we have let each algorithm run exactly the same number of times ($500$) which is more than enough for convergence. The time registered here is the time taken by each algorithm for those $500$ iterations. As expected, default $k$-Means is the fastest algorithm. However, if we were to define convergence, that leads to a separate problem which we think other implementations suffer from. We also mentioned something similar before. This might also be one of the reasons why our results of $k$-Means++ differ from the authors implementation. Our argument is also complemented by the experiments. All algorithms seem to reach the same minimum inertia. Therefore, it is the average of inertia that we should focus on.
+	We present the results on those four algorithms based on inertia and time required to runt them. These are average values of inertia after $20$ iterations on each data set, as mentioned before. Instead of checking how many iterations it take for the centers to converge, we have let each algorithm run exactly the same number of times ($300$) which is more than enough for convergence. The time registered here is the time taken by each algorithm for those $300$ iterations. As expected, default $k$-Means is the fastest algorithm. However, if we were to define convergence, that leads to a separate problem which we think other implementations suffer from. We also mentioned something similar before. This might also be one of the reasons why our results of $k$-Means++ differ from the authors implementation. Our argument is also complemented by the experiments. All algorithms seem to reach the same minimum inertia. Therefore, it is the average of inertia that we should focus on.
 	
-	Here are the results for $k=10$ clusters.
+	Here are the results for $k=5$ clusters.
 		\begin{table}
 			\begin{center}
 				\begin{tabular}{|l|l|l|l|}
@@ -210,10 +208,10 @@
 				\begin{tabular}{|l|l|l|l|}
 					\hline
 					Algorithm & Average & Minimum & Time\\\hline
-					$k$-Means & 180.37& 174.85& 1.71s\\\hline
-					ORSS & 183.13& 174.89& 1.73s\\\hline
-					$k$-Means++ & 181.23& 174.93& 1.72s\\\hline
-					Var-based & 179.76& 174.85& 1.74s\\\hline
+					$k$-Means & 180.37& 174.92& 0.95s\\\hline
+					ORSS & 183.13& 174.89& 0.96s\\\hline
+					$k$-Means++ & 181.23& 0.96& 1.72s\\\hline
+					Var-based & 175.4& 174.85& 0.97s\\\hline
 				\end{tabular}
 				\caption{Results on mall customers data set}
 			\end{center}

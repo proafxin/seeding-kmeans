@@ -77,7 +77,7 @@ class KMeansClustering():
         centers.append(X[r].tolist())
         return self.__get_kmeans_pluss_centers_step2(X, k, centers)
 
-    def __get_kmeans_plus_plus_improved_centers(self, X, k):
+    def __get_kmeans_plus_plus_initial_center(self, X):
         centers = []
         S = 0
         S_2 = 0
@@ -96,6 +96,10 @@ class KMeansClustering():
             if p > r:
                 centers.append(X[i].tolist())
                 break
+        return centers
+
+    def __get_kmeans_plus_plus_improved_centers(self, X, k):
+        centers = self.__get_kmeans_plus_plus_initial_center(X)
         centers = self.__get_kmeans_pluss_centers_step2(X, k, centers)
         return centers
         
@@ -142,6 +146,24 @@ class KMeansClustering():
         centers = array(centers)
         return centers
 
+    def __get_kmeans_plus_plus_corrected_centers(self, X, k):
+        centers = self.__get_kmeans_plus_plus_initial_center(X)
+        for i in range(1, k):
+            _c = sum(centers)
+            probs = []
+            for x in X:
+                probs.append(dot(x-_c, x-_c))
+            probs = array(probs)
+            probs /= sum(probs)
+            probs_cuml = cumsum(probs)
+            r = random()
+            for (j, p) in enumerate(probs_cuml):
+                if p > r:
+                    centers.append(X[j].tolist())
+                    break
+        centers = array(centers)
+        return centers
+        
     def __get_variance_based_centers(self, X, k):
         centers = self.__get_ostrovsky_init_centers(X)
         for i in range(1, k-1):
@@ -204,6 +226,8 @@ class KMeansClustering():
             X = shuffle(X)
         if self.init == 'auto':
             self.cluster_centers_ = self.__get_kmeans_plus_plus_centers(X, k)
+        elif self.init == 'kmeans++_corrected':
+            self.cluster_centers_ = self.__get_kmeans_plus_plus_corrected_centers(X, k)
         elif self.init == 'kmeans++':
             self.cluster_centers_ = self.__get_kmeans_plus_plus_centers(X, k)
         elif self.init == 'kmeans':
