@@ -96,7 +96,7 @@
 			\item Repeat \eqref{step:var_cluster} and \eqref{step:var_update} until convergence or number of iteration is reached.
 		\end{enumerate}
 	\subsection{First center for $k$-Means++}
-	Our idea is to choose a point $\x$ with probability that has the most variance among $\X$. It may not seem obvious how the procedure is connected with variance. So we will show the equivalence right away.
+	Our idea is to choose a point $\x$ with probability that has the most variance among $\X$.
 		\begin{enumerate}[i]
 			\item Choose $\x$ with probability $\dfrac{f(\x)}{\sum_{\y\in\X}f(\y)}$ where $f(x)=\sum_{\y\in\X}\|\x-\y\|^2$. Set $\C_1=\{\x\}$.
 			\item Proceed as in $k$-Means++.
@@ -106,7 +106,7 @@
 		\begin{align*}
 			\S_k(\X) & = \sum_{\x\in\X}\|\x\|^k
 		\end{align*}
-	We also write $\sum_{\x\in\X}\x$ as $\S$. Then we can express the probability in terms of $\S$ and $\S_2$.
+	We also write $\sum_{\x\in\X}\x$ as $\S$. Then we can express the probability $p(\x)$ in terms of $\S$ and $\S_2$.
 		\begin{align*}
 			f(\x)	& = \sum_{\y\in\X}\|\x-\y\|^2\\
 					& = \sum_{\y\in\X}\left(\|\x\|^2-2\langle\x,\y\rangle+\|\y\|^2\right)\\
@@ -118,7 +118,7 @@
 					& = n\S_2-2\langle\S,\S\rangle+n\S_2\\
 					& = 2(n\S_2-\langle\S,\S\rangle)
 		\end{align*}
-	Notice that this looks similar to $2n^2\sigma^2(\X)$, except we have $\langle \x,\x\rangle=\|\x\|^2$ instead of $\x^2$ and $\left(\dfrac{\langle\S,\S\rangle}{n}\right)^2$ instead of $\left(\dfrac{\S}{n}\right)^2$. Analogously, we can say that $f(\x)$ is equivalent to the ratio of variance explained by $\x$.
+	Notice that this looks similar to $2n^2\sigma^2(\X)$, except we have $\langle \x,\x\rangle=\|\x\|^2$ instead of $\x^2$ and $\left(\dfrac{\langle\S,\S\rangle}{n}\right)^2$ instead of $\left(\dfrac{\S}{n}\right)^2$. Analogously, we can say that $p(\x)$ is equivalent to the ratio of variance explained by $\x$.
 	
 	For a point $\x\in\X$, we choose the probability to be the variance explained ratio by $\x$. That is,
 		\begin{align*}
