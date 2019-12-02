@@ -16,7 +16,7 @@
 \newcommand{\I}{\mathcal{I}}
 \renewcommand{\S}{\mathcal{S}}
 
-\title{Variance Based Initialization for $k$-Means Clustering}
+\title{Center Initialization In $k$-Means Clustering}
 \author{\name Masum Billal \email billalmasum93@gmail.com \\
 	Senior Data Scientist\\
 	\addr Data Science Department\\
@@ -27,7 +27,7 @@
 	\bibliographystyle{plain}
 	\maketitle
 		\begin{abstract}%
-			$k$-Means is a popular clustering algorithm that reduces sum of minimum distances from data points to the centers. Now a days most of the times seeded centers are used instead of choosing all uniformly at random. $k$-Means++ chooses the centers with a so called $D^2$ weighting. In this paper, we introduce a new way of initializing centers. We also describe a way to choose the first center with probability instead of choosing uniformly at random for $k$-Means++. Empirical evidence shows that our proposed algorithm performs better than available methods of center initialization and that our way of choosing first center for $k$-Means++ performs better than original $k$-means++.
+			$k$-Means is a popular clustering algorithm that reduces sum of minimum distances from data points to the centers. Now a days most of the times seeded centers are used instead of choosing all uniformly at random. $k$-Means++ chooses the centers with a so called $D^2$ weighting. This paper will serve for multiple purposes. First of all, we show that the primary assumption in $k$-Means++ algorithm by Arthur and Vassilvitskii is wrong. This does not mean anything about the algorithm itself, just that their fundamental assumption was false rendering the mathematical analysis that follows false as well. However, this can be easily rectified with a simple modification. We take this chance to fix that problem. In this paper, we introduce a new way of initializing centers like $k$-Means++, a new way to choose the first center with probability instead of choosing uniformly at random for $k$-Means++, and how we can change the $k$-Means++ algorithm so that the mathematical analysis remains true. Empirical evidence shows that our proposed algorithm performs better than available methods of center initialization and that our way of choosing first center for $k$-Means++ performs better than original $k$-means++.
 		\end{abstract}
 	\section{Introduction}
 	Widely regarded as the most popular clustering techniques, $k$-Means remains a humble interesting topic in machine learning as well as computational geometry. Roughly the problem is: given a set of points $\X$ in $\mathbb{R}^d$. Find a set of centers $\mathcal{C}$ such that the function \textit{inertia}
