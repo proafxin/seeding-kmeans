@@ -16,7 +16,7 @@
 \newcommand{\I}{\mathcal{I}}
 \renewcommand{\S}{\mathcal{S}}
 
-\title{Center Initialization In $k$-Means Clustering}
+\title{Notes On $k$-Means Clustering}
 \author{\name Masum Billal \email billalmasum93@gmail.com \\
 	Senior Data Scientist\\
 	\addr Data Science Department\\
@@ -27,7 +27,7 @@
 	\bibliographystyle{plain}
 	\maketitle
 		\begin{abstract}%
-			$k$-Means is a popular clustering algorithm that reduces sum of minimum distances from data points to the centers. Now a days most of the times seeded centers are used instead of choosing all uniformly at random. $k$-Means++ chooses the centers with a so called $D^2$ weighting. This paper will serve for multiple purposes. First of all, we show that the primary assumption in $k$-Means++ algorithm by Arthur and Vassilvitskii is wrong. This does not mean anything about the algorithm itself, just that their fundamental assumption was false rendering the mathematical analysis that follows false as well. However, this can be easily rectified with a simple modification. We take this chance to fix that problem. In this paper, we introduce a new way of initializing centers like $k$-Means++, a new way to choose the first center with probability instead of choosing uniformly at random for $k$-Means++, and how we can change the $k$-Means++ algorithm so that the mathematical analysis remains true. Empirical evidence shows that our proposed algorithm performs better than available methods of center initialization and that our way of choosing first center for $k$-Means++ performs better than original $k$-means++.
+			$k$-Means is a popular clustering algorithm that reduces sum of minimum distances from data points to the centers. Now a days most of the times seeded centers are used instead of choosing all uniformly at random. $k$-Means++ chooses the centers with a so called $D^2$ weighting. In this paper, we explore various dimensions of clustering. First of all, we discuss the fact that the primary assumption in $k$-Means++ algorithm by Arthur and Vassilvitskii is wrong. This does not mean anything about the algorithm itself, just that their fundamental assumption was false rendering the mathematical analysis that follows false as well. We introduce a way to choose the first center with probability instead of choosing uniformly at random for $k$-Means++, a new way of initializing centers like $k$-Means++. Empirical evidence shows that our proposed algorithm performs better than available methods of center initialization and that our way of choosing first center for $k$-Means++ performs better than original $k$-means++. We also explore various properties regarding a set of points that helps us understand how the centers should be chosen. These properties help us analyze the expected value of inertia function as well. We also provide an upper bound for inertia when centers are initialized under certain assumption.
 		\end{abstract}
 	\section{Introduction}
 	Widely regarded as the most popular clustering techniques, $k$-Means remains a humble interesting topic in machine learning as well as computational geometry. Roughly the problem is: given a set of points $\X$ in $\mathbb{R}^d$. Find a set of centers $\mathcal{C}$ such that the function \textit{inertia}
@@ -36,7 +36,9 @@
 		\end{align*}
 	is minimum where $\|\cdot\|$ is the $L_2$ norm\footnote{$\|c-x\|$ or $L_2$ norm of $\c-\x$ is the distance between the center $\c$ and point $\x$ or the magnitude of the vector $\c-\x$.}.
 	
-	Default $k$-Means algorithm starts with random centers and then converge based on minimum distances of the centers from the data points. New centers are calculated based on the centroid. This is known as Lloyd's algorithm\cite{lloyd}. This is done until no more change is possible. $k$-Means++ takes it one step further by choosing the initial centers carefully. Only the first center is chosen at random. Then the rest of the $k-1$ centers are chosen using \textit{$D^2$ weighting} as \cite{kmeans++} call it. At first it seems very surprising that no one really wants to work on improving on the centers. However, that is easily explained with the following.
+	Default $k$-Means algorithm starts with random centers and then converge based on minimum distances of the centers from the data points. New centers are calculated based on the centroid. This is known as Lloyd's algorithm \citep{lloyd}. We repeat this process until no more change is possible. $k$-Means++ \citep{kmeans++} takes it one step further by choosing the initial centers carefully. Only the first center is chosen at random. Then the rest of the $k-1$ centers are chosen using \textit{$D^2$ weighting} as the corresponding authors call it. 
+	
+	We will briefly show why we should not look into center updating any further. The reason is that the centroid is a point that minimizes the sum of squared distances.
 		\begin{align*}
 			E & = \sum_{i=1}^n\|\x_i-\x\|^2\\
 			\implies E & = \sum_{i=1}^n(\x_i-\x)I(\x_i-\x)^{T}\\
@@ -44,17 +46,17 @@
 			\dfrac{\partial{E}}{\partial{\x}} & = 0\\
 			\iff \x & = \dfrac{\sum_{i=1}^n\x_i}{n}
 		\end{align*}
-	where $I$ is the identity matrix of the same rank as $\x$. This pretty much shows why taking the average of all the coordinates in a cluster minimizes the sum of squared distances.
+	where $I$ is the identity matrix of the same rank as $\x$.
 	\section{Related Work}
-	There has been multiple surveys on $k$-Means in the literature. Probably the most relevant work in this regard is done by \cite{celebi}. However, most of the algorithms used in that paper are not used practically very much. It was also noted by the authors themselves that $k$-Means++ and its greedy version work better than most. They also mention that probabilistic algorithms perform better than deterministic ones. Moreover, another highly influential center initialization algorithm \cite{ostrovsky} was not considered in their experiments. There is no mention of Ostrovsky's algorithm in their paper whatsoever.
+	There has been multiple surveys on $k$-Means in the literature. Probably the most relevant work in this regard is done by \cite{celebi}. However, most of the algorithms used in that paper are not used practically very much. It was also noted by the authors themselves that $k$-Means++ and its greedy version work better than most. They also mention that probabilistic algorithms perform better than deterministic ones. Moreover, another highly influential center initialization algorithm \citep{ostrovsky} was not considered in their experiments. There is no mention of Ostrovsky's algorithm in their paper whatsoever.
 	
 	We suspect that standard procedures were not followed for comparison among algorithms in \cite{kmeans++}. While the authors provided theoretical limits, data sets were not normalized or standardized as their high inertia values indicate. Even without following those procedures, our results seem to differ quite a little bit from theirs. This may not be any technical error in implementation. Most likely this is due to different ways of implementations coupled with the fact that these are probabilistic algorithms.
 	
 	We would also like to point out that to our knowledge no surveys were done after removing linear dependency prior to running the experiments. This is a very important step if we are to get a meaningful clustering out of $k$-Means algorithm. More specifically, PCA decomposes the existing variables into orthogonal\footnote{It is well known that orthogonal vectors are linearly independent.} ones. If we use PCA (principal component analysis) before running a clustering algorithm, we can redefine the variables into linearly independent ones. For our experiment, we have used PCA on every dataset before running cluster algorithm.
 	
-	While experimenting on such algorithms, it is of utmost importance to run the same experiment more than once under the same parameters and conditions. For example, assume that we want to compare $k$-Means++ and Forgy's algorithm \cite{forgy} for $k=5$ clusters. We should run this experiment at least $m$ times where $m>1$ in order to eliminate bias and account for randomness. We run each experiment a total of $20$ times and take the average and minimum values of inertia. The number of iterations was set to $300$.
+	While experimenting on such algorithms, it is of utmost importance to run the same experiment more than once under the same parameters and conditions. For example, assume that we want to compare $k$-Means++ and Forgy's algorithm \citep{forgy} for $k=5$ clusters. We should run this experiment at least $m$ times where $m>1$ in order to eliminate bias and account for randomness. We run each experiment a total of $20$ times and take the average and minimum values of inertia. The number of iterations was set to $300$.
 	\section{Proposed Initialization}
-	First we describe $k$-Means, Ostrovsky's and $k$-Means++ algorithm. Then we describe our proposed method of center initialization. For a set of points $S$ and a point $x$, we use $\min(\|x-S\|)$ to denote the minimum of distances from $x$ to the points of $S$ that is $\min(\| x-S\|)=\min_{a\in S}(\| x-a\|)$. Set $D(\x)=\min(\|\x-\C\|)$ for a point $x$ and a set of centers $\C$. Let us denote the centroid of $S$ by $\bar{S}$ that is $\bar{S}=\dfrac{1}{|S|}\sum_{x\in S}x$.
+	First we describe $k$-Means, Ostrovsky's and $k$-Means++ algorithm. Then we describe our proposed method of center initialization. For a set of points $S$ and a point $x$, we use $\min(\|x-S\|)$ to denote the minimum of distances from $x$ to the points of $S$ that is $\min(\| x-S\|)=\min_{a\in S}(\| x-a\|)$. Set $D(\x)=\min(\|\x-\C\|)$ for a point $x$ and a set of centers $\C$. Let us denote the centroid of $S$ by $\mu_S$ that is $\mu_S=\dfrac{1}{|S|}\sum_{x\in S}x$.
 	\subsection{Lloyd}
 	Lloyd's algorithm is the simplest way of solving the $k$-Means problem.
 		\begin{enumerate}[i]
@@ -64,7 +66,7 @@
 			\item Repeat step $2$ and $3$ until convergence is reached or the number of iterations is reached.
 		\end{enumerate}
 	\subsection{ORSS}
-	ORSS algorithm \cite{ostrovsky} chooses two initial centers instead of one.
+	ORSS algorithm \citep{ostrovsky} chooses two initial centers instead of one.
 		\begin{enumerate}[i]
 			\item Choose two points $\x,\y\in\X$ with probability proportional to $\|\x-\y\|^2$. Set $\C_2=\{\x,\y\}$.
 			\item For a set of $i\geq2$ existing centers $\C_i$, choose a random point $\x\in\X$ with probability $\dfrac{D(\x)^2}{\sum_{\y\in\X}D(\y)^2}$. Set $c_{i+1}=\x$ and $\C_{i+1}=\C_i\cup\{c_{i+1}\}$.\label{step:orss_center}
@@ -74,7 +76,7 @@
 			\item Repeat \eqref{step:orss_cluster} and \eqref{step:orss_update} until convergence or number of iteration is reached.
 		\end{enumerate}
 	\subsection{$k$-Means++}
-	$k$-Means++ \cite{kmeans++} can be considered as an improvement on ORSS algorithm.
+	$k$-Means++ \citep{kmeans++} can be considered as an improvement on ORSS algorithm.
 		\begin{enumerate}[i]
 			\item Choose a point $\x\in\X$ at random uniformly and set $\C_1=\{\x\}$.
 			\item For a set of $i\geq1$ existing centers $\C_i$, choose a random point $\x\in\X$ with probability $\dfrac{D(\x)^2}{\sum_{\y\in\X}D(\y)^2}$. Set $c_{i+1}=\x$ and $\C_{i+1}=\C_i\cup\{c_{i+1}\}$.\label{step:kmeans++_center}
@@ -94,17 +96,17 @@
 			\item Repeat \eqref{step:var_cluster} and \eqref{step:var_update} until convergence or number of iteration is reached.
 		\end{enumerate}
 	\subsection{First center for $k$-Means++}
-	In $k$-Means++ algorithm, the first center is chosen uniformly at random. However, not all points have the same contribution to inertia. Therefore, we choose a point $\x$ with probability equal to the most variance among $\X$.
+	In $k$-Means++ algorithm, the first center is chosen uniformly at random. However, not all points have the same contribution to inertia. We choose $x$ as a first center in a way that is analogous to explained variance ratio by $x$.
 		\begin{enumerate}[i]
 			\item Choose $\x$ with probability $\dfrac{f(\x)}{\sum_{\y\in\X}f(\y)}$ where $f(x)=\sum_{\y\in\X}\|\x-\y\|^2$. Set $\C_1=\{\x\}$.
 			\item Repeat steps \eqref{step:kmeans++_center} to \eqref{step:kmeans++_repeat} in $k$-Means++.
 		\end{enumerate}
 	\section{Analysis}
-	Denote the sum of $k$-th powers of modulus of $\x\in\X$ as $\S_k(\X)$ or in short $\S_k$ when the context is clear. That is,
+	First, we will analyze the choosing of first center in $k$-Means++. Denote the sum of $k$-th powers of modulus of $\x\in\X$ as $\S_k(\X)$ or in short $\S_k$ when the context is clear. That is,
 		\begin{align*}
 			\S_k(\X) & = \sum_{\x\in\X}\|\x\|^k
 		\end{align*}
-	We also write $\sum_{\x\in\X}\x$ as $\S$. Then we can express the probability $p(\x)$ in terms of $\S$ and $\S_2$.
+	We also write $\sum_{\x\in\X}\x$ as $\S$. Then we can express the probability of a point $\x\in\X$ being chosen as the first center $p(\x)$ in terms of $\S$ and $\S_2$.
 		\begin{align*}
 			f(\x)	& = \sum_{\y\in\X}\|\x-\y\|^2\\
 					& = \sum_{\y\in\X}\left(\|\x\|^2-2\langle\x,\y\rangle+\|\y\|^2\right)\\
@@ -120,13 +122,46 @@
 					& = n\S_2-2\langle\S,\S\rangle+n\S_2\\
 					& = 2(n\S_2-\langle\S,\S\rangle)
 		\end{align*}
-	Notice that this looks similar to $2n^2\sigma^2(\X)$, except we have $\langle \x,\x\rangle=\|\x\|^2$ instead of $\x^2$ and $\left(\dfrac{\langle\S,\S\rangle}{n}\right)^2$ instead of $\left(\dfrac{\S}{n}\right)^2$. Analogously, we can say that $p(\x)$ is equivalent to the ratio of variance explained by $\x$.
-	
-	For a point $\x\in\X$, we choose the probability to be the variance explained ratio by $\x$. That is,
+	Notice that this looks similar to $2n^2\sigma^2(\X)$, except we have $\langle \x,\x\rangle=\|\x\|^2$ instead of $\|\x-\mu\|^2$ and $\left(\dfrac{\langle\S,\S\rangle}{n}\right)^2$ which is basically $\dfrac{\|\S\|^2}{n^2}$. Analogously\footnote{This is not an exact interpretation of explained variance ratio. See below for an exact analysis of what this actually denotes.}, we can say that $p(\x)$ is equivalent to the ratio of variance explained by $\x$.
 		\begin{align*}
 			p(x) & = \dfrac{f(\x)}{\sum_{\y\in\X}f(\y)}\\
 				 & = \dfrac{n\|\x\|^2-2\langle\x,\S\rangle+\S_2}{2(n\S_2-\langle\S,\S\rangle)}\\
 		\end{align*}
+	From the definition of variance, for a set of points $S$,
+		\begin{align}
+			\sigma^2(S) & = \dfrac{\sum_{x\in S} \|x-\mu_{S}\|^2}{|S|}-\|\mu_{S}\|^2\nonumber\\
+			\sum_{x\in S}\|x-\mu_{S}\|^2 & = |S|(\sigma^2+\|\mu_{S}\|^2)\label{eqn:1}
+		\end{align}
+	We can use equation \eqref{eqn:1} to express $f(\x)$ above in another way. For any arbitrary point $a$ and $\mu$ as the centroid of $\X$,
+		\begin{align}
+			\sum_{\x\in\X}\|\x-a\|^2
+				  & = \sum_{\x\in\X}\|\x-\mu+\mu-a\|^2\nonumber\\
+				  & = \sum_{\x\in\X}\left(\|\x-\mu\|^2+2\langle\x-\mu,\mu-a\rangle+\|\mu-a\|^2\right)\nonumber\\
+				  & = \sum_{\x\in\X}\|\x-\mu\|^2+2\left\langle\sum_{\x\in\X}\x-n\mu,\mu-a\right\rangle+n\|\mu-a\|^2\nonumber\\
+				  & = n(\sigma^2+\|\mu\|^2)+2\langle n\mu-n\mu,\mu-a\rangle+n\|\mu-a\|^2\nonumber\\
+				  & = n(\sigma^2+\|\mu\|^2+\|\mu-a\|^2)\label{eqn:2}
+		\end{align}
+	Using equation \eqref{eqn:2}, we can rewrite $p(x)$ in another way.
+		\begin{align*}
+			\sum_{\x\in\X}\sum_{\y\in\X}\|\x-\y\|^2 
+				& = \sum_{\x\in\X}n(\sigma^2+\|\mu\|^2+\|\mu-\x\|^2)\\
+				& = n(n\sigma^2+n\|\mu\|^2+\sum_{\x\in\X}\|\mu-\x\|^2)\\
+				& = n(n\sigma^2+n\|\mu\|^2+n(\sigma^2+\|\mu\|^2))\\
+				& = 2n^2(\sigma^2+\|\mu\|^2)
+		\end{align*}
+	Thus the probability becomes
+		\begin{align*}
+			p(x) & = \dfrac{\sum_{\y\in\X}\|\x-\y\|^2}{\sum_{\y\in\X}\sum_{\x'\in\X}\|\x'-\y\|^2}\\
+				 & = \dfrac{n(\sigma^2+\|\mu\|^2+\|\mu-\x\|^2)}{2n(\sigma^2+\|\mu\|^2)}\\
+				 & = \dfrac{\sigma^2+\|\mu\|^2+\|\mu-\x\|^2}{2(\sigma^2+\|\mu\|^2)}\\
+				 & = \dfrac{1}{2}+\dfrac{\|\mu-\x\|^2}{2(\sigma^2+\|\mu\|^2)}
+		\end{align*}
+	Now it becomes more clear how this is related to explained variance ratio. However, to make things smoother, one can also choose to use the following as the probability of $x$ being chosen as the first center.
+		\begin{align*}
+			p(x) & = \dfrac{\|\mu-\x\|^2}{2(\sigma^2+\|\mu\|^2)}
+		\end{align*}
+	Also, notice that computationally this version of $p(x)$ is much cheaper than the one we mentioned above.
+	
 	We will now analyze the center initialization algorithms using inertia value. Since these algorithms are probabilistic, we are going to take a look at the expected value of inertia. For a set of points $\X$ and a set of centers $\C$, we denote the inertia by $\I_\C(\X)$.
 		\begin{align*}
 			\I_\C(\X) & = \sum_{\x\in\X}\min_{\c\in\C}(\|c-x\|^2)
@@ -135,14 +170,6 @@
 		\begin{align*}
 			E[\I(\X)] & = \sum_{\x\in\X}p(x)\sum_{\y\in\X}\min(D(x),\|y-x\|)^2
 		\end{align*}
-	We will use the following easily proven lemma.
-		\begin{lemma}
-			For a set of points $S$, its centroid $\c$ and an arbitrary point $a$,
-				\begin{align*}
-					\sum_{x\in S}\| x-a\|^2-\sum_{x\in S}\| x-c\|^2 
-						& = |S|\cdot\| c-a\|^2
-				\end{align*}\label{lem:center-dist-sum}
-		\end{lemma}
 	If we use seeding with $p(x)$ proportional to $f(x)=\|x-\mu_{\C}\|^2$ where $\mu_{\C}$ is the centroid of $\mathcal{C}$, then for any point $y\in S$,
 		\begin{align*}
 			f(x) & = \|x-\mu_{\C}\|^2\\
@@ -169,12 +196,9 @@
 					   & \leq \sum_{x\in S}\dfrac{\|x-\mu_{\C}\|^2}{\sum_{y\in S}\|y-\mu_{\C}\|^2}\sum_{y\in S}D(y)^2\\
 					   & \leq \sum_{x\in S}\|x-\mu_{\C}\|^2
 		\end{align*}
-	Using lemma \eqref{lem:center-dist-sum}, we have
+	Using equation \eqref{eqn:2}, we have
 		\begin{align*}
-			E[\phi(S)] & \leq \sum_{x\in S}\|x-\mu_{S}\|^2+n\|\mu_{S}-\mu_{\C}\|^2\\
-					   & = \sum_{x\in S}\|x\|^2-2\sum_{x\in S}\langle x,\mu_{S}\rangle+\sum_{x\in S}\|\mu_{S}\|^2+n\|\mu_{S}-\mu_{\C}\|^2\\
-					   & = \S_2(S)-2n\langle\mu_{S},\mu_{S}\rangle+n\|\mu_{S}-\mu_{\C}\|^2\\
-					   & = \S_2(S)-2n\|\mu_{S}\|^2+n\|\mu_{S}-\mu_{\C}\|^2
+			E[\phi(S)] & \leq n(\sigma^2+\|\mu_{\X}\|^2+\|\mu_{\X}-\mu_{\C}\|^2)
 		\end{align*}
 	\section{Experiment Setup}
 	We ensure that all algorithms are run under the same conditions. All of them share the same environment and no special optimizations were made for any particular algorithm. Only CPU was used to determine the values we are interested in and no parallelism mechanism was in place for speeding up the process. This way, we can get an idea about the raw performance metrics of the algorithms involved.
