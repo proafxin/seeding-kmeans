@@ -168,6 +168,16 @@ class KMeansClustering():
                     break
         # print(centers, len(centers))
         return centers
+    
+    def __get_centroid_of_centers_based_centers(self, X, k):
+        r = randint(0, X.shape[0]-1)
+        centers = array([X[r]])
+        for i in range(1, k):
+            mu_c = mean(centers, axis=0)
+            probs = []
+            for x in X:
+                diff = x-mu_c
+                probs.append(dot(x-mu_c, x-mu_c))
         
     def __get_variance_based_centers(self, X, k):
         centers = self.__get_ostrovsky_init_centers(X)

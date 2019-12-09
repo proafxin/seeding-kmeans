@@ -27,7 +27,7 @@
 	\bibliographystyle{plain}
 	\maketitle
 		\begin{abstract}%
-			$k$-Means is a popular clustering algorithm that reduces sum of minimum distances from data points to the centers. Now a days most of the times seeded centers are used instead of choosing all uniformly at random. $k$-Means++ chooses the centers with a so called $D^2$ weighting. In this paper, we explore various dimensions of clustering. First of all, we discuss the fact that the primary assumption in $k$-Means++ algorithm by Arthur and Vassilvitskii is wrong. This does not mean anything about the algorithm itself, just that their fundamental assumption was false rendering the mathematical analysis that follows false as well. We introduce a way to choose the first center with probability instead of choosing uniformly at random for $k$-Means++, a new way of initializing centers like $k$-Means++. Empirical evidence shows that our proposed algorithm performs better than available methods of center initialization and that our way of choosing first center for $k$-Means++ performs better than original $k$-means++. We also explore various properties regarding a set of points that helps us understand how the centers should be chosen. These properties help us analyze the expected value of inertia function as well. We also provide an upper bound for inertia when centers are initialized under certain assumption.
+			$k$-Means is a popular clustering algorithm that reduces sum of minimum distances from data points to the centers. Now a days most of the times seeded centers are used instead of choosing all uniformly at random. $k$-Means++ chooses the centers with a so called $D^2$ weighting. In this paper, we explore various dimensions of clustering. We introduce a way to choose the first center with probability instead of choosing uniformly at random for $k$-Means++, two new ways of initializing centers like $k$-Means++. Empirical evidence shows that our proposed algorithms perform better than available methods of center initialization and that our way of choosing first center for $k$-Means++ performs better than original $k$-means++. We also explore various properties regarding a set of points that helps us understand how the centers should be chosen. These properties help us analyze the expected value of inertia function as well. This in turn gives us an upper bound for inertia when centers are initialized using our algorithms.
 		\end{abstract}
 	\section{Introduction}
 	Widely regarded as the most popular clustering techniques, $k$-Means remains a humble interesting topic in machine learning as well as computational geometry. Roughly the problem is: given a set of points $\X$ in $\mathbb{R}^d$. Find a set of centers $\mathcal{C}$ such that the function \textit{inertia}
@@ -85,7 +85,7 @@
 			\item Set $c_i=\bar{\C_i}$.\label{step:kmeans++_update}
 			\item Repeat \eqref{step:kmeans++_cluster} and \eqref{step:kmeans++_update} until convergence or number of iteration is reached.\label{step:kmeans++_repeat}
 		\end{enumerate}
-	\subsection{Variance Based}
+	\subsection{Variance Based Seeding}
 	Roughly our idea is that we want to minimize the variance of distances from the new center to existing ones. The intuition behind this is to make the clusters as balanced as possible, hence possibly eliminating some anomalies within a cluster and reducing inertia. However, since the new centers are taken based on variances, we need two initial centers. We chose to initialize the first two centers as in ORSS algorithm. Assume that for a new point $\x$ and a set of centers $\C_k=\{c_1,\cdots,c_k\}$, the variance of the squared distances $\{\| c_1-\x\|^2,\|c_2-\x\|^2\cdots,\| c_k-\x\|^2\}$ is $\nu_\x(\C_k)$.
 		\begin{enumerate}[i]
 			\item Choose two centers $\x,\y$ with probability proportional to $\|\x-\y\|^2$. Set $\C_2=\{\x,\y\}$.
@@ -95,6 +95,16 @@
 			\item Set $c_i=\bar{\C_i}$.\label{step:var_update}
 			\item Repeat \eqref{step:var_cluster} and \eqref{step:var_update} until convergence or number of iteration is reached.
 		\end{enumerate}
+	\subsection{Centroid of Centers Based Seeding}
+	Our another idea was to choose $x$ with probability proportional to squared distance from centroid of the cluster centers. As we will show, this is inspired from the idea of choosing $x$ with probability proportional to $\sum_{c\in\C}\|x-c\|^2$.
+		\begin{enumerate}[i]
+			\item Choose a centers $\x$ uniformly at random. Set $\C_1=\{\x\}$.
+			\item For already existing set of $i$ centers $\mathcal{C}_i=\{c_1,\cdots,c_i\}$, choose a new center $\x\in\X$ with probability proportional to $\|\x-\mu_{\C_i}\|^2$.\label{step:coc_center}
+			\item Repeat step \eqref{step:coc_center} until $i=k$.
+			\item For each $1\leq i\leq k$, set $\C_i=\{\x\in\X:\|\x-c_i\|=\min(x-\C)\}$.\label{step:coc_cluster}
+			\item Set $c_i=\bar{\C_i}$.\label{step:coc_update}
+			\item Repeat \eqref{step:var_cluster} and \eqref{step:var_update} until convergence or number of iteration is reached.
+		\end{enumerate}
 	\subsection{First center for $k$-Means++}
 	In $k$-Means++ algorithm, the first center is chosen uniformly at random. However, not all points have the same contribution to inertia. We choose $x$ as a first center in a way that is analogous to explained variance ratio by $x$.
 		\begin{enumerate}[i]
@@ -102,7 +112,9 @@
 			\item Repeat steps \eqref{step:kmeans++_center} to \eqref{step:kmeans++_repeat} in $k$-Means++.
 		\end{enumerate}
 	\section{Analysis}
-	First, we will analyze the choosing of first center in $k$-Means++. Denote the sum of $k$-th powers of modulus of $\x\in\X$ as $\S_k(\X)$ or in short $\S_k$ when the context is clear. That is,
+	First, we will analyze the choosing of first center in $k$-Means++. 
+	\subsection{Choosing Initial center}
+	Denote the sum of $k$-th powers of modulus of $\x\in\X$ as $\S_k(\X)$ or in short $\S_k$ when the context is clear. That is,
 		\begin{align*}
 			\S_k(\X) & = \sum_{\x\in\X}\|\x\|^k
 		\end{align*}
@@ -112,7 +124,7 @@
 					& = \sum_{\y\in\X}\left(\|\x\|^2-2\langle\x,\y\rangle+\|\y\|^2\right)\\
 					& = n\|\x\|^2-2\langle\x,\sum_{\y\in\X}\y\rangle+\sum_{\y\in\X}\|\y\|^2\\
 					& = n\|\x\|^2-2\langle\x,\S\rangle+\S_2(\X)\\
-					& = n\|x\|^2-2\langle\x,n\mu_{\X}\rangle+\S_2(\X)\\
+					& = n\|\x\|^2-2\langle\x,n\mu_{\X}\rangle+\S_2(\X)\\
 		\end{align*}
 	where $\mu_{\X}$ is the centroid of $\X$.
 		\begin{align*}
@@ -142,14 +154,14 @@
 				  & = n(\sigma^2+\|\mu\|^2+\|\mu-a\|^2)\label{eqn:2}
 		\end{align}
 	Using equation \eqref{eqn:2}, we can rewrite $p(x)$ in another way.
-		\begin{align*}
+		\begin{align}
 			\sum_{\x\in\X}\sum_{\y\in\X}\|\x-\y\|^2 
-				& = \sum_{\x\in\X}n(\sigma^2+\|\mu\|^2+\|\mu-\x\|^2)\\
-				& = n(n\sigma^2+n\|\mu\|^2+\sum_{\x\in\X}\|\mu-\x\|^2)\\
-				& = n(n\sigma^2+n\|\mu\|^2+n(\sigma^2+\|\mu\|^2))\\
-				& = 2n^2(\sigma^2+\|\mu\|^2)
-		\end{align*}
-	Thus the probability becomes
+				& = \sum_{\x\in\X}n(\sigma^2+\|\mu\|^2+\|\mu-\x\|^2)\nonumber\\
+				& = n(n\sigma^2+n\|\mu\|^2+\sum_{\x\in\X}\|\mu-\x\|^2)\nonumber\\
+				& = n(n\sigma^2+n\|\mu\|^2+n(\sigma^2+\|\mu\|^2))\nonumber\\
+				& = 2n^2(\sigma^2+\|\mu\|^2)\label{eqn:3}
+		\end{align}
+	Using equation \eqref{eqn:3}, the probability becomes
 		\begin{align*}
 			p(x) & = \dfrac{\sum_{\y\in\X}\|\x-\y\|^2}{\sum_{\y\in\X}\sum_{\x'\in\X}\|\x'-\y\|^2}\\
 				 & = \dfrac{n(\sigma^2+\|\mu\|^2+\|\mu-\x\|^2)}{2n(\sigma^2+\|\mu\|^2)}\\
@@ -161,7 +173,7 @@
 			p(x) & = \dfrac{\|\mu-\x\|^2}{2(\sigma^2+\|\mu\|^2)}
 		\end{align*}
 	Also, notice that computationally this version of $p(x)$ is much cheaper than the one we mentioned above.
-	
+	\subsection{Inertia With Centroid of Centers Seeding}
 	We will now analyze the center initialization algorithms using inertia value. Since these algorithms are probabilistic, we are going to take a look at the expected value of inertia. For a set of points $\X$ and a set of centers $\C$, we denote the inertia by $\I_\C(\X)$.
 		\begin{align*}
 			\I_\C(\X) & = \sum_{\x\in\X}\min_{\c\in\C}(\|c-x\|^2)
@@ -170,17 +182,21 @@
 		\begin{align*}
 			E[\I(\X)] & = \sum_{\x\in\X}p(x)\sum_{\y\in\X}\min(D(x),\|y-x\|)^2
 		\end{align*}
-	If we use seeding with $p(x)$ proportional to $f(x)=\|x-\mu_{\C}\|^2$ where $\mu_{\C}$ is the centroid of $\mathcal{C}$, then for any point $y\in S$,
+	The following lemma was proven in \cite[Lemma $3.2$]{kmeans++}.
+		\begin{lemma}
+			Let $A$ be an arbitrary cluster in $\C_{opt}$, and let $\C$ be the clustering with just one center, which is chosen uniformly at random from $A$. Then, $E[\phi(A)]=2\phi_{opt}(A)$.
+		\end{lemma}
+	Here, $\phi_{opt}(A)=\sum_{x\in A}\sum_{b\in A}\|a-b\|^2$. If we use seeding with $p(x)$ proportional to $f(x)=\|x-\mu_{\C}\|^2$ where $\mu_{\C}$ is the centroid of $\mathcal{C}$, then for any point $x\in S$,
 		\begin{align*}
 			f(x) & = \|x-\mu_{\C}\|^2\\
 			\sum_{x\in S}f(x) 
 				& = \sum_{x\in S}\|x-\mu_{\C}\|^2\\
-				& = \sum_{x\in S}\left(\|x\|^2-2\langle x,\mu_{\C}\rangle+\|\mu_{\C}\|^2\right)\\
-				& = \S_2(S)-2\langle n\mu_{\X},\mu_{\C}\rangle+n\|\mu_{\C}\|^2
+				& = |S|(\sigma^2+\|\mu_S\|^2+\|\mu_S-\mu_{\C}\|^2)
 		\end{align*}
 	Then the probability of $x$ being chosen as a center is
 		\begin{align*}
-			p(x) & = \dfrac{f(x)}{\sum_{y\in S}f(y)}
+			p(x) & = \dfrac{f(x)}{\sum_{y\in S}f(y)}\\
+				 & = \dfrac{\|x-\mu_{\C}\|^2}{|S|(\sigma^2+\|\mu_S\|^2+\|\mu_{S}-\mu_{\C}\|^2)}
 		\end{align*}
 	Since $D(y)\leq \|y-\mu_{\C}\|$, we have the following
 		\begin{align*}
@@ -198,8 +214,22 @@
 		\end{align*}
 	Using equation \eqref{eqn:2}, we have
 		\begin{align*}
-			E[\phi(S)] & \leq n(\sigma^2+\|\mu_{\X}\|^2+\|\mu_{\X}-\mu_{\C}\|^2)
+			E[\phi(S)] & \leq n(\sigma^2+\|\mu_S\|^2+\|\mu_S-\mu_{\C}\|^2)
 		\end{align*}
+	Now, using equation \eqref{eqn:3}, we have
+		\begin{align*}
+			\phi_{opt}(S) & = \sum_{x\in S}\sum_{y\in S}\|x-y\|^2\\
+						  & = 2n^2(\sigma^2+\|\mu_{S}\|^2)\\
+			\dfrac{\phi_{opt}(S)}{2n} & = n(\sigma^2+\|\mu_{S}\|^2)
+		\end{align*}
+	Thus, we have our first major theorem.
+		\begin{theorem}
+			If the centers is initialized using centroid of centers seeding, then
+				\begin{align*}
+					E[\phi(S)] & \leq \dfrac{\phi_{opt}(S)}{2n}+n\|\mu_{S}-\mu_{\C}\|^2
+				\end{align*}
+		\end{theorem}
+				
 	\section{Experiment Setup}
 	We ensure that all algorithms are run under the same conditions. All of them share the same environment and no special optimizations were made for any particular algorithm. Only CPU was used to determine the values we are interested in and no parallelism mechanism was in place for speeding up the process. This way, we can get an idea about the raw performance metrics of the algorithms involved.
 	
