@@ -110,6 +110,10 @@
 					& = \sum_{\y\in\X}\left(\|\x\|^2-2\langle\x,\y\rangle+\|\y\|^2\right)\\
 					& = n\|\x\|^2-2\langle\x,\sum_{\y\in\X}\y\rangle+\sum_{\y\in\X}\|\y\|^2\\
 					& = n\|\x\|^2-2\langle\x,\S\rangle+\S_2(\X)\\
+					& = n\|x\|^2-2\langle\x,n\mu_{\X}\rangle+\S_2(\X)\\
+		\end{align*}
+	where $\mu_{\X}$ is the centroid of $\X$.
+		\begin{align*}
 			\sum_{\x\in\X}f(\x)
 					& = \sum_{\x\in\X}\left(n\|\x\|^2-2\langle\x,\S\rangle+\S_2\right)\\
 					& = n\sum_{\x\in\X}\|\x\|^2-2\langle\sum_{\x\in\X}\x,\S\rangle+\sum_{\x\in\X}\S_2\\
@@ -123,7 +127,7 @@
 			p(x) & = \dfrac{f(\x)}{\sum_{\y\in\X}f(\y)}\\
 				 & = \dfrac{n\|\x\|^2-2\langle\x,\S\rangle+\S_2}{2(n\S_2-\langle\S,\S\rangle)}\\
 		\end{align*}
-	Let us get back to variance based algorithm. Since our algorithm is a probabilistic one, we are going to take a look at the expected value of inertia. For a set of points $\X$ and a set of centers $\C$, we denote the inertia by $\I_\C(\X)$.
+	We will now analyze the center initialization algorithms using inertia value. Since these algorithms are probabilistic, we are going to take a look at the expected value of inertia. For a set of points $\X$ and a set of centers $\C$, we denote the inertia by $\I_\C(\X)$.
 		\begin{align*}
 			\I_\C(\X) & = \sum_{\x\in\X}\min_{\c\in\C}(\|c-x\|^2)
 		\end{align*}
@@ -136,31 +140,42 @@
 			For a set of points $S$, its centroid $\c$ and an arbitrary point $a$,
 				\begin{align*}
 					\sum_{x\in S}\| x-a\|^2-\sum_{x\in S}\| x-c\|^2 
-						& = |S|\cdot\sum_{x\in S}\| c-a\|^2
-				\end{align*}
+						& = |S|\cdot\| c-a\|^2
+				\end{align*}\label{lem:center-dist-sum}
 		\end{lemma}
-	Next lemma was proven in \cite[Lemma $3.2$]{ostrovsky}.
-		\begin{lemma}
-			 The first two centers lie in different cores with probability $1-O(p)$ where $\rho=\Omega(\epsilon^{\frac{2}{3}})$ for some real number $\epsilon$.
-		\end{lemma}
-	
-		\begin{theorem}
-			For a set of points $X$, consider the set of optimal cluster centers $\C_m$ and an arbitrary set of cluster centers $\C$. If $A$ is one of the clusters and a random point is added to $\C$ uniformly, then
-		\end{theorem}
-	
-		\begin{proof}
-			We will use Abel's summation formula \cite[Theorem $4.2$]{apostol}. From triangle inequality, we have
-				\begin{align*}
-					D(x) & \leq D(y)+\|x-y\|\\
-					D(x)^2 & \leq 2D(y)^2+2\|x-y\|^2\\
-				\end{align*}
-			We also have
-				\begin{align*}
-					\nu_x(\C) & = \dfrac{\sum_{\c\in\C}\|c-x\|^4}{k}-\left(\dfrac{\sum_{\c\in\C}\|c-x\|^2}{k}\right)^2\\
-							  & \leq (M(x)-\mu)(\mu-D(x))
-				\end{align*}
-			We can now analyze the expected value of inertia.
-		\end{proof}
+	If we use seeding with $p(x)$ proportional to $f(x)=\|x-\mu_{\C}\|^2$ where $\mu_{\C}$ is the centroid of $\mathcal{C}$, then for any point $y\in S$,
+		\begin{align*}
+			f(x) & = \|x-\mu_{\C}\|^2\\
+			\sum_{x\in S}f(x) 
+				& = \sum_{x\in S}\|x-\mu_{\C}\|^2\\
+				& = \sum_{x\in S}\left(\|x\|^2-2\langle x,\mu_{\C}\rangle+\|\mu_{\C}\|^2\right)\\
+				& = \S_2(S)-2\langle n\mu_{\X},\mu_{\C}\rangle+n\|\mu_{\C}\|^2
+		\end{align*}
+	Then the probability of $x$ being chosen as a center is
+		\begin{align*}
+			p(x) & = \dfrac{f(x)}{\sum_{y\in S}f(y)}
+		\end{align*}
+	Since $D(y)\leq \|y-\mu_{\C}\|$, we have the following
+		\begin{align*}
+			\sum_{y\in S}\|y-\mu_{\C}\|^2 & \geq D(y)^2\\
+			\dfrac{1}{\sum_{y\in S}\|y-\mu_{\C}\|^2} & \leq \dfrac{1}{\sum_{y\in S}D(y)^2}\\
+			\dfrac{\sum_{y\in S}D(y)^2}{\sum_{y\in S}\|y-\mu_{\C}\|^2} & \leq 1
+		\end{align*}
+	Our expected value of inertia would be
+		\begin{align*}
+			E[\phi(S)] & = \sum_{x\in S}p(x)\sum_{y\in S}\min(D(y),\|x-y\|)^2\\
+					   & = \sum_{x\in S}\dfrac{\|x-\mu_{\C}\|^2}{\sum_{y\in S}\|y-\mu_{\C}\|^2}\sum_{y\in S}\min(D(y),\|x-y\|)^2\\
+					   %& \leq \sum_{y\in S}\dfrac{1}{n}\dfrac{\sum_{y\in S}2(\|x-y\|^2)+2(\|y-\mu_{\C}\|^2)}{\sum_{y\in S}\|y-\mu_{\C}\|^2}\sum_{y\in S}\min(D(y),\|x-y\|)^2\\
+					   & \leq \sum_{x\in S}\dfrac{\|x-\mu_{\C}\|^2}{\sum_{y\in S}\|y-\mu_{\C}\|^2}\sum_{y\in S}D(y)^2\\
+					   & \leq \sum_{x\in S}\|x-\mu_{\C}\|^2
+		\end{align*}
+	Using lemma \eqref{lem:center-dist-sum}, we have
+		\begin{align*}
+			E[\phi(S)] & \leq \sum_{x\in S}\|x-\mu_{S}\|^2+n\|\mu_{S}-\mu_{\C}\|^2\\
+					   & = \sum_{x\in S}\|x\|^2-2\sum_{x\in S}\langle x,\mu_{S}\rangle+\sum_{x\in S}\|\mu_{S}\|^2+n\|\mu_{S}-\mu_{\C}\|^2\\
+					   & = \S_2(S)-2n\langle\mu_{S},\mu_{S}\rangle+n\|\mu_{S}-\mu_{\C}\|^2\\
+					   & = \S_2(S)-2n\|\mu_{S}\|^2+n\|\mu_{S}-\mu_{\C}\|^2
+		\end{align*}
 	\section{Experiment Setup}
 	We ensure that all algorithms are run under the same conditions. All of them share the same environment and no special optimizations were made for any particular algorithm. Only CPU was used to determine the values we are interested in and no parallelism mechanism was in place for speeding up the process. This way, we can get an idea about the raw performance metrics of the algorithms involved.
 	

@@ -147,21 +147,26 @@ class KMeansClustering():
         return centers
 
     def __get_kmeans_plus_plus_corrected_centers(self, X, k):
-        centers = self.__get_kmeans_plus_plus_initial_center(X)
+        r = randint(0, X.shape[0]-1)
+        centers = array([X[r]])
         for i in range(1, k):
-            _c = sum(centers)
-            probs = []
+            # print(i, centers)
+            mu_c = mean(centers, axis=0)
+            D = []
             for x in X:
-                probs.append(dot(x-_c, x-_c))
-            probs = array(probs)
-            probs /= sum(probs)
+                D.append(dot(x-mu_c, x-mu_c))
+            probs = D/sum(D)
             probs_cuml = cumsum(probs)
             r = random()
             for (j, p) in enumerate(probs_cuml):
                 if p > r:
-                    centers.append(X[j].tolist())
+                    centers = append(
+                        centers,
+                        [X[j]],
+                        axis=0,
+                    )
                     break
-        centers = array(centers)
+        # print(centers, len(centers))
         return centers
         
     def __get_variance_based_centers(self, X, k):
@@ -238,6 +243,8 @@ class KMeansClustering():
             self.cluster_centers_ = self.__get_variance_based_centers(X, k)
         elif self.init == 'kmeans++_improved':
             self.cluster_centers_ = self.__get_kmeans_plus_plus_improved_centers(X, k)
+        elif self.init == 'kmeans++_corrected':
+            self.cluster_centers_ = self.__get_kmeans_plus_plus_corrected_centers(X, k)
         else:
             raise ValueError('init not defined')
         for c in self.cluster_centers_:
