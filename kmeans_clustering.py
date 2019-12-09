@@ -178,6 +178,18 @@ class KMeansClustering():
             for x in X:
                 diff = x-mu_c
                 probs.append(dot(x-mu_c, x-mu_c))
+            probs = probs/sum(probs)
+            probs_cuml = cumsum(probs)
+            r = random()
+            for (j, p) in enumerate(probs_cuml):
+                if p > r:
+                    centers = append(
+                        centers,
+                        [X[j]],
+                        axis=0,
+                    )
+                    break
+        return centers
         
     def __get_variance_based_centers(self, X, k):
         centers = self.__get_ostrovsky_init_centers(X)
@@ -255,6 +267,8 @@ class KMeansClustering():
             self.cluster_centers_ = self.__get_kmeans_plus_plus_improved_centers(X, k)
         elif self.init == 'kmeans++_corrected':
             self.cluster_centers_ = self.__get_kmeans_plus_plus_corrected_centers(X, k)
+        elif self.init == 'coc':
+            self.cluster_centers_ = self.__get_centroid_of_centers_based_centers(X, k)
         else:
             raise ValueError('init not defined')
         for c in self.cluster_centers_:
