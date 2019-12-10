@@ -27,6 +27,7 @@ class KMeansClustering():
     time = 0
     n_iters_ = 0
     best_inertia_ = 0
+    centroid_ = None
 
     def __init__(self, init, max_iter, n_clusters, verbose, random_state=None):
         if init is not None:
@@ -79,17 +80,11 @@ class KMeansClustering():
 
     def __get_kmeans_plus_plus_initial_center(self, X):
         centers = []
-        S = 0
-        S_2 = 0
-        n = X.shape[0]
-        for x in X:
-            S += x
-            S_2 += dot(x, x)
-        denr = 2*(n*S_2-dot(S, S))
         probs = []
         for x in X:
-            numr = n*dot(x,x)-2*dot(x,S)+S_2
-            probs.append(1.0-(numr/denr))
+            d = x-self.centroid_
+            probs.append(dot(d, d))
+        probs /= sum(probs)
         probs_cuml = cumsum(probs)
         r = random()
         for (i, p) in enumerate(probs_cuml):
@@ -177,7 +172,7 @@ class KMeansClustering():
             probs = []
             for x in X:
                 diff = x-mu_c
-                probs.append(dot(x-mu_c, x-mu_c))
+                probs.append(dot(diff, diff))
             probs = probs/sum(probs)
             probs_cuml = cumsum(probs)
             r = random()
@@ -247,6 +242,7 @@ class KMeansClustering():
         
     def fit(self, X):
         k = self.n_clusters
+        self.centroid_ = mean(X, axis=0)
         if len(X) < 1:
             raise ValueError('Dataset must have size greater than 0')
         if self.random_state is not None:
