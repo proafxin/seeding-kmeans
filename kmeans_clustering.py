@@ -165,8 +165,8 @@ class KMeansClustering():
         return centers
     
     def __get_centroid_of_centers_based_centers(self, X, k):
-        r = randint(0, X.shape[0]-1)
-        centers = array([X[r]])
+        centers = self.__get_kmeans_plus_plus_initial_center(X)
+        centers = array(centers)
         for i in range(1, k):
             mu_c = mean(centers, axis=0)
             probs = []
