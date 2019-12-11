@@ -40,24 +40,24 @@
 	\section{Related Work}
 	There has been multiple surveys on $k$-Means in the literature. Probably the most relevant work in this regard is done by \cite{celebi}. However, most of the algorithms used in that paper are not used practically very much. It was also noted by the authors themselves that $k$-Means++ and its greedy version work better than most. They also mention that probabilistic algorithms perform better than deterministic ones. Moreover, another highly influential center initialization algorithm \citep{ostrovsky} was not considered in their experiments. There is no mention of Ostrovsky's algorithm in their paper whatsoever. Surprisingly, there is no mention of Ostrovsky's algorithm in $k$-Means++ paper either even though it was published in $2007$ whereas Ostrovsky's algorithm was published in $2006$.
 	
-	We would also like to point out that to our knowledge no surveys were done after removing linear dependency prior to running the experiments. This is a very important step if we are to get a meaningful clustering out of $k$-Means algorithm. Because this removes a big problem that $k$-Means is known to suffer from. PCA decomposes the existing variables into orthogonal\footnote{It is well known that orthogonal vectors are linearly independent.} ones. If we use PCA (principal component analysis) before running a clustering algorithm, we can redefine the variables into linearly independent ones. For our experiment, we have used PCA on every dataset before running cluster algorithm.
+	We would also like to point out that to our knowledge no surveys were done after removing linear dependency prior to running the experiments. This is a very important step if we are to get a meaningful clustering out of $k$-Means algorithm. PCA also helps with some drawbacks of $k$-Means such as $k$-Means struggles with non-spherical data set. PCA decomposes the existing data points into orthogonal\footnote{It is well known that orthogonal vectors are linearly independent.} ones. If we use PCA (principal component analysis) before running a clustering algorithm, we can redefine the variables into linearly independent ones. For our experiment, we have used PCA on every data set before running cluster algorithm.
 	\section{Proposed Initialization Methods}
 	For a set of points $S$ and a point $x$, we use $\min(\|x-S\|)$ to denote the minimum of distances from $x$ to the points of $S$ that is $\min(\| x-S\|)=\min_{a\in S}(\| x-a\|)$. Set $D(\x)=\min(\|\x-\C\|)$ for a point $x$ and a set of centers $\C$. Let us denote the centroid of $S$ by $\mu_S$ that is $\mu_S=\dfrac{1}{|S|}\sum_{x\in S}x$.
 	\subsection{First center for $k$-Means++}
 	In $k$-Means++ algorithm, the first center is chosen uniformly at random. However, not all points have the same contribution to inertia. We choose $x$ as a first center in a way that is analogous to explained variance ratio by $x$.
 	\begin{enumerate}[i]
-		\item Choose $\x$ with probability $\dfrac{f(\x)}{\sum_{\y\in\X}f(\y)}$ where $f(x)=\sum_{\y\in\X}\|\x-\y\|^2$. Set $\C_1=\{\x\}$.
+		\item Choose $\x$ with probability $\dfrac{f(\x)}{\sum_{\y\in\X}f(\y)}$ where $f(x)=\sum_{\y\in\X}\|\x-\y\|^2$. Set $\C_1=\{\x\}$.\label{step:first_center}
 		\item Repeat the remaining steps in $k$-Means++ \cite[Section $2.2$, Page $3$]{kmeans++}.
 	\end{enumerate}
 	\subsection{Centroid of Centers Based Seeding}
 	In this method, we want to choose $x$ with probability proportional to squared distance from centroid of the cluster centers. As we will show later, this is inspired from the idea of choosing $x$ with probability proportional to $\sum_{c\in\C}\|x-c\|^2$.
 		\begin{enumerate}[i]
-			\item Choose a centers $\x$ uniformly at random. Set $\C_1=\{\x\}$.
-			\item For already existing set of $i$ centers $\mathcal{C}_i=\{c_1,\cdots,c_i\}$, choose a new center $\x\in\X$ with probability proportional to $\|\x-\mu_{\C_i}\|^2$.\label{step:coc_center}
+			\item Choose a centers $\x$ like the first center for $k$-Means++ as stated in\eqref{step:coc_center}. Set $\C_1=\{\x\}$.
+			\item For an already existing set of $i$ centers $\mathcal{C}_i=\{c_1,\cdots,c_i\}$, choose a new center $\x\in\X$ with probability proportional to $\|\x-\mu_{\C_i}\|^2$.\label{step:coc_center}
 			\item Repeat step \eqref{step:coc_center} until $i=k$.
 			\item For each $1\leq i\leq k$, set $\C_i=\{\x\in\X:\|\x-c_i\|=\min(x-\C)\}$.\label{step:coc_cluster}
 			\item Set $c_i=\mu_{\C_i}$.\label{step:coc_update}
-			\item Repeat \eqref{step:var_cluster} and \eqref{step:var_update} until convergence or number of iteration is reached.
+			\item Repeat \eqref{step:coc_cluster} and \eqref{step:coc_update} until convergence or number of iteration is reached.
 		\end{enumerate}
 	\section{Analysis}
 	First, we will analyze the choosing of first center in $k$-Means++. 
