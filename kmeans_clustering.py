@@ -6,7 +6,7 @@ from random import sample, randint, random
 from os.path import join
 from math import sqrt
 from numpy import append, array, subtract, sum, cumsum, mean
-from numpy import dot, subtract, sqrt, average
+from numpy import dot, subtract, sqrt, average, all
 from numpy.random import choice, shuffle
 from numpy.linalg import norm
 from scipy.stats import pearsonr
@@ -238,6 +238,13 @@ class KMeansClustering():
                 if len(C[i]) > 0:
                     centers[i] = mean(C[i], axis=0)
             self.best_inertia_ = best_inertia
+        self.best_inertia_ = 0
+        for x in X:
+            D = []
+            for c in self.cluster_centers_:
+                d = c-x
+                D.append(dot(d, d))
+            self.best_inertia_ += min(D)
         return centers
         
     def fit(self, X):
