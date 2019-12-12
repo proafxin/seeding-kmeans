@@ -44,13 +44,13 @@
 	\section{Proposed Initialization Methods}
 	For a set of points $S$ and a point $x$, we use $\min(\|x-S\|)$ to denote the minimum of distances from $x$ to the points of $S$ that is $\min(\| x-S\|)=\min_{a\in S}(\| x-a\|)$. Set $D(\x)=\min(\|\x-\C\|)$ for a point $x$ and a set of centers $\C$. Let us denote the centroid of $S$ by $\mu_S$ that is $\mu_S=\dfrac{1}{|S|}\sum_{x\in S}x$.
 	\subsection{First center for $k$-Means++}
-	In $k$-Means++ algorithm, the first center is chosen uniformly at random. However, not all points have the same contribution to inertia. We choose $x$ as a first center in a way that is analogous to explained variance ratio by $x$.
+	In $k$-Means++ algorithm, the first center is chosen uniformly at random. However, not all points have the same contribution to inertia. We choose $x$ as a first center in a way that equivalent to explained variance ratio by $x$. We will explain further what we mean by variance explained by $x$ here.
 	\begin{enumerate}[i]
-		\item Choose $\x$ with probability $\dfrac{f(\x)}{\sum_{\y\in\X}f(\y)}$ where $f(x)=\sum_{\y\in\X}\|\x-\y\|^2$. Set $\C_1=\{\x\}$.\label{step:first_center}
+		\item Choose $\x$ with probability $\dfrac{\|\x-\mu_{\X}\|^2}{\sum_{\x\in\X}\|\x-\mu_{\X}\|^2}$. Set $\C_1=\{\x\}$.\label{step:first_center}
 		\item Repeat the remaining steps in $k$-Means++ \cite[Section $2.2$, Page $3$]{kmeans++}.
 	\end{enumerate}
 	\subsection{Centroid of Centers Based Seeding}
-	In this method, we want to choose $x$ with probability proportional to squared distance from centroid of the cluster centers. As we will show later, this is inspired from the idea of choosing $x$ with probability proportional to $\sum_{c\in\C}\|x-c\|^2$.
+	We want to choose $x$ with probability proportional to squared distance from centroid of the cluster centers. Our motivation for doing so is the following. In $k$-Means++, probability is proportional to squared minimum distance from the centers. Therefore, the larger this minimum distance is, the higher the probability is for $x$ to be chosen as a center. So, in a sense this can be thought of maximizing the minimum squared distance from the centers to the point in consideration. We intend to check the case where we choose the probability proportional to the total sum of squared distances rather than just the minimum one.
 		\begin{enumerate}[i]
 			\item Choose a centers $\x$ like the first center for $k$-Means++ as stated in\eqref{step:coc_center}. Set $\C_1=\{\x\}$.
 			\item For an already existing set of $i$ centers $\mathcal{C}_i=\{c_1,\cdots,c_i\}$, choose a new center $\x\in\X$ with probability proportional to $\|\x-\mu_{\C_i}\|^2$.\label{step:coc_center}
@@ -76,7 +76,7 @@
 				  & = n\sigma^2+2\langle n\mu-n\mu,\mu-a\rangle+n\|\mu-a\|^2\nonumber\\
 				  & = n(\sigma^2+\|\mu-a\|^2)\label{eqn:2}
 		\end{align}
-	This is the inspiration we mentioned in centroid of centers seeding. Using equation \eqref{eqn:2}, we have the following.
+	Using equation \eqref{eqn:2}, we have the following.
 		\begin{align}
 			\sum_{\x\in\X}\sum_{\y\in\X}\|\x-\y\|^2 
 				& = \sum_{\x\in\X}n(\sigma^2+\|\mu-\x\|^2)\nonumber\\
@@ -87,15 +87,15 @@
 	Using equation \eqref{eqn:3}, the probability becomes
 		\begin{align*}
 			p(x) & = \dfrac{\sum_{\y\in\X}\|\x-\y\|^2}{\sum_{\y\in\X}\sum_{\x'\in\X}\|\x'-\y\|^2}\\
-				 & = \dfrac{n(\sigma^2+\|\mu-\x\|^2)}{2n\sigma^2}\\
-				 & = \dfrac{\sigma^2+\|\mu-\x\|^2}{2\sigma^2}\\
-				 & = \dfrac{1}{2}+\dfrac{\|\mu-\x\|^2}{2\sigma^2}
+				 & = \dfrac{n(\sigma^2+\|\mu-\x\|^2)}{2n^2\sigma^2}\\
+				 & = \dfrac{\sigma^2+\|\mu-\x\|^2}{2n\sigma^2}\\
+				 & = \dfrac{1}{2}+\dfrac{\|\mu-\x\|^2}{2n\sigma^2}
 		\end{align*}
-	Now it becomes more clear how this is related to explained variance ratio. However, to make things smoother, one can also choose to use the following as the probability of $x$ being chosen as the first center.
+	However, to make things smoother, one can also choose to use the following as the probability of $x$ being chosen as the first center.
 		\begin{align*}
-			p(x) & = \dfrac{\|\mu-\x\|^2}{2\sigma^2}
+			p(x) & = \dfrac{\|\mu-\x\|^2}{2n\sigma^2}
 		\end{align*}
-	Also, notice that computationally this version of $p(x)$ is much cheaper than the one we mentioned above. Therefore, we considered $p(x)$ proportional to $\|x-\mu\|^2$ for choosing $x$ as the first center in our experiments.
+	Notice that the denominator is the variance of $S$. Therefore, we can consider this as the amount of variance explained by $x$. Also, notice that computationally this version of $p(x)$ is much cheaper than using $\sum_{\y\in\X}\|\x-\y\|^2$. Therefore, we considered $p(x)$ proportional to $\|x-\mu\|^2$ for choosing $x$ as the first center in our experiments.
 	\subsection{Centroid of Centers Seeding}
 	We will now analyze the center initialization algorithms using inertia value. Since these algorithms are probabilistic, we are going to take a look at the expected value of inertia. For a set of points $\X$ and a set of centers $\C$, we denote the inertia by $\I_\C(\X)$. For the optimal set of cluster centers $\C_{opt}$, we denote the corresponding inertia by $\I_{opt}(\X)$.
 		\begin{align*}
@@ -153,7 +153,25 @@
 				\begin{align*}
 					E[\I(S)] & \leq \dfrac{\I_{opt}(S)}{2n}+n\|\mu_{S}-\mu_{\C}\|^2
 				\end{align*}
-		\end{theorem}		
+		\end{theorem}
+	For a set of points $S$, consider the partition into $k$ clusters $\{S_1,S_2,\cdots,S_k\}$ so that $S=S_1\cup S_2\cup\cdots\cup S_k$ and $S_i\cap S_j=\{\}$ for $i\neq j$. For brevity, we denote the center of $S_i$ by $\mu_i$ instead of $\mu_{S_i}$ and the center of $S$ by $\mu$. Also, assume that $|S_i|=n_i$ for each $1\leq i\leq k$ and that the set of centers of the clusters is $\mathcal{C}=\{\mu_1,\mu_2,\cdots,\mu_k\}$. We have $\sum_{x\in S_i}\|x-\mu_i\|^2 = n(\sigma_i^2+\mu_i^2)$ where $\sigma_i$ is the variance of the cluster $S_i$.
+		\begin{align*}
+			\sum_{x\in S}\|x-\mu\|^2 
+				& = \sum_{i=1}^k\sum_{x\in S_i}\|x-\mu\|^2\\
+			n\sigma^2
+				& = \sum_{i=1}^kn_i(\sigma_i^2+\|\mu_i-\mu\|^2)\\
+				& = \sum_{i=1}^kn_i\sigma_i^2+\sum_{c\in\C}\|c-\mu\|^2\\
+				& = \sum_{i=1}^kn_i\sigma_i^2+k(\sigma_{\C}^2+\|\mu_{\C}-\mu\|^2)\\
+		\end{align*}
+	Therefore, we have $k\|\mu-\mu_{\C}\|^2\ll n\sigma^2$. Thus, we get the following theorem.
+		\begin{align*}
+			E[\I(S)] & \ll \dfrac{\I_{opt}(S)}{2n}+n\cdot\dfrac{n\sigma^2}{k}\\
+					 & \ll \dfrac{\I_{opt}(S)}{2n}+\dfrac{\I_{opt}(S)}{2k}
+		\end{align*}
+	This gives us another important result.
+		\begin{theorem}
+			$E[\I(S)]\ll \dfrac{\I_{opt}}{2}\left(\dfrac{1}{n}+\dfrac{1}{k}\right)$.
+		\end{theorem}
 	\section{Experiment Setup}
 	We ensure that all algorithms are run under the same conditions. All of them share the same environment and no special optimizations were made for any particular algorithm. Only CPU was used to determine the values we are interested in and no parallelism mechanism was in place for speeding up the process. This way, we can get an idea about the raw performances of the algorithms involved.
 	
