@@ -109,7 +109,7 @@
 		\begin{lemma}
 			Let $A$ be an arbitrary cluster in $\C_{opt}$, and let $\C$ be the clustering with just one center, which is chosen uniformly at random from $A$. Then, $E[\I(A)]=2\I_{opt}(A)$.
 		\end{lemma}
-	Here, $\I_{opt}(A)=\sum_{x\in A}\sum_{b\in A}\|a-b\|^2$. 
+	Here, $\I_{opt}(A)=\sum_{x\in A}\|x-\mu_A\|^2$. 
 	
 	Now, we want to find a similar formula for the remaining centers using centroid of centers seeding. If we take $p(x)$ proportional to $f(x)=\|x-\mu_{\C}\|^2$, then using equation \eqref{eqn:2},
 		\begin{align*}
@@ -143,15 +143,14 @@
 		\end{align*}
 	Now, using equation \eqref{eqn:3}, we have
 		\begin{align*}
-			\I_{opt}(S) & = \sum_{x\in S}\sum_{y\in S}\|x-y\|^2\\
-						  & = 2n^2\sigma^2\\
-			\dfrac{\I_{opt}(S)}{2n} & = n\sigma^2
+			\I_{opt}(S) & = \sum_{x\in S}\|x-\mu_{S}\|^2\\
+						  & = n\sigma^2
 		\end{align*}
 	Thus, we have the following theorem.
 		\begin{theorem}
 			Let $S$ be an arbitrary cluster chosen from $\C_{opt}$ and $\C$ be an arbitrary clustering. If a center is chosen from $S$ and added to $\C$ using centroid of centers initialization, then
 				\begin{align*}
-					E[\I(S)] & \leq \dfrac{\I_{opt}(S)}{2n}+n\|\mu_{S}-\mu_{\C}\|^2
+					E[\I(S)] & \leq \I_{opt}(S)+n\|\mu_{S}-\mu_{\C}\|^2
 				\end{align*}
 		\end{theorem}
 	For a set of points $S$, consider the partition into $k$ clusters $\{S_1,S_2,\cdots,S_k\}$ so that $S=S_1\cup S_2\cup\cdots\cup S_k$ and $S_i\cap S_j=\{\}$ for $i\neq j$. For brevity, we denote the center of $S_i$ by $\mu_i$ instead of $\mu_{S_i}$ and the center of $S$ by $\mu$. Also, assume that $|S_i|=n_i$ for each $1\leq i\leq k$ and that the set of centers of the clusters is $\mathcal{C}=\{\mu_1,\mu_2,\cdots,\mu_k\}$. We have $\sum_{x\in S_i}\|x-\mu_i\|^2 = n(\sigma_i^2+\mu_i^2)$ where $\sigma_i$ is the variance of the cluster $S_i$.
@@ -163,14 +162,14 @@
 				& = \sum_{i=1}^kn_i\sigma_i^2+\sum_{c\in\C}\|c-\mu\|^2\\
 				& = \sum_{i=1}^kn_i\sigma_i^2+k(\sigma_{\C}^2+\|\mu_{\C}-\mu\|^2)\\
 		\end{align*}
-	Therefore, we have $k\|\mu-\mu_{\C}\|^2\ll n\sigma^2$. Thus, we get the following theorem.
+	Therefore, we have $k\|\mu-\mu_{\C}\|^2\leq n\sigma^2$.
 		\begin{align*}
-			E[\I(S)] & \ll \dfrac{\I_{opt}(S)}{2n}+n\cdot\dfrac{n\sigma^2}{k}\\
-					 & \ll \dfrac{\I_{opt}(S)}{2n}+\dfrac{\I_{opt}(S)}{2k}
+			E[\I(S)] & \leq \I_{opt}+n\cdot\dfrac{n\sigma^2}{k}\\
+					 & \leq \I_{opt}(S)+n\dfrac{\I_{opt}(S)}{k}
 		\end{align*}
 	This gives us another important result.
 		\begin{theorem}
-			$E[\I(S)]\ll \dfrac{\I_{opt}}{2}\left(\dfrac{1}{n}+\dfrac{1}{k}\right)$.
+			$E[\I(S)]\leq \I_{opt}\left(1+\dfrac{n}{k}\right)$.
 		\end{theorem}
 	\section{Experiment Setup}
 	We ensure that all algorithms are run under the same conditions. All of them share the same environment and no special optimizations were made for any particular algorithm. Only CPU was used to determine the values we are interested in and no parallelism mechanism was in place for speeding up the process. This way, we can get an idea about the raw performances of the algorithms involved.
