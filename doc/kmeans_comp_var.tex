@@ -162,12 +162,12 @@
 				& = \sum_{i=1}^kn_i\sigma_i^2+\sum_{c\in\C}\|c-\mu\|^2\\
 				& = \sum_{i=1}^kn_i\sigma_i^2+k(\sigma_{\C}^2+\|\mu_{\C}-\mu\|^2)\\
 		\end{align*}
-	Therefore, we have $k\|\mu-\mu_{\C}\|^2\leq n\sigma^2$.
+	Therefore, $k\|\mu-\mu_{\C}\|^2\leq n\sigma^2$ and we have
 		\begin{align*}
-			E[\I(S)] & \leq \I_{opt}+n\cdot\dfrac{n\sigma^2}{k}\\
+			E[\I(S)] & \leq \I_{opt}(S)+n\cdot\dfrac{n\sigma^2}{k}\\
 					 & \leq \I_{opt}(S)+n\dfrac{\I_{opt}(S)}{k}
 		\end{align*}
-	This gives us another important result.
+	This gives us the following result.
 		\begin{theorem}
 			$E[\I(S)]\leq \I_{opt}\left(1+\dfrac{n}{k}\right)$.
 		\end{theorem}
