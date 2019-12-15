@@ -27,7 +27,7 @@
 	\bibliographystyle{plain}
 	\maketitle
 		\begin{abstract}%
-			$k$-Means is a popular clustering algorithm that reduces sum of minimum distances from data points to the centers. Now a days most of the times seeded centers are used instead of choosing all uniformly at random. $k$-Means++ chooses the centers with a so called $D^2$ weighting. However, that is only one of the ways. Similar ideas are possible for seeding the centers. In this paper, we improve $k$-Means++ by choosing the first center with a probability instead of selecting a random point and we analyze another way of initializing the centers. Empirical evidence shows that our proposed algorithms perform better than available methods of center initialization consistently.
+			$k$-Means is a popular clustering algorithm that aims to reduce the sum of minimum squared distances from data points to the centers. Now a days most of the times seeded centers are used instead of choosing all uniformly at random. $k$-Means++ chooses the centers with a so called $D^2$ weighting. However, that is only one of the ways. Similar ideas are possible for seeding the centers. In this paper, we improve $k$-Means++ by choosing the first center with a probability instead of selecting a random point and we analyze another way of initializing the centers. Empirical evidence shows that our proposed algorithms perform better than available methods of center initialization consistently.
 		\end{abstract}
 	\section{Introduction}
 	Widely regarded as the most popular clustering techniques, $k$-Means remains a humble interesting topic in machine learning as well as computational geometry. Roughly the problem is: given a set of points $\X$ in $\mathbb{R}^d$. Find a set of centers $\mathcal{C}$ such that the function \textit{inertia}
@@ -184,19 +184,19 @@
 	\section{Results}
 	We present the results on those four algorithms based on inertia and time required to run them. Instead of checking how many iterations it take for the centers to converge, we have let each algorithm run exactly the same number of times ($300$) which is more than enough for convergence. The time registered here is the time taken by each algorithm for those $300$ iterations. As expected, default $k$-Means is the fastest algorithm. However, if we were to define convergence, that leads to a separate problem which we think other implementations suffer from. We also mentioned something similar before. This might also be one of the reasons why our results of $k$-Means++ differ from the authors implementation. Our argument is also complemented by the experiments. All algorithms seem to reach the same minimum inertia. Therefore, it is the average of inertia that we should focus on.
 	\subsection{Comparison of Different Initialization}
-	The comparison of inertia for different initialization is shown in tables \ref{tbl:cloud}, \ref{tbl:iris}, \ref{tbl:mall}.
+	The comparison of inertia for different initialization is shown in tables \ref{tbl:boston}, \ref{tbl:wine}, \ref{tbl:airlines}.
 		\begin{table}
 			\begin{center}
 				\begin{tabular}{|l|l|l|l|}
 					\hline
 					Algorithm & Average & Minimum & Time\\\hline
-					$k$-Means & 1603.09& 1577.05& 9.27s\\\hline
-					$k$-Means++ & 1563.71& 1518.9& 9.4s\\\hline
-					ORSS & 1569.41& 1530.46& 9.44s\\\hline
-					CoC & 1552.37& 1510.91& 9.69s\\\hline
+					$k$-Means & 2586435.45& 1442170.41& 2.68s\\\hline
+					$k$-Means++ & 1638992.86& 1442170.41& 2.66s\\\hline
+					ORSS & 1620320.77& 1442170.41& 2.69s\\\hline
+					CoC & 1562697.24& 1442170.41& 2.66s\\\hline
 				\end{tabular}
-			\caption{Results on Cloud data set}
-			\label{tbl:cloud}
+			\caption{Results on Boston housing data set}
+			\label{tbl:boston}
 			\end{center}
 		\end{table}
 	
@@ -205,13 +205,13 @@
 				\begin{tabular}{|l|l|l|l|}
 					\hline
 					Algorithm & Average & Minimum & Time\\\hline
-					$k$-Means & 57.74& 43.89& 2.26s\\\hline
-					ORSS & 48.25& 43.8& 2.28s\\\hline
-					$k$-Means++ & 49.19& 43.83& 2.28s\\\hline
-					Var-based & 47.05& 44.79& 2.32s\\\hline
+					$k$-Means & 1011171.27& 916424.19& 0.93s\\\hline
+					ORSS & 1020273.2& 916424.19& 0.94s\\\hline
+					$k$-Means++ & 1011171.27& 916424.19& 0.94s\\\hline
+					CoC & 994075.55& 916424.19& 0.94s\\\hline
 				\end{tabular}
-				\caption{Results on IRIS data set}
-				\label{tbl:iris}
+				\caption{Results on Wine data set}
+				\label{tbl:wine}
 			\end{center}
 			
 		\end{table}
@@ -221,13 +221,13 @@
 				\begin{tabular}{|l|l|l|l|}
 					\hline
 					Algorithm & Average & Minimum & Time\\\hline
-					$k$-Means & 180.37& 174.92& 0.95s\\\hline
-					ORSS & 183.13& 174.89& 0.96s\\\hline
-					$k$-Means++ & 181.23& 0.96& 1.72s\\\hline
-					Var-based & 175.4& 174.85& 0.97s\\\hline
+					$k$-Means & 5788612160669.75& 5724491382108.87& 20.22s\\\hline
+					ORSS & 5883085483272.44& 5724491382108.87& 20.2s\\\hline
+					$k$-Means++ & 5908999306255.42& 5724491382108.87& 20.33s\\\hline
+					CoC & 5782820760840.1& 5724491382108.87& 20.2s\\\hline
 				\end{tabular}
-				\caption{Results on mall customers data set}
-				\label{tbl:mall}
+				\caption{Results on Airlines data set}
+				\label{tbl:airlines}
 			\end{center}
 			
 		\end{table}
@@ -256,6 +256,19 @@
 				\end{tabular}
 				\caption{Results on Mall customer dataset, $5$ clusters}
 				\label{tbl:mall2}
+			\end{center}
+		\end{table}
+	
+		\begin{table}
+			\begin{center}
+				\begin{tabular}{|l|l|l|l|}
+					\hline
+					Algorithm & Average $\I$& Minimum $\I$& Time\\\hline
+					$k$-Means++ & 89866.67& 78385.08& 0.99s\\\hline
+					$k$-Means++ Improved& 88468.3& 78392.42& 0.99s\\\hline
+				\end{tabular}
+				\caption{Results on Mall customer dataset, $5$ clusters}
+				\label{tbl:cloud2}
 			\end{center}
 		\end{table}
 	Notice that in all cases, we achieved lower minimum inertia for $k$-Means++ and yet $k$-Means++ improved version achieved lower inertia on average. Moreover, even though these are randomized algorithms, pretty much every time we ran the experiments, $k$-Means++ improved version performed better. Given the mathematical intuitive justification and experimental results, we are inclined to say that this version works better than original $k$-Means++ consistently.

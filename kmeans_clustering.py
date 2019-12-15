@@ -215,7 +215,6 @@ class KMeansClustering():
         return mean(variances)*tol
 
     def __converge_centers(self, X, centers):
-        best_inertia = None
         for i in range(self.max_iter):
             C = {}
             for i in range(self.n_clusters):
@@ -231,20 +230,9 @@ class KMeansClustering():
                     if d == dist_min:
                         C[i].append(x)
                         break
-            if best_inertia is None or inertia < best_inertia:
-                best_inertia = inertia
-                self.n_iters_ = i
             for i in range(self.n_clusters):
                 if len(C[i]) > 0:
                     centers[i] = mean(C[i], axis=0)
-            self.best_inertia_ = best_inertia
-        self.best_inertia_ = 0
-        for x in X:
-            D = []
-            for c in self.cluster_centers_:
-                d = c-x
-                D.append(dot(d, d))
-            self.best_inertia_ += min(D)
         return centers
         
     def fit(self, X):
