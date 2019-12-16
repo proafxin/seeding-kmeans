@@ -44,13 +44,13 @@
 	\section{Proposed Initialization Methods}
 	For a set of points $S$ and a point $x$, we use $\min(\|x-S\|)$ to denote the minimum of distances from $x$ to the points of $S$ that is $\min(\| x-S\|)=\min_{a\in S}(\| x-a\|)$. Set $D(\x)=\min(\|\x-\C\|)$ for a point $x$ and a set of centers $\C$. Let us denote the centroid of $S$ by $\mu_S$ that is $\mu_S=\dfrac{1}{|S|}\sum_{x\in S}x$.
 	\subsection{First center for $k$-Means++}
-	In $k$-Means++ algorithm, the first center is chosen uniformly at random. However, not all points have the same contribution to inertia. We choose $x$ as a first center in a way that equivalent to explained variance ratio by $x$. We will explain further what we mean by variance explained by $x$ here.
+	In $k$-Means++ algorithm, the first center is chosen uniformly at random. However, not all points have the same contribution to inertia. We choose $x$ as a first center in a way that is equivalent to the variance explained by $x$.
 	\begin{enumerate}[i]
 		\item Choose $\x$ with probability $\dfrac{\|\x-\mu_{\X}\|^2}{\sum_{\x\in\X}\|\x-\mu_{\X}\|^2}$. Set $\C_1=\{\x\}$.\label{step:first_center}
 		\item Repeat the remaining steps in $k$-Means++ \cite[Section $2.2$, Page $3$]{kmeans++}.
 	\end{enumerate}
 	\subsection{Centroid of Centers Based Seeding}
-	We want to choose $x$ with probability proportional to squared distance from centroid of the cluster centers. Our motivation for doing so is the following. In $k$-Means++, probability is proportional to squared minimum distance from the centers. Therefore, the larger this minimum distance is, the higher the probability is for $x$ to be chosen as a center. So, in a sense this can be thought of maximizing the minimum squared distance from the centers to the point in consideration. We intend to check the case where we choose the probability proportional to the total sum of squared distances rather than just the minimum one.
+	We want to choose $x$ with probability proportional to squared distance from centroid of the cluster centers. Our motivation for doing so is the following. In $k$-Means++, probability is proportional to squared minimum distance from the centers. Therefore, the larger this minimum squared distance is, the higher the probability is for $x$ to be chosen as a center. So, in a sense this can be thought of maximizing the minimum squared distance from the centers to the point in consideration. We intend to check the case where we choose the probability proportional to the total sum of squared distances rather than just the minimum one.
 		\begin{enumerate}[i]
 			\item Choose a centers $\x$ like the first center for $k$-Means++ as stated in\eqref{step:coc_center}. Set $\C_1=\{\x\}$.
 			\item For an already existing set of $i$ centers $\mathcal{C}_i=\{c_1,\cdots,c_i\}$, choose a new center $\x\in\X$ with probability proportional to $\|\x-\mu_{\C_i}\|^2$.\label{step:coc_center}
@@ -154,14 +154,14 @@
 				\end{align*}
 		\end{theorem}
 	For a set of points $S$, consider the partition into $k$ clusters $\{S_1,S_2,\cdots,S_k\}$ so that $S=S_1\cup S_2\cup\cdots\cup S_k$ and $S_i\cap S_j=\{\}$ for $i\neq j$. For brevity, we denote the center of $S_i$ by $\mu_i$ instead of $\mu_{S_i}$ and the center of $S$ by $\mu$. Also, assume that $|S_i|=n_i$ for each $1\leq i\leq k$ and that the set of centers of the clusters is $\mathcal{C}=\{\mu_1,\mu_2,\cdots,\mu_k\}$. We have $\sum_{x\in S_i}\|x-\mu_i\|^2 = n(\sigma_i^2+\mu_i^2)$ where $\sigma_i$ is the variance of the cluster $S_i$.
-		\begin{align*}
+		\begin{align}
 			\sum_{x\in S}\|x-\mu\|^2 
-				& = \sum_{i=1}^k\sum_{x\in S_i}\|x-\mu\|^2\\
+				& = \sum_{i=1}^k\sum_{x\in S_i}\|x-\mu\|^2\nonumber\\
 			n\sigma^2
-				& = \sum_{i=1}^kn_i(\sigma_i^2+\|\mu_i-\mu\|^2)\\
-				& = \sum_{i=1}^kn_i\sigma_i^2+\sum_{c\in\C}\|c-\mu\|^2\\
-				& = \sum_{i=1}^kn_i\sigma_i^2+k(\sigma_{\C}^2+\|\mu_{\C}-\mu\|^2)\\
-		\end{align*}
+				& = \sum_{i=1}^kn_i(\sigma_i^2+\|\mu_i-\mu\|^2)\nonumber\\
+				& = \sum_{i=1}^kn_i\sigma_i^2+\sum_{c\in\C}\|c-\mu\|^2\nonumber\\
+				& = \sum_{i=1}^kn_i\sigma_i^2+k(\sigma_{\C}^2+\|\mu_{\C}-\mu\|^2)\label{eqn:4}\\
+		\end{align}
 	Therefore, $k\|\mu-\mu_{\C}\|^2\leq n\sigma^2$ and we have
 		\begin{align*}
 			E[\I(S)] & \leq \I_{opt}(S)+n\cdot\dfrac{n\sigma^2}{k}\\
@@ -171,6 +171,7 @@
 		\begin{theorem}
 			$E[\I(S)]\leq \I_{opt}\left(1+\dfrac{n}{k}\right)$.
 		\end{theorem}
+	We believe this estimate is not tight at all and it can be improved by a huge margin. For example, we had ideas of using Abel's summation formula \citep[Theorem $4.2$]{apostol} and Taylor series to approximate the sum on the right side of equation \eqref{eqn:4} and get a tighter bound. However, we were happy with the experimental results and therefore, we decided to not spend any more time in finding a tighter bound. We may work on this in future, but right now we do not have any plans to improve this bound.
 	\section{Experiment Setup}
 	We ensure that all algorithms are run under the same conditions. All of them share the same environment and no special optimizations were made for any particular algorithm. Only CPU was used to determine the values we are interested in and no parallelism mechanism was in place for speeding up the process. This way, we can get an idea about the raw performances of the algorithms involved.
 	
