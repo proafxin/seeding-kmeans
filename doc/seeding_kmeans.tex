@@ -176,26 +176,35 @@
 	
 	Python is used as the programming language to write necessary codes. Some common auxiliary packages such as \textit{scipy, scikit-learn, numpy} etc are used to help with the code. The algorithms are simply different methods of the same class, so they share the same fitting and prediction function. Only the initialization differs for different algorithm. It should be mentioned that even though some packages have native support for $k$-Means implementation, we did not use them to run the experiments. Not all algorithms we want to test are available in those packages. Therefore, in order to ensure same environment and optimizations for every algorithm, we wrote them all from scratch so that we could be sure they are tested under the same settings.
 	
-	The data sets we have used are some popular ones: Iris data set, Mall customers data set, Airline clustering data set, Wine testing dataset. We did not duel too much on using too many data sets. \cite{miligan} shows that using $z$-score to standardize the data is not favorable for clustering because it loses between-cluster variation. Therefore, we did not use any sort of standardization or normalization lest it should lose variance. Instead, we have used PCA to remove linear dependency among variables. 
+	The data sets used for the experiment are some of the popular ones.
+		\begin{enumerate}
+			\item Boston housing data set
+			\item Wine quality testing data set
+			\item Mall customers data set
+			\item Airlines cluster data set
+			\item Iris flower data set
+			\item Cloud data set
+		\end{enumerate}
+	\cite{miligan} shows that using $z$-score to standardize the data is not favorable for clustering because it loses between-cluster variation. Therefore, we did not use any sort of standardization or normalization lest it should lose variance or become prone to bias. Instead, we have used PCA to remove linear dependency among variables. 
 	
 	While experimenting on such algorithms, it is of utmost importance to run the same experiment more than once under the same parameters and conditions. For example, assume that we want to compare $k$-Means++ and Forgy's algorithm \citep{forgy} for $k=5$ clusters. We should run this experiment at least $m$ times where $m>1$ in order to eliminate bias and account for randomness. We run each experiment a total of $20$ times and take the average and minimum values of inertia.
 	
-	We would like to address another important issue regarding $k$-Means algorithms. Most of the time we 
-	\section{Results}
-	We present the results on those four algorithms based on inertia and time required to run them. Instead of checking how many iterations it take for the centers to converge, we have let each algorithm run exactly the same number of times ($300$) which is more than enough for convergence. The time registered here is the time taken by each algorithm for those $300$ iterations. As expected, default $k$-Means is the fastest algorithm. However, if we were to define convergence, that leads to a separate problem which we think other implementations suffer from. We also mentioned something similar before. This might also be one of the reasons why our results of $k$-Means++ differ from the authors implementation. Our argument is also complemented by the experiments. All algorithms seem to reach the same minimum inertia. Therefore, it is the average of inertia that we should focus on.
+	We would like to address another important issue regarding $k$-Means algorithms. Usually convergence speed is tested for $k$-Means by checking how many iteration it requires until the centers stop changing. However, as we will see, given enough number of iterations all initialization can eventually produce the minimum inertia value. This enabled us to run the experiments a fixed number of times for every initialization instead of checking the convergence. There is another big reason for doing so. Consider some convergence criterion. For example, when the sum of squared distances between the old and new centers is less than some tolerance value, we reach convergence. Using this kind of criterion does not necessarily optimize inertia value as much as possible. In our experiments, we have found multiple instances where convergence is reached in less than 10 iterations but the inertia value is far from the minimum possible value. The speed of convergence is our secondary goal and since that does not actually help us distinguish the initialization procedures, we decided to not use this at all. We have another reason for doing so. If a data set is normalized or standardized for some reason, then the convergence criterion does not work as well either. The reason is that it already has very small distances between old and new centers. It is no wonder convergence would be reached really fast regardless of what initialization is used. And this does not necessarily indicate that the optimum inertia value was achieved. There is another benefit of using this setting. We can understand how consistent an initialization is. As we will see in section \eqref{sec:results}, every method can reach the minimum inertia at least once. Therefore, the method with lower average performed more consistently without any doubt. We will have a similar implication for comparison between $k$-Means++ and our proposed improvement for $k$-Means++.
+	\section{Results}\label{sec:results}
+	We present the results on the initialization procedures mentioned before. We have let each algorithm run exactly the same number of times ($300$) which is more than enough for convergence. The time registered here is the time taken by each algorithm for those $300$ iterations. As expected, default $k$-Means is usually the fastest algorithm. Also, as mentioned earlier, every method was repeated $20$ times and average/minimum was considered for those iterations.
 	\subsection{Comparison of Different Initialization}
-	The comparison of inertia for different initialization is shown in tables \ref{tbl:boston}, \ref{tbl:wine}, \ref{tbl:airlines}.
+	The comparison of inertia for different initialization is shown in tables \ref{tbl:boston}, \ref{tbl:wine}, \ref{tbl:airlines}. We have shown the results here for $k=5$ clusters.
 		\begin{table}
 			\begin{center}
 				\begin{tabular}{|l|l|l|l|}
 					\hline
-					Algorithm & Average & Minimum & Time\\\hline
+					Algorithm & Average $\I$& Minimum $\I$& Time\\\hline
 					$k$-Means & 2586435.45& 1442170.41& 2.68s\\\hline
 					$k$-Means++ & 1638992.86& 1442170.41& 2.66s\\\hline
 					ORSS & 1620320.77& 1442170.41& 2.69s\\\hline
 					CoC & 1562697.24& 1442170.41& 2.66s\\\hline
 				\end{tabular}
-			\caption{Results on Boston housing data set}
+			\caption{Results on Boston housing data set, $5$ clusters}
 			\label{tbl:boston}
 			\end{center}
 		\end{table}
@@ -204,13 +213,13 @@
 			\begin{center}
 				\begin{tabular}{|l|l|l|l|}
 					\hline
-					Algorithm & Average & Minimum & Time\\\hline
+					Algorithm & Average $\I$& Minimum $\I$& Time\\\hline
 					$k$-Means & 1011171.27& 916424.19& 0.93s\\\hline
 					ORSS & 1020273.2& 916424.19& 0.94s\\\hline
 					$k$-Means++ & 1011171.27& 916424.19& 0.94s\\\hline
 					CoC & 994075.55& 916424.19& 0.94s\\\hline
 				\end{tabular}
-				\caption{Results on Wine data set}
+				\caption{Results on Wine data set, $5$ clusters}
 				\label{tbl:wine}
 			\end{center}
 			
@@ -220,29 +229,29 @@
 			\begin{center}
 				\begin{tabular}{|l|l|l|l|}
 					\hline
-					Algorithm & Average & Minimum & Time\\\hline
+					Algorithm & Average $\I$& Minimum $\I$& Time\\\hline
 					$k$-Means & 5788612160669.75& 5724491382108.87& 20.22s\\\hline
 					ORSS & 5883085483272.44& 5724491382108.87& 20.2s\\\hline
 					$k$-Means++ & 5908999306255.42& 5724491382108.87& 20.33s\\\hline
 					CoC & 5782820760840.1& 5724491382108.87& 20.2s\\\hline
 				\end{tabular}
-				\caption{Results on Airlines data set}
+				\caption{Results on Airlines data set, $5$ clusters}
 				\label{tbl:airlines}
 			\end{center}
 			
 		\end{table}
 	\subsection{$k$-Means++ vs $k$-Means++ Improved}
-	The comparison of $k$-Means++ against $k$-Means++ improved is shown in tables \ref{tbl:iris2}, \ref{tbl:mall2}.
+	The comparison of $k$-Means++ against $k$-Means++ improved is shown in tables \ref{tbl:cloud}, \ref{tbl:mall2}, \ref{tbl:wine2}.
 		\begin{table}
 			\begin{center}
 				\begin{tabular}{|l|l|l|l|}
 					\hline
 					Algorithm & Average $\I$& Minimum $\I$& Time\\\hline
-					$k$-Means++ & 73.3& 57.23& 0.74s\\\hline
-					$k$-Means++ Improved& 67.58& 57.26& 0.74s\\\hline
+					$k$-Means++ & 17693133.44& 17414699.85& 4.95s\\\hline
+					$k$-Means++ Improved& 17614961.42& 17414699.85& 4.93s\\\hline
 				\end{tabular}
-				\caption{Results on Iris dataset, $5$ clusters}
-				\label{tbl:iris2}
+				\caption{Results on Cloud data set, $5$ clusters}
+				\label{tbl:cloud}
 			\end{center}
 		\end{table}
 	
@@ -254,7 +263,7 @@
 					$k$-Means++ & 89866.67& 78385.08& 0.99s\\\hline
 					$k$-Means++ Improved& 88468.3& 78392.42& 0.99s\\\hline
 				\end{tabular}
-				\caption{Results on Mall customer dataset, $5$ clusters}
+				\caption{Results on Mall customer data set, $5$ clusters}
 				\label{tbl:mall2}
 			\end{center}
 		\end{table}
@@ -264,11 +273,11 @@
 				\begin{tabular}{|l|l|l|l|}
 					\hline
 					Algorithm & Average $\I$& Minimum $\I$& Time\\\hline
-					$k$-Means++ & 89866.67& 78385.08& 0.99s\\\hline
-					$k$-Means++ Improved& 88468.3& 78392.42& 0.99s\\\hline
+					$k$-Means++ & 1007402.92& 916424.19& 0.91s\\\hline
+					$k$-Means++ Improved& 995907.65& 916424.19& 0.91s\\\hline
 				\end{tabular}
-				\caption{Results on Mall customer dataset, $5$ clusters}
-				\label{tbl:cloud2}
+				\caption{Results on Wine data set, $5$ clusters}
+				\label{tbl:wine2}
 			\end{center}
 		\end{table}
 	Notice that in all cases, we achieved lower minimum inertia for $k$-Means++ and yet $k$-Means++ improved version achieved lower inertia on average. Moreover, even though these are randomized algorithms, pretty much every time we ran the experiments, $k$-Means++ improved version performed better. Given the mathematical intuitive justification and experimental results, we are inclined to say that this version works better than original $k$-Means++ consistently.
