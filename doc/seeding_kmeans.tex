@@ -99,7 +99,7 @@
 		\begin{align*}
 			p(x) & = \dfrac{\|\mu-\x\|^2}{2n\sigma^2}
 		\end{align*}
-	Notice that the denominator is the variance of $S$. Therefore, we can consider this as the amount of variance explained by $x$. Also, notice that computationally this version of $p(x)$ is much cheaper than using $\sum_{\y\in\X}\|\x-\y\|^2$. Therefore, we considered $p(x)$ proportional to $\|x-\mu\|^2$ for choosing $x$ as the first center in our experiments.
+	Notice that the variance of $S$ in the denominator. We can consider this as the amount of variance explained by $x$. Also, notice that computationally this version of $p(x)$ is much cheaper than using $\sum_{\y\in\X}\|\x-\y\|^2$. Therefore, we considered $p(x)$ proportional to $\|x-\mu\|^2$ for choosing $x$ as the first center in our experiments.
 	\subsection{Centroid of Centers Seeding}
 	We will now analyze the center initialization algorithms using inertia value. Since these algorithms are probabilistic, we are going to take a look at the expected value of inertia. For a set of points $\X$ and a set of centers $\C$, we denote the inertia by $\I_\C(\X)$. For the optimal set of cluster centers $\C_{opt}$, we denote the corresponding inertia by $\I_{opt}(\X)$.
 		\begin{align*}
