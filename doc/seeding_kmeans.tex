@@ -47,7 +47,7 @@
 	We would also like to point out that to our knowledge no surveys were done after removing linear dependency prior to running the experiments. This is a very important step if we are to get a meaningful clustering out of $k$-Means algorithm. PCA also helps with some drawbacks of $k$-Means such as $k$-Means struggles with non-spherical data set. PCA decomposes the existing data points into orthogonal\footnote{It is well known that orthogonal vectors are linearly independent.} ones. If we use PCA (principal component analysis) before running a clustering algorithm, we can redefine the variables into linearly independent ones. For our experiment, we have used PCA on every data set before running cluster algorithm.
 	\section{Proposed Initialization Methods}
 	For a set of points $S$ and a point $x$, we use $\min(\|x-S\|)$ to denote the minimum of distances from $x$ to the points of $S$ that is $\min(\| x-S\|)=\min_{a\in S}(\| x-a\|)$. Set $D(\x)=\min(\|\x-\C\|)$ for a point $x$ and a set of centers $\C$. Let us denote the centroid of $S$ by $\mu_S$ that is $\mu_S=\dfrac{1}{|S|}\sum_{x\in S}x$.
-	\subsection{First center for $k$-Means++}
+	\subsection{First center for $k$-Means++}\label{sec:first_center}
 	In $k$-Means++ algorithm, the first center is chosen uniformly at random. However, not all points have the same contribution to inertia. We choose $x$ as a first center in a way that is equivalent to the variance explained by $x$.
 	\begin{enumerate}[i]
 		\item Choose $\x$ with probability $\dfrac{\|\x-\mu_{\X}\|^2}{\sum_{\x\in\X}\|\x-\mu_{\X}\|^2}$. Set $\C_1=\{\x\}$.\label{step:first_center}
@@ -56,7 +56,7 @@
 	\subsection{Centroid of Centers Based Seeding}
 	We want to choose $x$ with probability proportional to squared distance from centroid of the cluster centers. Our motivation for doing so is the following. In $k$-Means++, probability is proportional to squared minimum distance from the centers. Therefore, the larger this minimum squared distance is, the higher the probability is for $x$ to be chosen as a center. So, in a sense this can be thought of maximizing the minimum squared distance from the centers to the point in consideration. We intend to check the case where we choose the probability proportional to the total sum of squared distances rather than just the minimum one.
 		\begin{enumerate}[i]
-			\item Choose a centers $\x$ like the first center for $k$-Means++ as stated in\eqref{step:coc_center}. Set $\C_1=\{\x\}$.
+			\item Choose a point $\x$ as stated in step \eqref{step:first_center} of section \eqref{sec:first_center}. Set $\C_1=\{\x\}$.
 			\item For an already existing set of $i$ centers $\mathcal{C}_i=\{c_1,\cdots,c_i\}$, choose a new center $\x\in\X$ with probability proportional to $\|\x-\mu_{\C_i}\|^2$.\label{step:coc_center}
 			\item Repeat step \eqref{step:coc_center} until $i=k$.
 			\item For each $1\leq i\leq k$, set $\C_i=\{\x\in\X:\|\x-c_i\|=\min(x-\C)\}$.\label{step:coc_cluster}
