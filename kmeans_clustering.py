@@ -23,10 +23,7 @@ class KMeansClustering():
     labels_ = array([])
     random_state = None
     sse_ = 0.0
-    iter_convergence_ = 10000
-    time = 0
-    n_iters_ = 0
-    best_inertia_ = 0
+    iter_convergence_ = 0
     centroid_ = None
 
     def __init__(self, init, max_iter, n_clusters, verbose, random_state=None):
@@ -216,9 +213,10 @@ class KMeansClustering():
 
     def __converge_centers(self, X, centers):
         for i in range(self.max_iter):
+            centers_old = centers.copy()
             C = {}
-            for i in range(self.n_clusters):
-                C[i] = []
+            for j in range(self.n_clusters):
+                C[j] = []
             inertia = 0
             for x in X:
                 D = []
@@ -226,13 +224,19 @@ class KMeansClustering():
                     D.append(dot(c-x, c-x))
                 dist_min = min(D)
                 inertia += dist_min
-                for (i, d) in enumerate(D):
+                for (j, d) in enumerate(D):
                     if d == dist_min:
-                        C[i].append(x)
+                        C[j].append(x)
                         break
-            for i in range(self.n_clusters):
-                if len(C[i]) > 0:
-                    centers[i] = mean(C[i], axis=0)
+            for j in range(self.n_clusters):
+                if len(C[j]) > 0:
+                    centers[j] = mean(C[j], axis=0)
+            # print(centers)
+            # print(centers_old)
+            if np.all(centers_old == centers):
+                self.iter_convergence_ = i
+                self.sse_ = inertia
+                break
         return centers
         
     def fit(self, X):
