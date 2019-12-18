@@ -44,7 +44,7 @@
 	\section{Related Work}
 	There has been multiple surveys on $k$-Means in the literature. Probably the most relevant work in this regard is done by \cite{celebi}. However, most of the algorithms used in that paper are not used practically very much. It was also noted by the authors themselves that $k$-Means++ and its greedy version work better than most. They also mention that probabilistic algorithms perform better than deterministic ones. Moreover, another highly influential center initialization algorithm \citep{ostrovsky} (ORSS) was not considered in their experiments. There is no mention of Ostrovsky's algorithm in their paper whatsoever. Surprisingly, there is no mention of Ostrovsky's algorithm in $k$-Means++ paper either even though it was published in $2007$ whereas Ostrovsky's algorithm was published in $2006$. Considering ORSS makes the results very interesting. There are cases where ORSS is better than both $k$-Means++ and our proposed algorithm.
 	
-	We would also like to point out that to our knowledge no surveys were done after removing linear dependency prior to running the experiments. This is a very important step if we are to get a meaningful clustering out of $k$-Means algorithm. PCA also helps with some drawbacks of $k$-Means such as $k$-Means struggles with non-spherical data set. PCA decomposes the existing data points into orthogonal\footnote{It is well known that orthogonal vectors are linearly independent.} ones. If we use PCA (principal component analysis) before running a clustering algorithm, we can redefine the variables into linearly independent ones. For our experiment, we have used PCA on every data set before running cluster algorithm.
+	We would also like to point out that to our knowledge no surveys were done after removing linear dependency prior to running the experiments. This is a very important step if we are to get a meaningful clustering out of $k$-Means algorithm. We can achieve this using some known algorithm such as \textbf{principle component analysis} or \textbf{singular value decomposition}. We opted for PCA in this paper. PCA decomposes the existing data points into orthogonal\footnote{It is well known that orthogonal vectors are linearly independent.} ones. If we use PCA (principal component analysis) before running a clustering algorithm, we can redefine the variables into linearly independent ones. For our experiment, we have used PCA on every data set before running cluster algorithm. However, we did not reduce dimensions in order to preserve the originality of the data set. We only used PCA for removing linear dependency among variables. We believe this strengthens our result over other available results. For example, our results conflict with some results shown in $k$-Means++ paper \cite{kmeans++}. For our experiments, we intentionally used $k=10$ to cross check our results with that of $k$-Means++. Unfortunately, we found differences in our results. However, that is a separate topic and we avoid that discussion in this paper.
 	\section{Proposed Initialization Methods}
 	For a set of points $S$ and a point $x$, we use $\min(\|x-S\|)$ to denote the minimum of distances from $x$ to the points of $S$ that is $\min(\| x-S\|)=\min_{a\in S}(\| x-a\|)$. Set $D(\x)=\min(\|\x-\C\|)$ for a point $x$ and a set of centers $\C$. Let us denote the centroid of $S$ by $\mu_S$ that is $\mu_S=\dfrac{1}{|S|}\sum_{x\in S}x$.
 	\subsection{First center for $k$-Means++}\label{sec:first_center}
@@ -54,7 +54,7 @@
 		\item Repeat the remaining steps in $k$-Means++ \cite[Section $2.2$, Page $3$]{kmeans++}.
 	\end{enumerate}
 	\subsection{Centroid of Centers Based Seeding}
-	We want to choose $x$ with probability proportional to squared distance from centroid of the cluster centers. Our motivation for doing so is the following. In $k$-Means++, probability is proportional to squared minimum distance from the centers. Therefore, the larger this minimum squared distance is, the higher the probability is for $x$ to be chosen as a center. So, in a sense this can be thought of maximizing the minimum squared distance from the centers to the point in consideration. We intend to check the case where we choose the probability proportional to the total sum of squared distances rather than just the minimum one. AS we will show later, sum of all squared distances from centers to the point in discussion is actually dependent on the distance from centroid of those cluster centers to that point.
+	We want to choose $x$ with probability proportional to squared distance from centroid of the cluster centers. Our motivation for doing so is the following. In $k$-Means++, probability is considered proportional to squared minimum distance from the centers. Therefore, the larger this minimum squared distance is, the higher the probability is for $x$ to be chosen as a center. So, in a sense this can be thought of maximizing the minimum squared distance from the centers to the point in consideration. We intend to check the case where we choose the probability proportional to the total sum of squared distances rather than just the minimum one. As we will show later, sum of all squared distances from centers to the point in discussion is dependent on the distance from centroid of those cluster centers to that point. Note that this opens up the discussion where we need to check other ways of taking this probability. For example, minimizing variance of distances from centers, etc. However, those ideas are out of our scope for this paper.
 		\begin{enumerate}[i]
 			\item Choose a point $\x$ as stated in step \eqref{step:first_center} of section \eqref{sec:first_center}. Set $\C_1=\{\x\}$.
 			\item For an already existing set of $i$ centers $\mathcal{C}_i=\{c_1,\cdots,c_i\}$, choose a new center $\x\in\X$ with probability proportional to $\|\x-\mu_{\C_i}\|^2$.\label{step:coc_center}
@@ -203,12 +203,12 @@
 				\begin{tabular}{|l|l|l|l|l|}
 					\hline
 					Algorithm & Average $\I$& Minimum $\I$& Iterations & Time\\\hline
-					$k$-Means & 2586435.45& 1442170.41& & 2.68s\\\hline
-					$k$-Means++ & 1638992.86& 1442170.41& & 2.66s\\\hline
-					ORSS & 1620320.77& 1442170.41& & 2.69s\\\hline
-					CoC & 1562697.24& 1442170.41& & 2.66s\\\hline
+					$k$-Means & 2576156.1& 1467415.54& 9& 0.09s\\\hline
+					$k$-Means++ & 1685296.83& 1442170.41& 7& 0.1s\\\hline
+					ORSS & 1612137.72& 1442170.41& 7& 0.1s\\\hline
+					CoC & 1604805.21& 1443125.04& 9& 0.09s\\\hline
 				\end{tabular}
-			\caption{Results on Boston housing data set, $10$ clusters}
+			\caption{Results on Boston housing data set, $5$ clusters}
 			\label{tbl:boston}
 			\end{center}
 		\end{table}
@@ -230,13 +230,13 @@
 	
 		\begin{table}
 			\begin{center}
-				\begin{tabular}{|l|l|l|l|}
+				\begin{tabular}{|l|l|l|l|l|}
 					\hline
-					Algorithm & Average $\I$& Minimum $\I$& Time\\\hline
-					$k$-Means & 1011171.27& 916424.19& 0.93s\\\hline
-					ORSS & 1020273.2& 916424.19& 0.94s\\\hline
-					$k$-Means++ & 1011171.27& 916424.19& 0.94s\\\hline
-					CoC & 994075.55& 916424.19& 0.94s\\\hline
+					Algorithm & Average $\I$& Minimum $\I$& Iterations & Time\\\hline
+					$k$-Means & 1011171.27& 916424.19& & 0.93s\\\hline
+					ORSS & 1020273.2& 916424.19& & 0.94s\\\hline
+					$k$-Means++ & 1011171.27& 916424.19& & 0.94s\\\hline
+					CoC & 994075.55& 916424.19& & 0.94s\\\hline
 				\end{tabular}
 				\caption{Results on Wine data set, $5$ clusters}
 				\label{tbl:wine}
