@@ -287,12 +287,14 @@ class KMeansClustering():
         self.centroid_ = mean(X, axis=0)
         if len(X) < 1:
             raise ValueError('Dataset must have size greater than 0')
-        if self.random_state is not None:
-            X = shuffle(X)
         self.__initialize_centers(X, k)
+        # print(self.init)
+        # print(self.cluster_centers_)
         for c in self.cluster_centers_:
             for a in c:
-                if type(a) != type(np.float64(1.0)):
+                # print(a, type(a))
+                if type(a) != type(np.float64(1.0)) and type(a) != type(np.int32(1)):
+                    print(a, type(a))
                     raise ValueError('Centers not initialized properly')
         if self.verbose is True:
             print('Initializtion:', self.init)

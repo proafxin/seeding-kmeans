@@ -71,7 +71,7 @@
 	\section{Motivation}
 	In this section, we discuss the motivation behind our algorithm and why they make sense mathematically. 
 	\subsection{$k$-Means++ Improved}
-	Consider a set of $n$ points $\X$ and that the probability of $x\in\X$ being chosen as a center as $p(x)$. From the definition of variance, for a set of points $S$,
+	Consider a set of $n$ points $\X$ and that the probability of $x\in\X$ being chosen as a center as $p(x)$. Following the definition of variance, for a set of points $S$, we define
 		\begin{align}
 			\sigma^2(S) & = \dfrac{\sum_{x\in S} \|x-\mu_{S}\|^2}{|S|}\nonumber\\
 			\sum_{x\in S}\|x-\mu_{S}\|^2 & = |S|\sigma^2\label{eqn:1}
@@ -105,7 +105,7 @@
 			p(x) & = \dfrac{\|\mu-\x\|^2}{2n\sigma^2}
 		\end{align*}
 	Notice that the variance of $S$ in the denominator. We can consider this as the amount of variance explained by $x$. Also, notice that computationally this version of $p(x)$ is much cheaper than using $\sum_{\y\in\X}\|\x-\y\|^2$. Therefore, we considered $p(x)$ proportional to $\|x-\mu\|^2$ for choosing $x$ as the first center in our experiments.
-	\subsection{Centroid of Centers Seeding}
+	\subsection{Seeded Inertia}
 	Since the algorithms in discussion are probabilistic, we should look at the expected value of inertia. For a set of points $\X$ and a set of centers $\C$, we denote the inertia by $\I_\C(\X)$. %For the optimal set of cluster centers $\C_{opt}$, we denote the corresponding inertia by $\I_{opt}(\X)$.
 		\begin{align*}
 			\I_\C(\X) & = \sum_{\x\in\X}\min_{\c\in\C}(\|c-x\|^2)
@@ -126,6 +126,23 @@
 			p(x) & = \dfrac{f(x)}{\sum_{y\in S}f(y)}\\
 				 & = \dfrac{\|x-\mu_{\C}\|^2}{|S|(\sigma^2+\|\mu_{S}-\mu_{\C}\|^2)}
 		\end{align*}
+	Note the following about minimum distance from $x$ to the set of points $\C$.
+		\begin{align*}
+			D(x)^2 & \leq \dfrac{1}{k}\sum_{c\in \C}\|x-c\|^2\\
+					& = \dfrac{1}{k}\sum_{c\in \C}\|x-\mu_{\C}+\mu_{\C}-c\|^2\\
+					& = \dfrac{1}{k}\sum_{c\in \C}\left(\|x-\mu_{\C}\|^2+2\langle x-\mu_{\C},\mu_{\C}-c\rangle+\|\mu_{\C}-c\|^2\right)\\
+					& = \dfrac{1}{k}\left(k\|x-\mu_{\C}\|^2+\sum_{c\in \C}\langle x-\mu_{\C},\mu_{\C}-c\rangle+\|\mu_{\C}-c\|^2\right)\\
+					& = \|x-\mu_{\C}\|^2+\dfrac{1}{k}\sum_{c\in\C}\|\mu_{\C}-c\|^2
+		\end{align*}
+	Thus, we can write inertia as 
+		\begin{align*}
+			E[\I(S)] & = \sum_{x\in S}p(x)\sum_{y\in S}\min(D(y),\|x-y\|)^2\\
+					 & \leq \sum_{x\in S}p(x)\sum_{y\in S}\left(\|y-\mu_{\C}\|^2+\dfrac{1}{k}\sum_{c\in\C}\|\mu_{\C}-c\|^2\right)\\
+					 & = \sum_{x\in S}p(x)\sum_{y\in S}\|y-\mu_{\C}\|^2+\dfrac{n}{k}\sum_{c\in\C}\|\mu_{\C}-c\|^2\\
+					 & = 1\cdot\left(\sum_{y\in S}\|y-\mu\|^2+n\|\mu-\mu_{\C}\|^2\right)+\dfrac{n}{k}\I_{opt}(\C)\\
+					 & = n(\sigma^2+\|\mu-\mu_{\C}\|^2)+\dfrac{n}{k}\I_{opt}(\C)
+		\end{align*}
+	This holds for any seeding technique.
 	\section{Experiment Setup}
 	We ensure that all algorithms are run under the same conditions. All of them share the same environment and no special optimizations were made for any particular algorithm. Only CPU was used to determine the values we are interested in and no parallelism mechanism was in place for speeding up the process. This way, we can get an idea about the raw performances of the algorithms involved.
 	

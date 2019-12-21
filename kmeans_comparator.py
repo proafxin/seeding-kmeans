@@ -54,6 +54,7 @@ class KMeansSimulator():
     def run_kmeans(self):
         X, X_pca = self.__get_data()
         for num in self.n_cluster:
+            # print(num)
             self.inertia_[num] = {}
             self.inertia_with_pca_[num] = {}
             self.time_[num] = {}
