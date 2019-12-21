@@ -21,7 +21,11 @@
 	\name Masum Billal 
 	\email billalmasum93@gmail.com\\
 	\name Farhad Naeem
-	\email farhad.alam@shohoz.com\\
+	\email email\\
+	\name Nobel Khandaker
+	\email email\\
+	\name Walid Khan
+	\email email\\
 	\addr Data Science Department\\
 	Shohoz\\
 	Bangladesh
@@ -31,7 +35,7 @@
 	\bibliographystyle{plain}
 	\maketitle
 		\begin{abstract}%
-			$k$-Means is a popular clustering algorithm that aims to reduce the sum of minimum squared distances from data points to the centers. Now a days most of the times seeded centers are used instead of choosing all uniformly at random. $k$-Means++ chooses the centers with a so called $D^2$ weighting. However, that is only one of the ways. Similar ideas are possible for seeding the centers. In this paper, we improve $k$-Means++ by choosing the first center with a probability instead of selecting a random point and we analyze another way of initializing the centers. Empirical evidence shows that our proposed algorithms perform better than available methods of center initialization consistently.
+			$k$-Means is a popular clustering algorithm that aims to reduce the sum of minimum squared distances from data points to the centers. Now a days most of the times seeded centers are used instead of choosing all uniformly at random. In this paper, we discuss various issues related to seeding centers in $k$-Means algorithm. First of all, we question the authenticity of experimental and theoretical results in $k$-Means++ paper. We talk about a not so popular algorithm by \cite{ostrovsky} (ORSS). Then we discuss another initialization strategy and compare experimental results among $k$-Means++, ORSS and our proposed methods.
 		\end{abstract}
 	\section{Introduction}
 	Widely regarded as the most popular clustering techniques, $k$-Means remains a humble interesting topic in machine learning as well as computational geometry. Roughly the problem is: given a set of points $\X$ in $\mathbb{R}^d$. Find a set of centers $\mathcal{C}$ such that the function \textit{inertia}
@@ -42,9 +46,10 @@
 	
 	Default $k$-Means algorithm starts with random centers and then converge based on minimum distances of the centers from the data points. New centers are calculated based on the centroid. This is known as Lloyd's algorithm \citep{lloyd}. We repeat this process until no more change is possible. \cite{ostrovsky} and \cite{kmeans++} take it one step further by choosing the initial centers with a probability. We intend to introduce other ways of initialization.
 	\section{Related Work}
-	There has been multiple surveys on $k$-Means in the literature. Probably the most relevant work in this regard is done by \cite{celebi}. However, most of the algorithms used in that paper are not used practically very much. It was also noted by the authors themselves that $k$-Means++ and its greedy version work better than most. They also mention that probabilistic algorithms perform better than deterministic ones. Moreover, another highly influential center initialization algorithm \citep{ostrovsky} (ORSS) was not considered in their experiments. There is no mention of Ostrovsky's algorithm in their paper whatsoever. Surprisingly, there is no mention of Ostrovsky's algorithm in $k$-Means++ paper either even though it was published in $2007$ whereas Ostrovsky's algorithm was published in $2006$. Considering ORSS makes the results very interesting. There are cases where ORSS is better than both $k$-Means++ and our proposed algorithm.
+	There has been multiple surveys on $k$-Means in the literature. Probably the most relevant work in this regard is done by \cite{celebi}. However, most of the algorithms used in that paper are not used practically very much. It was also noted by the authors themselves that $k$-Means++ and its greedy version work better than most. They also mention that probabilistic algorithms perform better than deterministic ones. Moreover, another highly influential center initialization algorithm \citep{ostrovsky} (ORSS) was not considered in their experiments. There is no mention of Ostrovsky's algorithm in their paper whatsoever. Surprisingly, there is no mention of Ostrovsky's algorithm in $k$-Means++ paper either even though it was published in $2007$ whereas Ostrovsky's algorithm was published in $2006$. In fact, one can argue that $k$-Means++ algorithm is actually a portion of ORSS algorithm. Including ORSS makes the results very interesting. ORSS is like a dark horse. There are cases where ORSS is better than both $k$-Means++ and our proposed algorithm. We will talk about this more in section \eqref{sec:kmeans++vsorss}.
 	
-	We would also like to point out that to our knowledge no surveys were done after removing linear dependency prior to running the experiments. This is a very important step if we are to get a meaningful clustering out of $k$-Means algorithm. We can achieve this using some known algorithm such as \textbf{principle component analysis} or \textbf{singular value decomposition}. We opted for PCA in this paper. PCA decomposes the existing data points into orthogonal\footnote{It is well known that orthogonal vectors are linearly independent.} ones. If we use PCA (principal component analysis) before running a clustering algorithm, we can redefine the variables into linearly independent ones. For our experiment, we have used PCA on every data set before running cluster algorithm. However, we did not reduce dimensions in order to preserve the originality of the data set. We only used PCA for removing linear dependency among variables. We believe this strengthens our result over other available results. For example, our results conflict with some results shown in $k$-Means++ paper \cite{kmeans++}. For our experiments, we intentionally used $k=10$ to cross check our results with that of $k$-Means++. Unfortunately, we found differences in our results. However, that is a separate topic and we avoid that discussion in this paper.
+	Even though this is not exactly a survey paper, we would like to point out that to our knowledge no surveys were done after removing linear dependency prior to running the experiments. This is a very important step if we are to get a meaningful clustering out of $k$-Means algorithm. We can achieve this using some known algorithm such as \textbf{principle component analysis} or \textbf{singular value decomposition}. We opted for PCA in this paper. PCA decomposes the existing data points into orthogonal\footnote{It is well known that orthogonal vectors are linearly independent.} ones. If we use PCA (principal component analysis) before running a clustering algorithm, we can redefine the variables into linearly independent ones. For our experiment, we have used PCA on every data set before running cluster algorithm. However, we did not reduce dimensions in order to preserve the originality of the data set. We only used PCA for removing linear dependency among variables. We believe this strengthens our result over other available results. For example, our results conflict with some results shown in $k$-Means++ paper \cite{kmeans++}. For our experiments, we intentionally used $k=10$ to cross check our results with that of $k$-Means++. Unfortunately, we found differences in our results. However, that is a separate topic and we avoid that discussion in this paper.
+	\section{$k$-Means++ vs ORSS}\label{sec:kmeans++vsorss}
 	\section{Proposed Initialization Methods}
 	For a set of points $S$ and a point $x$, we use $\min(\|x-S\|)$ to denote the minimum of distances from $x$ to the points of $S$ that is $\min(\| x-S\|)=\min_{a\in S}(\| x-a\|)$. Set $D(\x)=\min(\|\x-\C\|)$ for a point $x$ and a set of centers $\C$. Let us denote the centroid of $S$ by $\mu_S$ that is $\mu_S=\dfrac{1}{|S|}\sum_{x\in S}x$.
 	\subsection{First center for $k$-Means++}\label{sec:first_center}
@@ -63,8 +68,8 @@
 			\item Set $c_i=\mu_{\C_i}$.\label{step:coc_update}
 			\item Repeat \eqref{step:coc_cluster} and \eqref{step:coc_update} until convergence or number of iteration is reached.
 		\end{enumerate}
-	\section{Analysis}
-	First, we will analyze the choosing of first center in $k$-Means++. 
+	\section{Motivation}
+	In this section, we discuss the motivation behind our algorithm and why they make sense mathematically. 
 	\subsection{$k$-Means++ Improved}
 	Consider a set of $n$ points $\X$ and that the probability of $x\in\X$ being chosen as a center as $p(x)$. From the definition of variance, for a set of points $S$,
 		\begin{align}
@@ -101,7 +106,7 @@
 		\end{align*}
 	Notice that the variance of $S$ in the denominator. We can consider this as the amount of variance explained by $x$. Also, notice that computationally this version of $p(x)$ is much cheaper than using $\sum_{\y\in\X}\|\x-\y\|^2$. Therefore, we considered $p(x)$ proportional to $\|x-\mu\|^2$ for choosing $x$ as the first center in our experiments.
 	\subsection{Centroid of Centers Seeding}
-	We will now analyze the center initialization algorithms using inertia value. Since these algorithms are probabilistic, we are going to take a look at the expected value of inertia. For a set of points $\X$ and a set of centers $\C$, we denote the inertia by $\I_\C(\X)$. For the optimal set of cluster centers $\C_{opt}$, we denote the corresponding inertia by $\I_{opt}(\X)$.
+	Since the algorithms in discussion are probabilistic, we should look at the expected value of inertia. For a set of points $\X$ and a set of centers $\C$, we denote the inertia by $\I_\C(\X)$. %For the optimal set of cluster centers $\C_{opt}$, we denote the corresponding inertia by $\I_{opt}(\X)$.
 		\begin{align*}
 			\I_\C(\X) & = \sum_{\x\in\X}\min_{\c\in\C}(\|c-x\|^2)
 		\end{align*}
@@ -109,13 +114,7 @@
 		\begin{align*}
 			E[\I(\X)] & = \sum_{\x\in\X}p(x)\sum_{\y\in\X}\min(D(x),\|y-x\|)^2
 		\end{align*}
-	The following lemma was proven in \cite[Lemma $3.2$]{kmeans++}.
-		\begin{lemma}
-			Let $A$ be an arbitrary cluster in $\C_{opt}$, and let $\C$ be the clustering with just one center, which is chosen uniformly at random from $A$. Then, $E[\I(A)]=2\I_{opt}(A)$.
-		\end{lemma}
-	Here, $\I_{opt}(A)=\sum_{x\in A}\|x-\mu_A\|^2$. 
-	
-	Now, we want to find a similar formula for the remaining centers using centroid of centers seeding. If we take $p(x)$ proportional to $f(x)=\|x-\mu_{\C}\|^2$, then using equation \eqref{eqn:2},
+	If we take $p(x)$ proportional to $f(x)=\|x-\mu_{\C}\|^2$, then using equation \eqref{eqn:2},
 		\begin{align*}
 			f(x) & = \|x-\mu_{\C}\|^2\\
 			\sum_{x\in S}f(x) 
@@ -127,55 +126,6 @@
 			p(x) & = \dfrac{f(x)}{\sum_{y\in S}f(y)}\\
 				 & = \dfrac{\|x-\mu_{\C}\|^2}{|S|(\sigma^2+\|\mu_{S}-\mu_{\C}\|^2)}
 		\end{align*}
-	Since $D(y)\leq \|y-\mu_{\C}\|$, we have the following
-		\begin{align*}
-			\sum_{y\in S}\|y-\mu_{\C}\|^2 & \geq D(y)^2\\
-			\dfrac{1}{\sum_{y\in S}\|y-\mu_{\C}\|^2} & \leq \dfrac{1}{\sum_{y\in S}D(y)^2}\\
-			\dfrac{\sum_{y\in S}D(y)^2}{\sum_{y\in S}\|y-\mu_{\C}\|^2} & \leq 1
-		\end{align*}
-	Our expected value of inertia would be
-		\begin{align*}
-			E[\I(S)] & = \sum_{x\in S}p(x)\sum_{y\in S}\min(D(y),\|x-y\|)^2\\
-					   & = \sum_{x\in S}\dfrac{\|x-\mu_{\C}\|^2}{\sum_{y\in S}\|y-\mu_{\C}\|^2}\sum_{y\in S}\min(D(y),\|x-y\|)^2\\
-					   %& \leq \sum_{y\in S}\dfrac{1}{n}\dfrac{\sum_{y\in S}2(\|x-y\|^2)+2(\|y-\mu_{\C}\|^2)}{\sum_{y\in S}\|y-\mu_{\C}\|^2}\sum_{y\in S}\min(D(y),\|x-y\|)^2\\
-					   & \leq \sum_{x\in S}\dfrac{\|x-\mu_{\C}\|^2}{\sum_{y\in S}\|y-\mu_{\C}\|^2}\sum_{y\in S}D(y)^2\\
-					   & \leq \sum_{x\in S}\|x-\mu_{\C}\|^2
-		\end{align*}
-	Using equation \eqref{eqn:2}, we have
-		\begin{align*}
-			E[\I(S)] & \leq n(\sigma^2+\|\mu_S-\mu_{\C}\|^2)
-		\end{align*}
-	Now, using equation \eqref{eqn:3}, we have
-		\begin{align*}
-			\I_{opt}(S) & = \sum_{x\in S}\|x-\mu_{S}\|^2\\
-						  & = n\sigma^2
-		\end{align*}
-	Thus, we have the following theorem.
-		\begin{theorem}
-			Let $S$ be an arbitrary cluster chosen from $\C_{opt}$ and $\C$ be an arbitrary clustering. If a center is chosen from $S$ and added to $\C$ using centroid of centers initialization, then
-				\begin{align*}
-					E[\I(S)] & \leq \I_{opt}(S)+n\|\mu_{S}-\mu_{\C}\|^2
-				\end{align*}
-		\end{theorem}
-	For a set of points $S$, consider the partition into $k$ clusters $\{S_1,S_2,\cdots,S_k\}$ so that $S=S_1\cup S_2\cup\cdots\cup S_k$ and $S_i\cap S_j=\{\}$ for $i\neq j$. For brevity, we denote the center of $S_i$ by $\mu_i$ instead of $\mu_{S_i}$ and the center of $S$ by $\mu$. Also, assume that $|S_i|=n_i$ for each $1\leq i\leq k$ and that the set of centers of the clusters is $\mathcal{C}=\{\mu_1,\mu_2,\cdots,\mu_k\}$. We have $\sum_{x\in S_i}\|x-\mu_i\|^2 = n(\sigma_i^2+\mu_i^2)$ where $\sigma_i$ is the variance of the cluster $S_i$.
-		\begin{align}
-			\sum_{x\in S}\|x-\mu\|^2 
-				& = \sum_{i=1}^k\sum_{x\in S_i}\|x-\mu\|^2\nonumber\\
-			n\sigma^2
-				& = \sum_{i=1}^kn_i(\sigma_i^2+\|\mu_i-\mu\|^2)\nonumber\\
-				& = \sum_{i=1}^kn_i\sigma_i^2+\sum_{c\in\C}\|c-\mu\|^2\nonumber\\
-				& = \sum_{i=1}^kn_i\sigma_i^2+k(\sigma_{\C}^2+\|\mu_{\C}-\mu\|^2)\label{eqn:4}
-		\end{align}
-	Therefore, $k\|\mu-\mu_{\C}\|^2\leq n\sigma^2$ and we have
-		\begin{align*}
-			E[\I(S)] & \leq \I_{opt}(S)+n\cdot\dfrac{n\sigma^2}{k}\\
-					 & \leq \I_{opt}(S)+n\dfrac{\I_{opt}(S)}{k}
-		\end{align*}
-	This gives us the following result.
-		\begin{theorem}
-			$E[\I(S)]\leq \I_{opt}\left(1+\dfrac{n}{k}\right)$.
-		\end{theorem}
-	We believe this estimate is not tight at all and it can be improved by a huge margin. For example, we had ideas of using Abel's summation formula \citep[Theorem $4.2$]{apostol} and Taylor series to approximate the sum on the right side of equation \eqref{eqn:4} and get a tighter bound. However, we was happy with the experimental results and therefore, we decided to not spend any more time in finding a tighter bound. We may work on this in future, but right now we do not have any plans to improve this bound.
 	\section{Experiment Setup}
 	We ensure that all algorithms are run under the same conditions. All of them share the same environment and no special optimizations were made for any particular algorithm. Only CPU was used to determine the values we are interested in and no parallelism mechanism was in place for speeding up the process. This way, we can get an idea about the raw performances of the algorithms involved.
 	
