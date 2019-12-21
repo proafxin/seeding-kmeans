@@ -15,29 +15,38 @@ from sklearn.cluster import KMeans
 from metrics import cos, pearson, correlation, distance_squared
 
 class KMeansClustering():
-    init = 'auto'
+    init = None
     max_iter = 100
-    n_clusters = 5
+    n_clusters = None
     verbose = False
-    cluster_centers_ = array([])
-    labels_ = array([])
+    cluster_centers_ = None
+    labels_ = None
     random_state = None
-    sse_ = 0.0
-    iter_convergence_ = 0
+    inertia_ = 0.0
+    n_iter_ = 0
+    n_init = None
     centroid_ = None
 
-    def __init__(self, init, max_iter, n_clusters, verbose, random_state=None):
-        if init is not None:
-            self.init = init    
-        if max_iter is not None:
-            self.max_iter = max_iter
-        if n_clusters is not None:
-            self.n_clusters = n_clusters
-        if verbose is not None:
-            self.verbose = verbose
-        if random_state is not None:
-            self.random_state = random_state
-        self.n_iters_ = max_iter
+    def __init__(
+        self,
+        init='random',
+        n_clusters=5,
+        n_init=10,
+        max_iter=100,
+        verbose=False,
+        random_state=None,
+    ):
+        self.init = init
+        self.n_init = n_init
+        self.n_clusters = n_clusters
+        self.max_iter = max_iter
+        self.verbose = verbose
+        self.random_state = random_state
+        self.cluster_centers_ = array([])
+        self.labels_ = array([])
+        self.inertia_ = 0
+        self.n_iter_ = 0
+
 
     def __get_kmeans_centers(self, X, k):
         randoms = choice(
@@ -234,10 +243,44 @@ class KMeansClustering():
             # print(centers)
             # print(centers_old)
             if np.all(centers_old == centers):
-                self.iter_convergence_ = i
-                self.sse_ = inertia
+                self.n_iter_ = i
+                self.inertia_ = inertia
                 break
         return centers
+    
+    def __calculate_inertia(self, X, centers):
+        inertia = 0
+        for x in X:
+            D = []
+            for c in centers:
+                D.append(dot(c-x, c-x))
+            inertia += min(D)
+        return inertia
+
+    def __initialize_centers(self, X, k):
+        init = self.init
+        best_inertia = None
+        for i in range(self.n_init):
+            centers = None
+            if init == 'random' or init == 'kmeans' or init == 'auto':
+                centers = self.__get_kmeans_centers(X, k)
+            elif init == 'k-means++':
+                centers = self.__get_kmeans_plus_plus_centers(X, k)
+            elif init == 'orss':
+                centers = self.__get_ostrovsky_centers(X, k)
+            elif init == 'coc':
+                centers = self.__get_centroid_of_centers_based_centers(X, k)
+            elif init == 'variance':
+                centers = self.__get_variance_based_centers(X, k)
+            else:
+                raise ValueError('Initialization is not valid')
+            inertia = self.__calculate_inertia(X, centers)
+            if best_inertia == None:
+                best_inertia = inertia
+                self.cluster_centers_ = centers
+            elif best_inertia > inertia:
+                best_inertia = inertia
+                self.cluster_centers_ = centers
         
     def fit(self, X):
         k = self.n_clusters
@@ -246,32 +289,13 @@ class KMeansClustering():
             raise ValueError('Dataset must have size greater than 0')
         if self.random_state is not None:
             X = shuffle(X)
-        if self.init == 'auto':
-            self.cluster_centers_ = self.__get_kmeans_plus_plus_centers(X, k)
-        elif self.init == 'kmeans++_corrected':
-            self.cluster_centers_ = self.__get_kmeans_plus_plus_corrected_centers(X, k)
-        elif self.init == 'kmeans++':
-            self.cluster_centers_ = self.__get_kmeans_plus_plus_centers(X, k)
-        elif self.init == 'kmeans':
-            self.cluster_centers_ = self.__get_kmeans_centers(X, k)
-        elif self.init == 'ostrovsky':
-            self.cluster_centers_ = self.__get_ostrovsky_centers(X, k)
-        elif self.init == 'variance':
-            self.cluster_centers_ = self.__get_variance_based_centers(X, k)
-        elif self.init == 'kmeans++_improved':
-            self.cluster_centers_ = self.__get_kmeans_plus_plus_improved_centers(X, k)
-        elif self.init == 'kmeans++_corrected':
-            self.cluster_centers_ = self.__get_kmeans_plus_plus_corrected_centers(X, k)
-        elif self.init == 'coc':
-            self.cluster_centers_ = self.__get_centroid_of_centers_based_centers(X, k)
-        else:
-            raise ValueError('init not defined')
+        self.__initialize_centers(X, k)
         for c in self.cluster_centers_:
             for a in c:
                 if type(a) != type(np.float64(1.0)):
                     raise ValueError('Centers not initialized properly')
         if self.verbose is True:
-            print('Initializtion', self.init)
+            print('Initializtion:', self.init)
             print(self.cluster_centers_)
         self.cluster_centers_ = self.__converge_centers(X, self.cluster_centers_)
         if self.verbose is True:
@@ -281,16 +305,20 @@ class KMeansClustering():
 
     def predict(self, X):
         labels = []
-        self.sse_ = 0
+        self.inertia_ = 0
         for x in X:
             D = []
             for c in self.cluster_centers_:
                 D.append(dot(c-x, c-x))
             dist_min = min(D)
-            self.sse_ += dist_min
+            self.inertia_ += dist_min
             for (i, d) in enumerate(D):
                 if d == dist_min:
                     labels.append(i)
                     break
         self.labels_ = labels
         return labels
+
+    def fit_predict(self, X):
+        self.fit(X)
+        return self.predict(X)
