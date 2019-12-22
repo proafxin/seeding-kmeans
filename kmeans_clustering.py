@@ -31,11 +31,13 @@ class KMeansClustering():
         n_init=10,
         n_clusters=5,
         verbose=False,
+        max_iter=100,
     ):
         self.verbose = verbose
         self.init = init
         self.n_clusters = n_clusters
         self.n_init = n_init
+        self.max_iter = max_iter
 
     def __get_kmeans(self, X):
         ar = [i for i in range(X.shape[0]-1)]
@@ -112,13 +114,49 @@ class KMeansClustering():
         if self.verbose == True:
             print(self.cluster_centers_)
 
+    def __converge(self, X):
+        for i in range(self.max_iter):
+            centers_old = self.cluster_centers_.copy()
+            C = {}
+            for j in range(self.n_clusters):
+                C[j] = []
+            inertia = 0.0
+            for x in X:
+                D = []
+                for c in self.cluster_centers_:
+                    y = c-x
+                    D.append(dot(y, y))
+                d_min = min(D)
+                inertia += d_min
+                for (j, d) in enumerate(D):
+                    if d == d_min:
+                        C[j].append(x.tolist())
+                        break
+            for j in range(self.n_clusters):
+                self.cluster_centers_[j] = mean(C[j], axis=0)
+            if all(centers_old == self.cluster_centers_):
+                self.n_iter_ = i
+                self.inertia_ = inertia
+                break
+
     def fit(self, X):
         self.__initialize_centers(X)
-        print(self.cluster_centers_)
+        # print(self.cluster_centers_)
+        self.__converge(X)
         return self
 
     def predict(self, X):
         self.labels_ = zeros(shape=(X.shape[0]))
+        for i,x in enumerate(X):
+            D = []
+            for c in self.cluster_centers_:
+                y = x-c
+                D.append(dot(y, y))
+            d_min = min(D)
+            for j, d in enumerate(D):
+                if d == d_min:
+                    self.labels_[i] = j
+                    break
         return self.labels_
 
     def fit_predict(self, X):
