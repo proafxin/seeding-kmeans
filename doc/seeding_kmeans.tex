@@ -16,7 +16,7 @@
 \newcommand{\I}{\mathcal{I}}
 \renewcommand{\S}{\mathcal{S}}
 
-\title{Seeded Center Initialization In $k$-Means Clustering}
+\title{Seeded Center Initialization In \texttt{k-means} Clustering}
 \author{
 	\name Masum Billal 
 	\email billalmasum93@gmail.com\\
@@ -35,31 +35,40 @@
 	\bibliographystyle{plain}
 	\maketitle
 		\begin{abstract}%
-			$k$-Means is a popular clustering algorithm that aims to reduce the sum of minimum squared distances from data points to the centers. Now a days most of the times seeded centers are used instead of choosing all uniformly at random. In this paper, we discuss various issues related to seeding centers in $k$-Means algorithm. First of all, we question the authenticity of experimental and theoretical results in $k$-Means++ paper. We talk about a not so popular algorithm by \cite{ostrovsky} (ORSS). Then we discuss another initialization strategy and compare experimental results among $k$-Means++, ORSS and our proposed methods.
+			\texttt{k-means} is a popular clustering algorithm that aims to reduce the sum of minimum squared distances from data points to the centers. Now a days most of the times seeded centers are used instead of choosing all uniformly at random. We will talk about the most popular seeding technique of \texttt{k-means} known as \texttt{k-means++} in details. We take a second look at theoretical limits and experimental results presented in the \texttt{k-means++} paper. Experimental results will be shown for five different type of seeding. Therefore, this paper also serves as an updated survey of \texttt{k-means} initial center seeding methods. Our conclusion is that contrary to popular belief, usually  other initialization methods than \texttt{k-means++} perform better. We also prove a theorem on upper bound of expected value of inertia when \texttt{k-means} is seeded with a probability.
 		\end{abstract}
 	\section{Introduction}
-	Widely regarded as the most popular clustering techniques, $k$-Means remains a humble interesting topic in machine learning as well as computational geometry. Roughly the problem is: given a set of points $\X$ in $\mathbb{R}^d$. Find a set of centers $\mathcal{C}$ such that the function \textit{inertia}
+	Widely regarded as the most popular clustering techniques, \texttt{k-means} remains a humble interesting topic in machine learning as well as computational geometry. Roughly the problem is: given a set of points $\X$ in $\mathbb{R}^d$. Find a set of centers $\mathcal{C}$ such that the function \textit{inertia}
 		\begin{align*}
 			\mathcal{I} & = \sum_{\x\in\X}\min_{\c\in\C}(\|\c-\x\|^2)
 		\end{align*}
 	is minimum where $\|\cdot\|$ is the $L_2$ norm\footnote{$\|c-x\|$ or $L_2$ norm of $\c-\x$ is the distance between the center $\c$ and point $\x$ or the magnitude of the vector $\c-\x$.}.
 	
-	Default $k$-Means algorithm starts with random centers and then converge based on minimum distances of the centers from the data points. New centers are calculated based on the centroid. This is known as Lloyd's algorithm \citep{lloyd}. We repeat this process until no more change is possible. \cite{ostrovsky} and \cite{kmeans++} take it one step further by choosing the initial centers with a probability. We intend to introduce other ways of initialization.
-	\section{Related Work}
-	There has been multiple surveys on $k$-Means in the literature. Probably the most relevant work in this regard is done by \cite{celebi}. However, most of the algorithms used in that paper are not used practically very much. It was also noted by the authors themselves that $k$-Means++ and its greedy version work better than most. They also mention that probabilistic algorithms perform better than deterministic ones. Moreover, another highly influential center initialization algorithm \citep{ostrovsky} (ORSS) was not considered in their experiments. There is no mention of Ostrovsky's algorithm in their paper whatsoever. Surprisingly, there is no mention of Ostrovsky's algorithm in $k$-Means++ paper either even though it was published in $2007$ whereas Ostrovsky's algorithm was published in $2006$. In fact, one can argue that $k$-Means++ algorithm is actually a portion of ORSS algorithm. Including ORSS makes the results very interesting. ORSS is like a dark horse. There are cases where ORSS is better than both $k$-Means++ and our proposed algorithm. We will talk about this more in section \eqref{sec:kmeans++vsorss}.
+	Default \texttt{k-means} algorithm starts with random centers and then converge based on minimum distances of the centers from the data points. New centers are calculated based on the centroid. This is known as Lloyd's algorithm \citep{lloyd}. We repeat this process until no more change is possible. \cite{ostrovsky} and \cite{kmeans++} take it one step further by choosing the initial centers with a probability. We intend to introduce other ways of initialization and compare their performances in terms of inertia, convergence speed and CPU time taken.
 	
-	Even though this is not exactly a survey paper, we would like to point out that to our knowledge no surveys were done after removing linear dependency prior to running the experiments. This is a very important step if we are to get a meaningful clustering out of $k$-Means algorithm. We can achieve this using some known algorithm such as \textbf{principle component analysis} or \textbf{singular value decomposition}. We opted for PCA in this paper. PCA decomposes the existing data points into orthogonal\footnote{It is well known that orthogonal vectors are linearly independent.} ones. If we use PCA (principal component analysis) before running a clustering algorithm, we can redefine the variables into linearly independent ones. For our experiment, we have used PCA on every data set before running cluster algorithm. However, we did not reduce dimensions in order to preserve the originality of the data set. We only used PCA for removing linear dependency among variables. We believe this strengthens our result over other available results. For example, our results conflict with some results shown in $k$-Means++ paper \cite{kmeans++}. For our experiments, we intentionally used $k=10$ to cross check our results with that of $k$-Means++. Unfortunately, we found differences in our results. However, that is a separate topic and we avoid that discussion in this paper.
-	\section{$k$-Means++ vs ORSS}\label{sec:kmeans++vsorss}
+	Before proceeding on to the main discussion, we would like to discuss a sensitive issue. The primary motivation behind our work is not simply improving \texttt{k-means}. \texttt{k-means++} is the most popular center initialization seeding method. It seems very justified given how simple it is and the theoretical as well as experimental results given in the original \texttt{k-means++} paper \citep{kmeans++} are very impressive. Even in the very popular scientific python package \texttt{scikit-learn}, \texttt{k-means++} initialization is supported by default. Unfortunately, we believe neither theoretical nor experimental results shown in that paper are accurate. We will discuss our reasoning in section \eqref{sec:kmeans++vsorss}.
+	\section{Related Work}
+	There has been multiple surveys on \texttt{k-means} in the literature. Probably the most relevant work in this regard is done by \cite{celebi}. However, most of the algorithms used in that paper are not used practically very much. It was also noted by the authors themselves that \texttt{k-means++} and its greedy version work better than most. They also mention that probabilistic algorithms perform better than deterministic ones. Moreover, the not so popular algorithm \citep{ostrovsky} (ORSS) was not considered in their experiments. 
+	
+	We would like to point out that to our knowledge no surveys were done after removing linear dependency prior to running the experiments. This is a very important step if we are to get a meaningful clustering out of \texttt{k-means} algorithm. We can achieve this using some known algorithm such as \textbf{principle component analysis} or \textbf{singular value decomposition}. We opted for PCA in this paper. PCA decomposes the existing data points into orthogonal\footnote{It is well known that orthogonal vectors are linearly independent.} ones. If we use PCA (principal component analysis) before running a clustering algorithm, we can redefine the variables into linearly independent ones. For our experiment, we have used PCA on every data set before running cluster algorithm. However, we did not reduce dimensions in order to preserve the originality of the data set. We only used PCA for removing linear dependency among variables. We strongly believe this strengthens our result over other available results.
+	\section{How Good Is \texttt{k-means++}?}\label{sec:kmeans++vsorss}
+	There is no mention of Ostrovsky's algorithm in their paper whatsoever. Surprisingly, there is no mention of Ostrovsky's algorithm in \texttt{k-means++} paper either even though it was published in $2007$ whereas Ostrovsky's algorithm was published in $2006$. In fact, one can argue that \texttt{k-means++} algorithm is actually a special case of ORSS algorithm. Including ORSS makes the results very interesting. ORSS is like a dark horse. There are cases where ORSS is better than both \texttt{k-means++} and our proposed algorithms.
+	
+	Our results conflict with some results shown in \texttt{k-means++} paper \cite{kmeans++}. For this reason, we used $k\in\{10, 25, 50\}$ to check our results against \texttt{k-means++}.
 	\section{Proposed Initialization Methods}
+	First of all, we would like to say that our proposed method of initializing first center in \texttt{k-means++} is not novel. In fact, this was already discussed in \citep{ostrovsky} already. However, we did not know that at the time because we did not read the full paper back then. It was only after we discovered that \texttt{k-means++} results could be wrong, we went through ORSS paper. We would really like to commend \cite{ostrovsky} for such an impressive work and it is indeed very unlucky of them not getting the recognition they deserve. When we read their paper for the second time, we found out that they had already mentioned a similar result \cite[Page 4, section 3, Paragraph: Running Time]{ostrovsky} in their paper. We have decided to discuss our reasoning in this paper because we believe our motivation was different than theirs. We talk about this in section \eqref{sec:motivation}.
+	
+	To summarize, we first tried to improve \texttt{k-means++} by choosing even the first center with a probability rather than uniformly at random. Then we found out ORSS algorithm does exactly that, in a better fashion. Therefore, we consider ORSS method to be an improvement over \texttt{k-means++}. Although, to be fair, we should mention that ORSS was published before \texttt{k-means++}. So, it was a better algorithm than \texttt{k-means++} all along. It's just that we do know about it as much.
+	
 	For a set of points $S$ and a point $x$, we use $\min(\|x-S\|)$ to denote the minimum of distances from $x$ to the points of $S$ that is $\min(\| x-S\|)=\min_{a\in S}(\| x-a\|)$. Set $D(\x)=\min(\|\x-\C\|)$ for a point $x$ and a set of centers $\C$. Let us denote the centroid of $S$ by $\mu_S$ that is $\mu_S=\dfrac{1}{|S|}\sum_{x\in S}x$.
-	\subsection{First center for $k$-Means++}\label{sec:first_center}
-	In $k$-Means++ algorithm, the first center is chosen uniformly at random. However, not all points have the same contribution to inertia. We choose $x$ as a first center in a way that is equivalent to the variance explained by $x$.
+	\subsection{First center for \texttt{k-means++}}\label{sec:first_center}
+	In \texttt{k-means++} algorithm, the first center is chosen uniformly at random. However, not all points have the same contribution to inertia. We choose $x$ as a first center in a way that is equivalent to the variance explained by $x$.
 	\begin{enumerate}[i]
 		\item Choose $\x$ with probability $\dfrac{\|\x-\mu_{\X}\|^2}{\sum_{\x\in\X}\|\x-\mu_{\X}\|^2}$. Set $\C_1=\{\x\}$.\label{step:first_center}
-		\item Repeat the remaining steps in $k$-Means++ \cite[Section $2.2$, Page $3$]{kmeans++}.
+		\item Repeat the remaining steps in \texttt{k-means++} \cite[Section $2.2$, Page $3$]{kmeans++}.
 	\end{enumerate}
 	\subsection{Centroid of Centers Based Seeding}
-	We want to choose $x$ with probability proportional to squared distance from centroid of the cluster centers. Our motivation for doing so is the following. In $k$-Means++, probability is considered proportional to squared minimum distance from the centers. Therefore, the larger this minimum squared distance is, the higher the probability is for $x$ to be chosen as a center. So, in a sense this can be thought of maximizing the minimum squared distance from the centers to the point in consideration. We intend to check the case where we choose the probability proportional to the total sum of squared distances rather than just the minimum one. As we will show later, sum of all squared distances from centers to the point in discussion is dependent on the distance from centroid of those cluster centers to that point. Note that this opens up the discussion where we need to check other ways of taking this probability. For example, minimizing variance of distances from centers, etc. However, those ideas are out of our scope for this paper.
+	We want to choose $x$ with probability proportional to squared distance from centroid of the cluster centers. Our motivation for doing so is the following. In \texttt{k-means++}, probability is considered proportional to squared minimum distance from the centers. Therefore, the larger this minimum squared distance is, the higher the probability is for $x$ to be chosen as a center. So, in a sense this can be thought of maximizing the minimum squared distance from the centers to the point in consideration. We intend to check the case where we choose the probability proportional to the total sum of squared distances rather than just the minimum one. As we will show later, sum of all squared distances from centers to the point in discussion is dependent on the distance from centroid of those cluster centers to that point. Note that this opens up the discussion where we need to check other ways of taking this probability. For example, minimizing variance of distances from centers, etc. However, those ideas are out of our scope for this paper.
 		\begin{enumerate}[i]
 			\item Choose a point $\x$ as stated in step \eqref{step:first_center} of section \eqref{sec:first_center}. Set $\C_1=\{\x\}$.
 			\item For an already existing set of $i$ centers $\mathcal{C}_i=\{c_1,\cdots,c_i\}$, choose a new center $\x\in\X$ with probability proportional to $\|\x-\mu_{\C_i}\|^2$.\label{step:coc_center}
@@ -68,9 +77,9 @@
 			\item Set $c_i=\mu_{\C_i}$.\label{step:coc_update}
 			\item Repeat \eqref{step:coc_cluster} and \eqref{step:coc_update} until convergence or number of iteration is reached.
 		\end{enumerate}
-	\section{Motivation}
+	\section{Motivation}\label{sec:motivation}
 	In this section, we discuss the motivation behind our algorithm and why they make sense mathematically. 
-	\subsection{$k$-Means++ Improved}
+	\subsection{\texttt{k-means++} Improved}
 	Consider a set of $n$ points $\X$ and that the probability of $x\in\X$ being chosen as a center as $p(x)$. Following the definition of variance, for a set of points $S$, we define
 		\begin{align}
 			\sigma^2(S) & = \dfrac{\sum_{x\in S} \|x-\mu_{S}\|^2}{|S|}\nonumber\\
@@ -146,7 +155,7 @@
 	\section{Experiment Setup}
 	We ensure that all algorithms are run under the same conditions. All of them share the same environment and no special optimizations were made for any particular algorithm. Only CPU was used to determine the values we are interested in and no parallelism mechanism was in place for speeding up the process. This way, we can get an idea about the raw performances of the algorithms involved.
 	
-	Python is used as the programming language to write necessary codes. Some common auxiliary packages such as \textit{scipy, scikit-learn, numpy} etc are used to help with the code. The algorithms are simply different methods of the same class, so they share the same fitting and prediction function. Only the initialization differs for different algorithm. It should be mentioned that even though some packages have native support for $k$-Means implementation, we did not use them to run the experiments. Not all algorithms we want to test are available in those packages. Therefore, in order to ensure same environment and optimizations for every algorithm, we wrote them all from scratch so that we could be sure they are tested under the same settings.
+	Python is used as the programming language to write necessary codes. Some common auxiliary packages such as \textit{scipy, scikit-learn, numpy} etc are used to help with the code. The algorithms are simply different methods of the same class, so they share the same fitting and prediction function. Only the initialization differs for different algorithm. It should be mentioned that even though some packages have native support for \texttt{k-means} implementation, we did not use them to run the experiments. Not all algorithms we want to test are available in those packages. Therefore, in order to ensure same environment and optimizations for every algorithm, we wrote them all from scratch so that we could be sure they are tested under the same settings.
 	
 	The data sets used for the experiment are some of the popular ones.
 		\begin{enumerate}
@@ -158,11 +167,11 @@
 		\end{enumerate}
 	\cite{miligan} shows that using $z$-score to standardize the data is not favorable for clustering because it loses between-cluster variation. Therefore, we did not use any sort of standardization or normalization lest it should lose variance or become prone to bias. Instead, we have used PCA to remove linear dependency among variables. 
 	
-	While experimenting on such algorithms, it is of utmost importance to run the same experiment more than once under the same parameters and conditions. For example, assume that we want to compare $k$-Means++ and Forgy's algorithm \citep{forgy} for $k=5$ clusters. We should run this experiment at least $m$ times where $m>1$ in order to eliminate bias and account for randomness. We run each experiment a total of $20$ times and take the average and minimum values of inertia.
+	While experimenting on such algorithms, it is of utmost importance to run the same experiment more than once under the same parameters and conditions. For example, assume that we want to compare \texttt{k-means++} and Forgy's algorithm \citep{forgy} for $k=5$ clusters. We should run this experiment at least $m$ times where $m>1$ in order to eliminate bias and account for randomness. We run each experiment a total of $20$ times and take the average and minimum values of inertia.
 	
-	As we will see in section \eqref{sec:results}, usually every method can reach the minimum inertia at least once. Therefore, the method with lower average performs more consistently without any doubt. However, there are also cases where the difference between default $k$-Means and seeded $k$-Means becomes obvious.
+	As we will see in section \eqref{sec:results}, usually every method can reach the minimum inertia at least once. Therefore, the method with lower average performs more consistently without any doubt. However, there are also cases where the difference between default \texttt{k-means} and seeded \texttt{k-means} becomes obvious.
 	\section{Results}\label{sec:results}
-	We present the results on the initialization procedures mentioned before. We have shown the results for $k=10$ clusters. The ceiling of average number of iterations is taken since it may not be an integer. The time registered here is the average CPU time taken by each algorithm for those $20$ iterations. As expected, default $k$-Means is usually the fastest algorithm but also the worst in terms of optimizing inertia.
+	We present the results on the initialization procedures mentioned before. We have shown the results for $k=10$ clusters. The ceiling of average number of iterations is taken since it may not be an integer. The time registered here is the average CPU time taken by each algorithm for those $20$ iterations. As expected, default \texttt{k-means} is usually the fastest algorithm but also the worst in terms of optimizing inertia.
 	\subsection{Comparison of Different Initialization}
 	The comparison of inertia and number of iterations required for convergence are shown in tables \ref{tbl:boston}, \ref{tbl:wine}, \ref{tbl:airlines}. 
 		\begin{table}
@@ -170,8 +179,8 @@
 				\begin{tabular}{|l|l|l|l|l|}
 					\hline
 					Algorithm & Average $\I$& Minimum $\I$& Iterations & Time\\\hline
-					$k$-Means & 2576156.1& 1467415.54& 9& 0.09s\\\hline
-					$k$-Means++ & 1685296.83& 1442170.41& 7& 0.1s\\\hline
+					\texttt{k-means} & 2576156.1& 1467415.54& 9& 0.09s\\\hline
+					\texttt{k-means++} & 1685296.83& 1442170.41& 7& 0.1s\\\hline
 					ORSS & 1612137.72& 1442170.41& 7& 0.1s\\\hline
 					CoC & 1604805.21& 1443125.04& 9& 0.09s\\\hline
 				\end{tabular}
@@ -185,8 +194,8 @@
 				\begin{tabular}{|l|l|l|l|l|}
 					\hline
 					Algorithm & Average $\I$& Minimum $\I$& Iterations & Time\\\hline
-					$k$-Means & 2586435.45& 1442170.41& & 2.68s\\\hline
-					$k$-Means++ & 1638992.86& 1442170.41& & 2.66s\\\hline
+					\texttt{k-means} & 2586435.45& 1442170.41& & 2.68s\\\hline
+					\texttt{k-means++} & 1638992.86& 1442170.41& & 2.66s\\\hline
 					ORSS & 1620320.77& 1442170.41& & 2.69s\\\hline
 					CoC & 1562697.24& 1442170.41& & 2.66s\\\hline
 				\end{tabular}
@@ -200,9 +209,9 @@
 				\begin{tabular}{|l|l|l|l|l|}
 					\hline
 					Algorithm & Average $\I$& Minimum $\I$& Iterations & Time\\\hline
-					$k$-Means & 1011171.27& 916424.19& & 0.93s\\\hline
+					\texttt{k-means} & 1011171.27& 916424.19& & 0.93s\\\hline
 					ORSS & 1020273.2& 916424.19& & 0.94s\\\hline
-					$k$-Means++ & 1011171.27& 916424.19& & 0.94s\\\hline
+					\texttt{k-means++} & 1011171.27& 916424.19& & 0.94s\\\hline
 					CoC & 994075.55& 916424.19& & 0.94s\\\hline
 				\end{tabular}
 				\caption{Results on Wine data set, $5$ clusters}
@@ -216,9 +225,9 @@
 				\begin{tabular}{|l|l|l|l|l|}
 					\hline
 					Algorithm & Average $\I$& Minimum $\I$& Iterations & Time\\\hline
-					$k$-Means & 2672710216978.34& 2633315933118.1& 75& 9.33s\\\hline
+					\texttt{k-means} & 2672710216978.34& 2633315933118.1& 75& 9.33s\\\hline
 					ORSS & 2684480210031.3& 2622281801735.52& 40& 5.52s\\\hline
-					$k$-Means++ & 2681719187656.43& 2626435706106.56& 40& 5.41s\\\hline
+					\texttt{k-means++} & 2681719187656.43& 2626435706106.56& 40& 5.41s\\\hline
 					CoC & 2667560530212.89& 2627599615029.58& 73& 9.13s\\\hline
 				\end{tabular}
 				\caption{Results on Airlines data set, $10$ clusters}
@@ -226,17 +235,17 @@
 			\end{center}
 			
 		\end{table}
-	\subsection{$k$-Means++ vs $k$-Means++ Improved}
-	The comparison of $k$-Means++ against $k$-Means++ improved is shown in tables \ref{tbl:cloud2}, \ref{tbl:mall2}, \ref{tbl:wine2}, \ref{tbl:airlines2}, \ref{tbl:boston2}.
+	\subsection{\texttt{k-means++} vs \texttt{k-means++} Improved}
+	The comparison of \texttt{k-means++} against \texttt{k-means++} improved is shown in tables \ref{tbl:cloud2}, \ref{tbl:mall2}, \ref{tbl:wine2}, \ref{tbl:airlines2}, \ref{tbl:boston2}.
 		\begin{table}
 			\begin{center}
 				\begin{tabular}{|l|l|l|l|l|}
 					\hline
 					Algorithm & Average $\I$& Minimum $\I$& Iterations & Time\\\hline
-					$k$-Means++ & 6016689.97& 5476422.68& 24 & 1.01s\\\hline
-					$k$-Means++ Improved& 5797382.38& 5476422.68 & 19& 0.84s\\\hline
+					\texttt{k-means++} & 6016689.97& 5476422.68& 24 & 1.01s\\\hline
+					\texttt{k-means++} Improved& 5797382.38& 5476422.68 & 19& 0.84s\\\hline
 				\end{tabular}
-				\caption{$k$-Means++ improvement on Cloud data set, $10$ clusters}
+				\caption{\texttt{k-means++} improvement on Cloud data set, $10$ clusters}
 				\label{tbl:cloud2}
 			\end{center}
 		\end{table}
@@ -246,10 +255,10 @@
 				\begin{tabular}{|l|l|l|l|l|}
 					\hline
 					Algorithm & Average $\I$& Minimum $\I$& Iterations & Time\\\hline
-					$k$-Means++ & 41038.62& 37128.01& 8& 0.08s\\\hline
-					$k$-Means++ Improved& 40649.26& 37663.92 & 6& 0.07s\\\hline
+					\texttt{k-means++} & 41038.62& 37128.01& 8& 0.08s\\\hline
+					\texttt{k-means++} Improved& 40649.26& 37663.92 & 6& 0.07s\\\hline
 				\end{tabular}
-				\caption{$k$-Means++ improvement on Mall customer data set, $10$ clusters}
+				\caption{\texttt{k-means++} improvement on Mall customer data set, $10$ clusters}
 				\label{tbl:mall2}
 			\end{center}
 		\end{table}
@@ -259,10 +268,10 @@
 				\begin{tabular}{|l|l|l|l|l|}
 					\hline
 					Algorithm & Average $\I$& Minimum $\I$& Iterations & Time\\\hline
-					$k$-Means++ & 265161.75& 219841.62& 7& 0.07s\\\hline
-					$k$-Means++ Improved& 248798.28& 217931.82& 7& 0.07s\\\hline
+					\texttt{k-means++} & 265161.75& 219841.62& 7& 0.07s\\\hline
+					\texttt{k-means++} Improved& 248798.28& 217931.82& 7& 0.07s\\\hline
 				\end{tabular}
-				\caption{$k$-Means++ improvement on Wine data set, $10$ clusters}
+				\caption{\texttt{k-means++} improvement on Wine data set, $10$ clusters}
 				\label{tbl:wine2}
 			\end{center}
 		\end{table}
@@ -272,10 +281,10 @@
 				\begin{tabular}{|l|l|l|l|l|}
 					\hline
 					Algorithm & Average $\I$& Minimum $\I$& Iterations & Time\\\hline
-					$k$-Means++ & 2690750389197.13& 2625695278621.8& 41& 5.57s\\\hline
-					$k$-Means++ Improved& 2674658079797.93& 2621224842855.94& 35& 4.8s\\\hline
+					\texttt{k-means++} & 2690750389197.13& 2625695278621.8& 41& 5.57s\\\hline
+					\texttt{k-means++} Improved& 2674658079797.93& 2621224842855.94& 35& 4.8s\\\hline
 				\end{tabular}
-				\caption{$k$-Means++ improvement on Airlines data set, $10$ clusters}
+				\caption{\texttt{k-means++} improvement on Airlines data set, $10$ clusters}
 				\label{tbl:airlines2}
 			\end{center}
 		\end{table}
@@ -285,15 +294,15 @@
 				\begin{tabular}{|l|l|l|l|l|}
 					\hline
 					Algorithm & Average $\I$& Minimum $\I$& Iterations & Time\\\hline
-					$k$-Means++ & 773980.67& 677763.46& 12& 0.35s\\\hline
-					$k$-Means++ Improved& 772313.3& 682390.41& 10& 0.31s\\\hline
+					\texttt{k-means++} & 773980.67& 677763.46& 12& 0.35s\\\hline
+					\texttt{k-means++} Improved& 772313.3& 682390.41& 10& 0.31s\\\hline
 				\end{tabular}
-				\caption{$k$-Means++ improvement on Boston housing data set, $10$ clusters}
+				\caption{\texttt{k-means++} improvement on Boston housing data set, $10$ clusters}
 				\label{tbl:boston2}
 			\end{center}
 		\end{table}
 	\section{Conclusion}
-	We proposed methods to improve current state of $k$-Means algorithms and showed their comparison in terms of convergence and inertia. $k$-Means++ is usually worse than both our proposed algorithm and ORSS. In most cases, our methods work best in every aspect.
+	We proposed methods to improve current state of \texttt{k-means} algorithms and showed their comparison in terms of convergence and inertia. \texttt{k-means++} is usually worse than both our proposed algorithm and ORSS. In most cases, our methods work best in every aspect.
 	\begin{thebibliography}{99}
 		\bibitem[Arthur et al.(2007)]{kmeans++} D. Arthur and S. Vassilvitskii. \texttt{k-means++}: The Advantages of Careful Seeding. Proceedings of the eighteenth annual ACM-SIAM symposium on Discrete algorithms. Society for Industrial and Applied Mathematics Philadelphia, PA, USA. pp. $1027–1035$.
 		\bibitem[Forgy(1965)]{forgy} E. Forgy. Cluster analysis of multivariate data: Efficiency versus interpretability of classification. Biometrics, $21, 768-780, 1965$.
@@ -303,5 +312,6 @@
 		\bibitem[Ostrovsky et al.(2006)]{ostrovsky} R. Ostrovsky, Y. Rabani, Leonard J. Schulman, C. Swamy. The Effectiveness of Lloyd-Type Methods for the k-Means Problem. Proceedings of the $47$th Annual Symposium on Foundations of Computer Science. $2006$.
 		\bibitem[Celebi et al.(2013)]{celebi} M. Emre Celebi, Hassan A. Kingravi, Patricio A. Vela. A Comparative Study of Efficient Initialization Methods for the K-Means Clustering Algorithm. Expert Systems with Applications, $40(1): 200–210, 2013$.
 		\bibitem[Apostol(1976)]{apostol} Tom M. Apostol. Introduction to Analytic Number Theory. Springer, $10.1007/978-3-662-28579-4$, $1976$.
+		\bibitem[Pedregosa et al.(2011)]{sklearn} Pedregosa, F., Varoquaux, G., Gramfort, A., Michel, V., Thirion, B., Grisel, O., Blondel, M., Prettenhofer, P., Weiss, R., Dubourg, V., Vanderplas, J., Passos, A., Cournapeau, D., Brucher, M., Perrot, M., Duchesnay, E. Scikit-learn: Machine Learning in Python, , JMLR 12, pp. 2825-2830, 2011.
 	\end{thebibliography}
 \end{document}
