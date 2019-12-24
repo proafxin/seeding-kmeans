@@ -110,13 +110,13 @@
 			p(x) & = \dfrac{\sum_{\y\in\X}\|\x-\y\|^2}{\sum_{\y\in\X}\sum_{\x'\in\X}\|\x'-\y\|^2}\\
 				 & = \dfrac{n(\sigma^2+\|\mu-\x\|^2)}{2n^2\sigma^2}\\
 				 & = \dfrac{\sigma^2+\|\mu-\x\|^2}{2n\sigma^2}\\
-				 & = \dfrac{1}{2}+\dfrac{\|\mu-\x\|^2}{2n\sigma^2}
+				 & = \dfrac{1}{2n}+\dfrac{\|\mu-\x\|^2}{2n\sigma^2}
 		\end{align*}
 	However, to make things smoother, one can also choose to use the following as the probability of $x$ being chosen as the first center.
 		\begin{align*}
-			p(x) & = \dfrac{\|\mu-\x\|^2}{2n\sigma^2}
+			p(x) & = \dfrac{\|\mu-\x\|^2}{n\sigma^2}
 		\end{align*}
-	Notice that the variance of $S$ in the denominator. We can consider this as the amount of variance explained by $x$. Also, notice that computationally this version of $p(x)$ is much cheaper than using $\sum_{\y\in\X}\|\x-\y\|^2$. Therefore, we considered $p(x)$ proportional to $\|x-\mu\|^2$ for choosing $x$ as the first center in our experiments.
+	Notice that the variance of $S$ is in the denominator. We can consider this as the amount of variance explained by $x$. Also, notice that computationally this version of $p(x)$ is much cheaper than using $\sum_{\y\in\X}\|\x-\y\|^2$. Therefore, we considered $p(x)$ proportional to $\|x-\mu\|^2$ for choosing $x$ as the first center in our experiments.
 	\section{The Inertia Theorem}
 	%Since the algorithms in discussion are probabilistic, we should look at the expected value of inertia. For a set of points $\X$ and a set of centers $\C$, we denote the inertia by $\I_\C(\X)$. %For the optimal set of cluster centers $\C_{opt}$, we denote the corresponding inertia by $\I_{opt}(\X)$.
 		%align*}
