@@ -5,7 +5,7 @@ import numpy as np
 from random import sample, randint, random
 from os.path import join
 from math import sqrt
-from numpy import append, array, subtract, sum, cumsum, mean, ndarray
+from numpy import append, array, subtract, sum, cumsum, mean, ndarray, var
 from numpy import dot, subtract, sqrt, average, all, float64, zeros
 from numpy.random import choice, shuffle
 from numpy.linalg import norm
@@ -93,7 +93,30 @@ class KMeansClustering():
             self.cluster_centers_[i] = self.__get_most_probable(X, D)
 
     def __get_var(self, X):
-        pass
+        self.__get_kmeans_plus_plus_initial(X)
+        D = []
+        c = self.cluster_centers_[0]
+        for x in X:
+            D = []
+            D.append(dot(x-c, x-c))
+        self.cluster_centers_[1] = self.__get_most_probable(X, D)
+        for i in range(2, self.n_clusters):
+            D = []
+            for x in X:
+                dists = []
+                for c in self.cluster_centers_[:i]:
+                    y = c-x
+                    dists.append(dot(y, y))
+                D.append(var(dists))
+            # print(D)
+            probs = D/sum(D)
+            probs = 1.0-probs
+            probs_cuml = cumsum(probs)
+            r = random()
+            for (j, p) in enumerate(probs_cuml):
+                if p > r:
+                    self.cluster_centers_[i] = X[j]
+                    break
 
     def __initialize_centers(self, X):
         k = self.n_clusters

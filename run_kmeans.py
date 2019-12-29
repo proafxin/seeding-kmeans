@@ -14,7 +14,6 @@ class RunKmeans:
         'k-means++',
         'orss',
         'coc',
-        'var',
     ]
     n_clusters = 5
 
@@ -51,6 +50,7 @@ class RunKmeans:
                     n_clusters=self.n_clusters,
                 )
                 kmeans.fit(X)
+                # print(kmeans.cluster_centers_)
                 inertias[init][i] = kmeans.inertia_
                 times[init][i] = 0
                 iters[init][i] = kmeans.n_iter_
