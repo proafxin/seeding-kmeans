@@ -77,9 +77,19 @@
 			\item Choose a point $\x$ as stated in step \eqref{step:first_center} of section \eqref{sec:first_center}. Set $\C_1=\{\x\}$.
 			\item For an already existing set of $i$ centers $\mathcal{C}_i=\{c_1,\cdots,c_i\}$, choose a new center $\x\in\X$ with probability proportional to $\|\x-\mu_{\C_i}\|^2$.\label{step:coc_center}
 			\item Repeat step \eqref{step:coc_center} until $i=k$.
-			\item For each $1\leq i\leq k$, set $\C_i=\{\x\in\X:\|\x-c_i\|=\min(x-\C)\}$.\label{step:coc_cluster}
+			\item For each $1\leq i\leq k$, set $\C_i=\{\x\in\X:\|\x-c_i\|=\min(\x-\C)\}$.\label{step:coc_cluster}
 			\item Set $c_i=\mu_{\C_i}$.\label{step:coc_update}
-			\item Repeat \eqref{step:coc_cluster} and \eqref{step:coc_update} until convergence or number of iteration is reached.
+			\item Repeat \eqref{step:coc_cluster} and \eqref{step:coc_update} until convergence is reached.
+		\end{enumerate}
+	\subsection{Variance Based Seeding}
+	In this method, we have tried making the clusters as balanced as possible in terms of radius. That is, for a set of centers $\C$ and a point $\x\in\X$, we want to minimize the variance of the squared distances $\{\|\x-\c_1\|^2,\cdots,\|\x-\c_k\|^2\}$ as much as possible. Denote this variance using $\nu_{\x}(\C)$.
+		\begin{enumerate}[i]
+			\item Choose two points $\x,\y$ as stated in \citep[Section $4.1$, subsection $4.1.1$]{ostrovsky}.
+			\item For an already existing set of $i$ centers $\C_i=\{c_1,\cdots,c_i\}$, choose $\x\in\X$ with probability $1-\dfrac{\nu_{\x}(\C)}{\sum_{\y\in\X}\nu_y(\C)}$.\label{step:var_center}
+			\item Repeat step \eqref{step:var_center} until $i=k$.
+			\item For each $1\leq i\leq k$, set $\C_i=\{\x\in\X\|\x-c_i\|=\min(\x-\C)\}$.\label{step:var_cluster}
+			\item Set $c_i=\mu_{\C_i}$.\label{step:var_update}
+			\item Repeat \eqref{step:var_cluster} and \eqref{step:var_update} until centers change no longer.
 		\end{enumerate}
 	\section{Motivation}\label{sec:motivation}
 	In this section, we discuss the motivation behind our algorithm and why they make sense mathematically. 
