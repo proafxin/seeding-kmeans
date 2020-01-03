@@ -3,6 +3,7 @@ from preprocess import process
 
 import pandas as pd
 import numpy as np
+import timeit
 
 from os.path import join, exists
 
@@ -39,7 +40,6 @@ class RunKmeans:
         times = {}
         iters = {}
         for init in self.initlizations_:
-            print(init)
             inertias[init] = np.zeros(shape=(self.num_exp))
             times[init] = np.zeros(shape=(self.num_exp))
             iters[init] = np.zeros(shape=(self.num_exp))
@@ -49,10 +49,12 @@ class RunKmeans:
                     n_init=10,
                     n_clusters=self.n_clusters,
                 )
+                start = timeit.default_timer()
                 kmeans.fit(X)
+                kmeans.predict(X)
+                end = timeit.default_timer()
                 # print(kmeans.cluster_centers_)
                 inertias[init][i] = kmeans.inertia_
-                times[init][i] = 0
+                times[init][i] = (end-start)
                 iters[init][i] = kmeans.n_iter_
-                labels = kmeans.predict(X)
-        return inertias, times, iters, labels
+        return inertias, times, iters

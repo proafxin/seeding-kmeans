@@ -46,6 +46,9 @@ class KMeansClustering():
             self.cluster_centers_[i] = X[r]
 
     def __get_most_probable(self, X, D):
+        if abs(sum(D)) < 1e-15:
+            print('Invalid distances')
+            return None
         probs = D/sum(D)
         probs_cuml = cumsum(probs)
         r = random()
@@ -92,32 +95,6 @@ class KMeansClustering():
                 D.append(dot(y, y))
             self.cluster_centers_[i] = self.__get_most_probable(X, D)
 
-    def __get_var(self, X):
-        self.__get_kmeans_plus_plus_initial(X)
-        D = []
-        c = self.cluster_centers_[0]
-        for x in X:
-            D = []
-            D.append(dot(x-c, x-c))
-        self.cluster_centers_[1] = self.__get_most_probable(X, D)
-        for i in range(2, self.n_clusters):
-            D = []
-            for x in X:
-                dists = []
-                for c in self.cluster_centers_[:i]:
-                    y = c-x
-                    dists.append(dot(y, y))
-                D.append(var(dists))
-            # print(D)
-            probs = D/sum(D)
-            probs = 1.0-probs
-            probs_cuml = cumsum(probs)
-            r = random()
-            for (j, p) in enumerate(probs_cuml):
-                if p > r:
-                    self.cluster_centers_[i] = X[j]
-                    break
-
     def __initialize_centers(self, X):
         k = self.n_clusters
         self.cluster_centers_ = zeros(shape=(k, len(X[0])), dtype=float64)
@@ -128,8 +105,6 @@ class KMeansClustering():
             self.__get_kmeans_plus_plus(X)
         elif init == 'coc':
             self.__get_coc(X)
-        elif init == 'var':
-            self.__get_var(X)
         elif init == 'orss':
             self.__get_orss(X)
         else:
@@ -156,6 +131,8 @@ class KMeansClustering():
                         C[j].append(x.tolist())
                         break
             for j in range(self.n_clusters):
+                if len(C[j]) < 1:
+                    continue
                 self.cluster_centers_[j] = mean(C[j], axis=0)
             if all(centers_old == self.cluster_centers_):
                 self.n_iter_ = i
@@ -164,6 +141,15 @@ class KMeansClustering():
 
     def fit(self, X):
         self.__initialize_centers(X)
+        for c in self.cluster_centers_:
+            for a in c:
+                t = type(a)
+                if t == type(np.float64(1.0)):
+                    continue
+                elif t == type(np.int64(1)):
+                    continue
+                else:
+                    raise TypeError(t,' is neither int nor float')
         # print(self.cluster_centers_)
         self.__converge(X)
         return self
