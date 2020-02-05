@@ -238,6 +238,52 @@
 			\end{center}
 			
 		\end{table}
+
+		\begin{table}
+			\begin{center}
+				\begin{tabular}{|l|l|l|}
+					\hline
+					Number of clusters & kmeans++ (scikit-learn) inertia & kmeans++ (our implementation) inertia\\\hline
+					5 & 17706689.573774982& 17711385.61029025\\\hline
+					10 & 5761674.929143367& 6434641.098051261\\\hline
+					15 & 2007444.7098438586& 2255902.212313077\\\hline
+					20 & 1099395.4420880969& 1194727.658029051\\\hline
+				\end{tabular}
+				\caption{Cloud dataset inertia - no preprocessor}
+				\label{tbl:cloud_no_preprocess}
+			\end{center}
+		\end{table}
+
+		\begin{table}
+			\begin{center}
+				\begin{tabular}{|l|l|l|}
+					\hline
+					Number of clusters & kmeans++ (scikit-learn) inertia & kmeans++ (our implementation) inertia\\\hline
+					5 & 2519.79170884024 & 2519.826060045223\\\hline
+					10 & 1521.9262422548954 & 1510.9057079504264\\\hline
+					15 & 817.4296830232086 & 833.2041864088023\\\hline
+					20 & 519.1784696946825 & 543.6392985861094\\\hline
+				\end{tabular}
+				\caption{Cloud dataset inertia - standard scaler}
+				\label{tbl:cloud_standardscaler}
+			\end{center}
+		\end{table}
+
+		\begin{table}
+			\begin{center}
+				\begin{tabular}{|l|l|l|}
+					\hline
+					Number of clusters & kmeans++ (scikit-learn) inertia & kmeans++ (our implementation) inertia\\\hline
+					5 & 57.096454766857384 & 57.302792493848216\\\hline
+					10 & 32.929845052888986 & 32.93489472987519\\\hline
+					15 & 17.941355048689374 & 18.50259622163847\\\hline
+					20 & 11.362562342560503 & 11.7818373139353\\\hline
+				\end{tabular}
+				\caption{Cloud dataset inertia - standard scaler}
+				\label{tbl:cloud_minmaxscaler}
+			\end{center}
+		\end{table}
+
 	\section{Conclusion}
 	We proposed methods to improve current state of \texttt{k-means} algorithms and showed their comparison in terms of convergence and inertia. \texttt{k-means++} is usually worse than both our proposed algorithm and \texttt{ORSS}. 
 	\begin{thebibliography}{99}
