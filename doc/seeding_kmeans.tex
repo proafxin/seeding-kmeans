@@ -1,6 +1,7 @@
 \documentclass[twoside, 11pt]{article}
 
 \usepackage{jmlr2e}
+\usepackage{subfiles}
 \usepackage{amsmath, amsfonts, enumerate, color}
 
 %\usepackage{amsthm, amssymb, amsfonts, amsmath, geometry, enumerate}
@@ -167,6 +168,10 @@
 			\item Mall customers data set
 			\item Airlines cluster data set
 			\item Cloud data set
+			\item Two moons data set
+			\item Boston schools data set
+			\item Old faithful geyser data set
+			\item Iris data set
 		\end{enumerate}
 	\cite{miligan} shows that using $z$-score to standardize the data is not favorable for clustering because it loses between-cluster variation. Therefore, we did not use any sort of standardization or normalization lest it should lose variance or become prone to bias. Instead, we have used PCA to remove linear dependency among variables. 
 	
@@ -174,76 +179,14 @@
 	
 	As we will see in section \eqref{sec:results}, usually every method can reach the minimum inertia at least once. Therefore, the method with lower average performs more consistently without any doubt. However, there are also cases where the difference between default \texttt{k-means} and seeded \texttt{k-means} becomes obvious.
 	\section{Results}\label{sec:results}
-	We present the results on the initialization procedures mentioned before. We have shown the results for $k=10$ clusters. The ceiling of average number of iterations is taken since it may not be an integer. The time registered here is the average CPU time taken by each algorithm for those $20$ iterations. As expected, default \texttt{k-means} is usually the fastest algorithm but also the worst in terms of optimizing inertia.
-	
-	The comparison of inertia and number of iterations required for convergence are shown in tables \ref{tbl:boston}, \ref{tbl:wine}, \ref{tbl:airlines}. 
-		\begin{table}
-			\begin{center}
-				\begin{tabular}{|l|l|l|l|l|}
-					\hline
-					Algorithm & Average $\I$& Minimum $\I$& Iterations & Time\\\hline
-					\texttt{k-means} & 2576156.1& 1467415.54& 9& 0.09s\\\hline
-					\texttt{k-means++} & 1685296.83& 1442170.41& 7& 0.1s\\\hline
-					\texttt{ORSS} & 1612137.72& 1442170.41& 7& 0.1s\\\hline
-					CoC & 1604805.21& 1443125.04& 9& 0.09s\\\hline
-				\end{tabular}
-			\caption{Results on Boston housing data set, $5$ clusters}
-			\label{tbl:boston}
-			\end{center}
-		\end{table}
-	
-		\begin{table}
-			\begin{center}
-				\begin{tabular}{|l|l|l|l|l|}
-					\hline
-					Algorithm & Average $\I$& Minimum $\I$& Iterations & Time\\\hline
-					\texttt{k-means} & 2586435.45& 1442170.41& & 2.68s\\\hline
-					\texttt{k-means++} & 1638992.86& 1442170.41& & 2.66s\\\hline
-					\texttt{ORSS} & 1620320.77& 1442170.41& & 2.69s\\\hline
-					CoC & 1562697.24& 1442170.41& & 2.66s\\\hline
-				\end{tabular}
-				\caption{Results on Cloud data set, $10$ clusters}
-				\label{tbl:cloud}
-			\end{center}
-		\end{table}
-	
-		\begin{table}
-			\begin{center}
-				\begin{tabular}{|l|l|l|l|l|}
-					\hline
-					Algorithm & Average $\I$& Minimum $\I$& Iterations & Time\\\hline
-					\texttt{k-means} & 1011171.27& 916424.19& & 0.93s\\\hline
-					\texttt{ORSS} & 1020273.2& 916424.19& & 0.94s\\\hline
-					\texttt{k-means++} & 1011171.27& 916424.19& & 0.94s\\\hline
-					CoC & 994075.55& 916424.19& & 0.94s\\\hline
-				\end{tabular}
-				\caption{Results on Wine data set, $5$ clusters}
-				\label{tbl:wine}
-			\end{center}
-			
-		\end{table}
-
-		\begin{table}
-			\begin{center}
-				\begin{tabular}{|l|l|l|l|l|}
-					\hline
-					Algorithm & Average $\I$& Minimum $\I$& Iterations & Time\\\hline
-					\texttt{k-means} & 2672710216978.34& 2633315933118.1& 75& 9.33s\\\hline
-					\texttt{ORSS} & 2684480210031.3& 2622281801735.52& 40& 5.52s\\\hline
-					\texttt{k-means++} & 2681719187656.43& 2626435706106.56& 40& 5.41s\\\hline
-					CoC & 2667560530212.89& 2627599615029.58& 73& 9.13s\\\hline
-				\end{tabular}
-				\caption{Results on Airlines data set, $10$ clusters}
-				\label{tbl:airlines}
-			\end{center}
-			
-		\end{table}
+	We present the results on the initialization procedures mentioned before. We have shown the results for $k\in\{5,10,25\}$ clusters. The ceiling of average number of iterations is taken since it may not be an integer. The time registered here is the average CPU time taken by each algorithm for those $20$ iterations. As expected, default \texttt{k-means} is usually the fastest algorithm but also the worst in terms of optimizing inertia.
+	\subfile{kmeans-comparison}
 
 		\begin{table}
 			\begin{center}
 				\begin{tabular}{|l|l|l|}
 					\hline
-					Number of clusters & Inertia (scikit-learn) & kmeans++ (our)\\\hline
+					Number of clusters & Inertia (scikit-learn) & Inertia (our)\\\hline
 					5 & 17706689.573774982& 17711385.61029025\\\hline
 					10 & 5761674.929143367& 6434641.098051261\\\hline
 					15 & 2007444.7098438586& 2255902.212313077\\\hline
@@ -285,16 +228,6 @@
 		\end{table}
 
 	\section{Conclusion}
-	We proposed methods to improve current state of \texttt{k-means} algorithms and showed their comparison in terms of convergence and inertia. \texttt{k-means++} is usually worse than both our proposed algorithm and \texttt{ORSS}. 
-	\begin{thebibliography}{99}
-		\bibitem[Arthur et al.(2007)]{kmeans++} D. Arthur and S. Vassilvitskii. \texttt{k-means++}: The Advantages of Careful Seeding. Proceedings of the eighteenth annual ACM-SIAM symposium on Discrete algorithms. Society for Industrial and Applied Mathematics Philadelphia, PA, USA. pp. $1027–1035$.
-		\bibitem[Forgy(1965)]{forgy} E. Forgy. Cluster analysis of multivariate data: Efficiency versus interpretability of classification. Biometrics, $21, 768-780, 1965$.
-		\bibitem[Lloyd(1982)]{lloyd} Stuart P. Lloyd. Least squares quantization in pcm. IEEE Transactions on Information Theory, $28(2):129–136, 1982$.
-		\bibitem[Dyer(1985)]{dyer} M. E. Dyer. A simple heuristic for the p-center problem. Operations Research Letters, Volume $3$, February $1985$, pp. $285-288$.
-		\bibitem[Miligan et al.(1988)]{miligan} G. Milligan, M. C. Coope. A Study of Standardization of Variables in Cluster Analysis, Journal of Classification 5(2) (1988) 181–204.
-		\bibitem[Ostrovsky et al.(2006)]{ostrovsky} R. Ostrovsky, Y. Rabani, Leonard J. Schulman, C. Swamy. The Effectiveness of Lloyd-Type Methods for the k-Means Problem. Proceedings of the $47$th Annual Symposium on Foundations of Computer Science. $2006$.
-		\bibitem[Celebi et al.(2013)]{celebi} M. Emre Celebi, Hassan A. Kingravi, Patricio A. Vela. A Comparative Study of Efficient Initialization Methods for the K-Means Clustering Algorithm. Expert Systems with Applications, $40(1): 200–210, 2013$.
-		\bibitem[Apostol(1976)]{apostol} Tom M. Apostol. Introduction to Analytic Number Theory. Springer, $10.1007/978-3-662-28579-4$, $1976$.
-		\bibitem[Pedregosa et al.(2011)]{sklearn} Pedregosa, F., Varoquaux, G., Gramfort, A., Michel, V., Thirion, B., Grisel, O., Blondel, M., Prettenhofer, P., Weiss, R., Dubourg, V., Vanderplas, J., Passos, A., Cournapeau, D., Brucher, M., Perrot, M., Duchesnay, E. Scikit-learn: Machine Learning in Python, , JMLR 12, pp. 2825-2830, 2011.
-	\end{thebibliography}
+	We proposed methods to improve current state of \texttt{k-means} algorithms and showed their comparison in terms of convergence and inertia. \texttt{k-means++} is usually worse than both our proposed algorithm and \texttt{ORSS}.\clearpage
+	\subfile{bib}
 \end{document}
