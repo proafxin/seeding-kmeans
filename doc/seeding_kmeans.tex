@@ -18,16 +18,16 @@
 \renewcommand{\S}{\mathcal{S}}
 
 \title{Seeding In \texttt{k-means} Clustering}
-\author{
+\author{\\
 	\name Masum Billal 
 	\email billalmasum93@gmail.com\\
 	\name Md. Walid Amin Khan
 	\email walid.sec3.034@gmail.com\\
 	\name Farhad Alam Bhuiyan
 	\email farhad.alam@shohoz.com\\
-	\name Khandaker Amitabh Nobel
+	%\name Khandaker Amitabh Nobel
 	%\email nobel.khandaker@shohoz.com\\
-%	\addr Data Science Department\\
+	\addr Data Science Department\\
 	Shohoz\\
 	Bangladesh
 }
@@ -36,7 +36,7 @@
 	\bibliographystyle{plain}
 	\maketitle
 		\begin{abstract}%
-			\texttt{k-means} is a popular clustering algorithm that aims to reduce the sum of minimum squared distances from data points to the centers. Now a days most of the times seeded centers are used instead of choosing all uniformly at random. This paper will serve for multiple purposes. We express our concerns about the results presented in \texttt{k-means++} paper.We will discuss various types of seeding methods and compare their performances. Therefore, this paper also serves as an updated survey of \texttt{k-means} initial center seeding methods. Our conclusion is that, contrary to popular belief, usually  other initialization methods perform better than \texttt{k-means++}. We also prove a theorem on upper bound of inertia for any \texttt{k-means} method.
+			\texttt{k-means} is a popular clustering algorithm that aims to reduce the sum of minimum squared distances from data points to the centers. Now a days most of the times seeded centers are used instead of choosing all uniformly at random. This paper will serve for multiple purposes. First, we express our concerns about the results presented in \texttt{k-means++} paper. Then we will discuss various types of seeding methods and compare their performances. So, this paper also serves as an updated survey of \texttt{k-means} initial center seeding methods. We also prove a theorem on upper bound of inertia for any \texttt{k-means} method. Our conclusion is that, contrary to popular belief, usually  other initialization methods perform better than \texttt{k-means++}.
 		\end{abstract}
 	\section{Introduction}
 	Widely regarded as the most popular clustering techniques, \texttt{k-means} remains a humble interesting topic in machine learning as well as computational geometry. Roughly the problem is: given a set of points $\X$ in $\mathbb{R}^d$. Find a set of centers $\mathcal{C}$ such that the function \textit{inertia}
@@ -181,9 +181,8 @@
 	
 	As we will see in section \eqref{sec:results}, usually every method can reach the minimum inertia at least once. Therefore, the method with lower average performs more consistently without any doubt. However, there are also cases where the difference between default \texttt{k-means} and seeded \texttt{k-means} becomes obvious.
 	\section{Results}\label{sec:results}
-	We present the results on the initialization procedures mentioned before. We have shown the results for $k\in\{5,10,25\}$ clusters. The ceiling of average number of iterations is taken since it may not be an integer. The time registered here is the average CPU time taken by each algorithm for those $20$ iterations. As expected, default \texttt{k-means} is usually the fastest algorithm but also the worst in terms of optimizing inertia.
+	We present the results on the initialization procedures mentioned before. We have shown the results for $k\in\{5,10,25\}$ clusters. The ceiling of average number of iterations is taken since it may not be an integer. The time registered here is the average CPU time taken by each algorithm for those $20$ iterations (we used the same number as \texttt{k-means++}). We can see the results in tables \ref{tbl:airlines5} to \ref{tbl:Wine25}. As expected, default \texttt{k-means} is usually the fastest algorithm but also the worst in terms of optimizing inertia.
 	\subfile{kmeans-comparison}
-
 		\begin{table}
 			\begin{center}
 				\begin{tabular}{|l|l|l|}
@@ -230,6 +229,6 @@
 		\end{table}
 
 	\section{Conclusion}
-	We proposed methods to improve current state of \texttt{k-means} algorithms and showed their comparison in terms of convergence and inertia. \texttt{k-means++} is usually worse than both our proposed algorithm and \texttt{ORSS}.\clearpage
+	We argued that \texttt{k-means++} results may be wrong and discussed different seeding methods to improve \texttt{k-means} algorithms. Then we showed in terms of convergence and inertia that \texttt{k-means++} is usually worse than both our proposed algorithm and \texttt{ORSS}.\clearpage
 	\subfile{bib}
 \end{document}
