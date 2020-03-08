@@ -2,7 +2,7 @@
 
 \usepackage{jmlr2e}
 \usepackage{subfiles}
-\usepackage{amsmath, amsfonts, enumerate, color}
+\usepackage{amsmath, amsfonts, enumerate, color, url}
 
 %\usepackage{amsthm, amssymb, amsfonts, amsmath, geometry, enumerate}
 %\geometry{left=1in,right=1in,top=.5in,bottom=1in,headheight=4pt,headsep=0.3in}
@@ -26,8 +26,8 @@
 	\name Farhad Alam Bhuiyan
 	\email farhad.alam@shohoz.com\\
 	\name Khandaker Amitabh Nobel
-	\email nobel.khandaker@shohoz.com\\
-	\addr Data Science Department\\
+	%\email nobel.khandaker@shohoz.com\\
+%	\addr Data Science Department\\
 	Shohoz\\
 	Bangladesh
 }
@@ -36,7 +36,7 @@
 	\bibliographystyle{plain}
 	\maketitle
 		\begin{abstract}%
-			\texttt{k-means} is a popular clustering algorithm that aims to reduce the sum of minimum squared distances from data points to the centers. Now a days most of the times seeded centers are used instead of choosing all uniformly at random. This paper will serve for multiple purposes. We express our concerns about the results presented in \texttt{k-means++} paper.We will discuss various types of seeding methods and compare their performances. Therefore, this paper also serves as an updated survey of \texttt{k-means} initial center seeding methods. Our conclusion is that, contrary to popular belief, usually  other initialization methods than \texttt{k-means++} perform better. We also prove a theorem on upper bound of inertia for any \texttt{k-means} method.
+			\texttt{k-means} is a popular clustering algorithm that aims to reduce the sum of minimum squared distances from data points to the centers. Now a days most of the times seeded centers are used instead of choosing all uniformly at random. This paper will serve for multiple purposes. We express our concerns about the results presented in \texttt{k-means++} paper.We will discuss various types of seeding methods and compare their performances. Therefore, this paper also serves as an updated survey of \texttt{k-means} initial center seeding methods. Our conclusion is that, contrary to popular belief, usually  other initialization methods perform better than \texttt{k-means++}. We also prove a theorem on upper bound of inertia for any \texttt{k-means} method.
 		\end{abstract}
 	\section{Introduction}
 	Widely regarded as the most popular clustering techniques, \texttt{k-means} remains a humble interesting topic in machine learning as well as computational geometry. Roughly the problem is: given a set of points $\X$ in $\mathbb{R}^d$. Find a set of centers $\mathcal{C}$ such that the function \textit{inertia}
@@ -55,7 +55,7 @@
 	\section{How Good Is \texttt{k-means++}?}\label{sec:kmeans++vsorss}
 	Given how simple \texttt{k-means++} is, it seems very justified that it is the most popular algorithm for \texttt{k-means}. Even in the very well known scientific python package \texttt{scikit-learn} \citep{sklearn}, \texttt{k-means++} initialization is supported by default. And it is no surprise considering the theoretical and experimental results are presented in \citep{kmeans++}. For example, \cite{kmeans++} claim \texttt{k-means++} is $\log{k}$ competitive which is a very lucrative result without any doubt. Moreover, they show experimental results that \texttt{k-means++} performs tenfold or even better in most data sets. These are all properties we look for in an ideal algorithm. However, there are some concerns we raise in the next section.
 	\subsection{\texttt{k-means++} vs \texttt{ORSS}}
-	Surprisingly, there is no mention of Ostrovsky's algorithm in \texttt{k-means++} paper either even though it was published in $2007$ whereas \cite{ostrovsky} was published in $2006$. In fact, after going through \texttt{ORSS} paper again, we argue that \texttt{k-means++} algorithm is actually a special case of \texttt{ORSS} algorithm. In \texttt{k-means++}, the first center is chosen at random. Then every center is chosen based on the minimum distance of the existing centers from the point in consideration, which \cite{kmeans++} call $D^2$ \textit{weighting}. Now, \texttt{ORSS} chooses two centers $x,y$ with probability proportional to $\|x-y\|^2$, which seems very simple at first sight but there is more to it than meets the eye. After choosing those two centers, a new center is added to the set of centers in each iteration until there are $k$ centers, which is done exactly as in \texttt{k-means++}. So, the center adding step is same for both \texttt{k-means++} and \texttt{ORSS}. Considering that \texttt{ORSS} was published before \texttt{k-means++}, we want to give credit to \cite{ostrovsky} more than \cite{kmeans++} for this novel approach.
+	Surprisingly, there is no mention of Ostrovsky's algorithm in \texttt{k-means++} paper either even though it was published in $2007$ whereas \cite{ostrovsky} was published in $2006$. In fact, after going through \texttt{ORSS} paper again, we argue that \texttt{k-means++} algorithm is actually a special case of \texttt{ORSS} algorithm. In \texttt{k-means++}, the first center is chosen at random. Then every center is chosen based on the minimum distance of the existing centers from the point in consideration, which \cite{kmeans++} call $D^2$ \textit{weighting}. Now, \texttt{ORSS} chooses two centers $x,y$ with probability proportional to $\|x-y\|^2$. After choosing those two centers, a new center is added to the set of centers in each iteration until there are $k$ centers, which is done exactly as in \texttt{k-means++}. So, the center adding step is same for both \texttt{k-means++} and \texttt{ORSS}. Considering that \texttt{ORSS} was published before \texttt{k-means++}, we want to give credit to \cite{ostrovsky} more than \cite{kmeans++} for this novel approach.
 	
 	Next, we talk about the first step where \texttt{k-means++} chooses first center at random and \texttt{ORSS} chooses two centers with probability proportional to $\|x-y\|^2$. At this point, we would like to say that our proposed method of improving \texttt{k-means++} is not novel at all. In fact, this was already discussed in \citep{ostrovsky}. However, we did not know that at the time because we did not read the full paper back then. It was only after we discovered that \texttt{k-means++} results could be wrong, we went through \texttt{ORSS} paper again. This time we paid more attention to it and we consider ourselves lucky to have discovered such a gem. We would really like to commend \cite{ostrovsky} for such an impressive work and it is indeed very unlucky of them not getting the credit they deserve. When we read their paper for the second time, we found out that they had already mentioned a result \cite[Page 4, section 3, Paragraph: Running Time]{ostrovsky} similar to ours in their paper. They say that choosing two centers $x,y$ as in \texttt{ORSS} is the same as choosing the first center $x$ with probability proportional to $\sum_{y\in X}\|x-y\|^2$ and the second center with probability proportional to $\|y-c_1\|^2$. As we will see in section \ref{sec:motivation} that the first step was exactly our idea of improving \texttt{k-means++}. Despite being a duplicate result, we have decided to discuss our reasoning in this paper because we believe our motivation was different than theirs. As for the second step, again, notice that this is the same as second step in \texttt{k-means++}. In \texttt{k-means++}, after the first center has been chosen randomly, a point $x$ actually gets chosen with probability $\|x-c_1\|^2$. The reason is, there is only one center so the minimum distance is the only distance from $c_1$ to $x$. 
 	
@@ -73,7 +73,9 @@
 		\begin{align*}
 			\left(\dfrac{a_1^r+a_2^r+\cdots+a_n^r}{n}\right)^{\frac{1}{r}} & \leq \left(\dfrac{a_1^s+a_2^s+\cdots+a_n^s}{n}\right)^{\frac{1}{s}}
 		\end{align*}
-	Since we tried to improve \texttt{k-means++}, obviously we made our own implementations of the algorithm and checked the results against the ones shown in the paper. Our results conflict with some results shown in \texttt{k-means++} paper \cite{kmeans++}. For this reason, we ran clustering on the same data set (cloud data set) using \texttt{k-means} package from \texttt{scikit-learn} library \citep{sklearn}. We found out that our implementations achieve similar inertia to the one in \texttt{scikit-learn}. On the other hand, results shown in \texttt{k-means++} paper differ from both our and \texttt{scikit-learn} results. At first, we thought this might be due to normalization or standardization. However, even after using both \texttt{min max} and \texttt{standard} normalization (also known as $z$-score), we found out that \texttt{k-means++} results still do not match with neither of the results. We tried collecting every data set that is used in \texttt{k-means++} paper but we managed to get only the cloud data set. We could not find the other real world data set \textit{Intrusion} data set. There were some data sets named intrusion detection data set but they did matched neither the number of data points (494019) nor the dimension (35). Therefore, cloud data set was our primary source of comparison. We would like to mention that in a footnote in \cite[Section $6$, page $8$]{kmeans++}, the authors mentioned that \texttt{http://theory.stanford.edu/~sergei/kmeans} contained full test suite. However, the site seems to be no longer accessible even though \texttt{http://theory.stanford.edu/~sergei} is. Therefore, we could not retrieve the original data sets used in their paper or check their implementation.
+	Since we tried to improve \texttt{k-means++}, obviously we made our own implementations of the algorithm and checked the results against the ones shown in the paper. Our results conflict with some results shown in \texttt{k-means++} paper \cite{kmeans++}. For this reason, we ran clustering on the same data set (cloud data set) using \texttt{k-means} package from \texttt{scikit-learn} library \citep{sklearn}. We found out that our implementations achieve similar inertia to the one in \texttt{scikit-learn}. On the other hand, results shown in \texttt{k-means++} paper differ from both our and \texttt{scikit-learn} results. At first, we thought this might be due to normalization or standardization. However, even after using both \texttt{min max} and \texttt{standard} normalization (also known as $z$-score), we found out that \texttt{k-means++} results still do not match with neither of the results. Check that both our and \texttt{scikit-learn} implementations have similar intertia values in tables \ref{tbl:cloud_minmaxscaler} (min-max scalar used to process data), \ref{tbl:cloud_no_preprocess} (no preprocessing) and \ref{tbl:cloud_standardscaler} (standard scalar pre-processing). But \texttt{k-means++} results do not agree with ours \citep[Table $3$]{kmeans++}. Therefore, we are forced to believe that either we did something very wrong or they did or there is some difference in the data set. We confirmed that our data set consisted of $1024$ rows and had dimension $10$. 
+	
+	We also tried collecting every data set that is used in \texttt{k-means++} paper but we managed to get only the cloud data set. We could not find the other real world data set \textit{Intrusion} data set. There were some data sets named intrusion detection data set but they did matched neither the number of data points (494019) nor the dimension (35). Therefore, cloud data set was our primary source of comparison. We would like to mention that in a footnote in \cite[Section $6$, page $8$]{kmeans++}, the authors mentioned that \url{http://theory.stanford.edu/~sergei/kmeans} contained full test suite. However, the site seems to be no longer accessible even though \url{http://theory.stanford.edu/~sergei} is. Therefore, we could not retrieve the original data sets used in their paper or check their implementation.
 	
 	We would also like to mention that we emailed the second author for both concerns and we have yet to receive any reply.
 	\section{Proposed Initialization Methods}
@@ -189,10 +191,10 @@
 					Number of clusters & Inertia (scikit-learn) & Inertia (our)\\\hline
 					5 & 17706689.573774982& 17711385.61029025\\\hline
 					10 & 5761674.929143367& 6434641.098051261\\\hline
-					15 & 2007444.7098438586& 2255902.212313077\\\hline
-					20 & 1099395.4420880969& 1194727.658029051\\\hline
+					25 & 2007444.7098438586& 2255902.212313077\\\hline
+					50 & 1099395.4420880969& 1194727.658029051\\\hline
 				\end{tabular}
-				\caption{Cloud data set results}
+				\caption{\texttt{k-mean++} results on cloud data set}
 				\label{tbl:cloud_no_preprocess}
 			\end{center}
 		\end{table}
@@ -204,10 +206,10 @@
 					Number of clusters & Inertia (scikit-learn) & Inertia (our)\\\hline
 					5 & 2519.79170884024 & 2519.826060045223\\\hline
 					10 & 1521.9262422548954 & 1510.9057079504264\\\hline
-					15 & 817.4296830232086 & 833.2041864088023\\\hline
-					20 & 519.1784696946825 & 543.6392985861094\\\hline
+					25 & 817.4296830232086 & 833.2041864088023\\\hline
+					50 & 519.1784696946825 & 543.6392985861094\\\hline
 				\end{tabular}
-				\caption{Cloud data set results (standardized)}
+				\caption{\texttt{k-means++} results on cloud data set (standardized)}
 				\label{tbl:cloud_standardscaler}
 			\end{center}
 		\end{table}
@@ -219,10 +221,10 @@
 					Number of clusters & Inertia (scikit-learn) & Inertia (our)\\\hline
 					5 & 57.096454766857384 & 57.302792493848216\\\hline
 					10 & 32.929845052888986 & 32.93489472987519\\\hline
-					15 & 17.941355048689374 & 18.50259622163847\\\hline
-					20 & 11.362562342560503 & 11.7818373139353\\\hline
+					25 & 17.941355048689374 & 18.50259622163847\\\hline
+					50 & 11.362562342560503 & 11.7818373139353\\\hline
 				\end{tabular}
-				\caption{Cloud data set results (scaled)}
+				\caption{\texttt{k-means++} results on cloud data set (scaled)}
 				\label{tbl:cloud_minmaxscaler}
 			\end{center}
 		\end{table}
