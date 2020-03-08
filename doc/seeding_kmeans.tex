@@ -17,7 +17,7 @@
 \newcommand{\I}{\mathcal{I}}
 \renewcommand{\S}{\mathcal{S}}
 
-\title{Seeding In \texttt{k-means} Clustering}
+\title{Seeding in \texttt{k-means} Clustering}
 \author{\\
 	\name Masum Billal 
 	\email billalmasum93@gmail.com\\
@@ -38,6 +38,10 @@
 		\begin{abstract}%
 			\texttt{k-means} is a popular clustering algorithm that aims to reduce the sum of minimum squared distances from data points to the centers. Now a days most of the times seeded centers are used instead of choosing all uniformly at random. This paper will serve for multiple purposes. First, we express our concerns about the results presented in \texttt{k-means++} paper. Then we will discuss various types of seeding methods and compare their performances. So, this paper also serves as an updated survey of \texttt{k-means} initial center seeding methods. We also prove a theorem on upper bound of inertia for any \texttt{k-means} method. Our conclusion is that, contrary to popular belief, usually  other initialization methods perform better than \texttt{k-means++}.
 		\end{abstract}
+	
+		\begin{keywords}
+			clustering, \texttt{k-means}, seeding, inertia
+		\end{keywords}
 	\section{Introduction}
 	Widely regarded as the most popular clustering techniques, \texttt{k-means} remains a humble interesting topic in machine learning as well as computational geometry. Roughly the problem is: given a set of points $\X$ in $\mathbb{R}^d$. Find a set of centers $\mathcal{C}$ such that the function \textit{inertia}
 		\begin{align*}
@@ -182,7 +186,396 @@
 	As we will see in section \eqref{sec:results}, usually every method can reach the minimum inertia at least once. Therefore, the method with lower average performs more consistently without any doubt. However, there are also cases where the difference between default \texttt{k-means} and seeded \texttt{k-means} becomes obvious.
 	\section{Results}\label{sec:results}
 	We present the results on the initialization procedures mentioned before. We have shown the results for $k\in\{5,10,25\}$ clusters. The ceiling of average number of iterations is taken since it may not be an integer. The time registered here is the average CPU time taken by each algorithm for those $20$ iterations (we used the same number as \texttt{k-means++}). We can see the results in tables \ref{tbl:airlines5} to \ref{tbl:Wine25}. As expected, default \texttt{k-means} is usually the fastest algorithm but also the worst in terms of optimizing inertia.
-	\subfile{kmeans-comparison}
+		\begin{table}[h]
+			\begin{center}
+				\begin{tabular}{|l|l|l|l|l|l|l|}
+					\hline
+					Initialization & Avg. In. & Min. In. & Avg. T & Min. T & Avg. It. & Min. It.\\\hline
+					\texttt{random} & 5788610179951.84 & 5788610179951.84 & 1.68 & 1.35 & 34.15 & 28.0\\\hline
+					\texttt{k-means++} & 5895771708319.71 & 5724390573955.8 & 1.34 & 0.63 & 25.15 & 10.0\\\hline
+					\texttt{orss} & 5833118291028.73 & 5724390573955.8 & 1.29 & 0.68 & 23.9 & 11.0\\\hline
+					\texttt{coc} & 5788610179951.84 & 5788610179951.84 & 1.51 & 0.92 & 30.2 & 18.0\\\hline
+				\end{tabular}
+				\caption{Results on airlines data set, 5 clusters}
+				\label{tbl:airlines5}
+			\end{center}
+		\end{table}
+		
+		\begin{table}[h]
+			\begin{center}
+				\begin{tabular}{|l|l|l|l|l|l|l|}
+					\hline
+					Initialization & Avg. In. & Min. In. & Avg. T & Min. T & Avg. It. & Min. It.\\\hline
+					\texttt{random} & 2812654.07 & 1475549.48 & 0.08 & 0.03 & 10.45 & 3.0\\\hline
+					\texttt{k-means++} & 1572564.77 & 1475549.48 & 0.07 & 0.05 & 7.25 & 3.0\\\hline
+					\texttt{orss} & 1547677.65 & 1475549.48 & 0.07 & 0.05 & 6.7 & 3.0\\\hline
+					\texttt{coc} & 1812654.49 & 1475612.32 & 0.07 & 0.04 & 8.15 & 4.0\\\hline
+				\end{tabular}
+				\caption{Results on boston data set, 5 clusters}
+				\label{tbl:boston5}
+			\end{center}
+		\end{table}
+		
+		\begin{table}[h]
+			\begin{center}
+				\begin{tabular}{|l|l|l|l|l|l|l|}
+					\hline
+					Initialization & Avg. In. & Min. In. & Avg. T & Min. T & Avg. It. & Min. It.\\\hline
+					\texttt{random} & 17740103.9 & 17700010.65 & 0.52 & 0.12 & 36.85 & 7.0\\\hline
+					\texttt{k-means++} & 17821421.19 & 17700010.65 & 0.32 & 0.11 & 20.05 & 4.0\\\hline
+					\texttt{orss} & 17980303.16 & 17699943.72 & 0.28 & 0.11 & 17.2 & 4.0\\\hline
+					\texttt{coc} & 17740103.9 & 17700010.65 & 0.51 & 0.2 & 35.75 & 13.0\\\hline
+				\end{tabular}
+				\caption{Results on cloud data set, 5 clusters}
+				\label{tbl:cloud5}
+			\end{center}
+		\end{table}
+		
+		\begin{table}[h]
+			\begin{center}
+				\begin{tabular}{|l|l|l|l|l|l|l|}
+					\hline
+					Initialization & Avg. In. & Min. In. & Avg. T & Min. T & Avg. It. & Min. It.\\\hline
+					\texttt{random} & 59.34 & 50.33 & 0.02 & 0.01 & 8.25 & 4.0\\\hline
+					\texttt{k-means++} & 58.48 & 50.28 & 0.02 & 0.01 & 5.1 & 1.0\\\hline
+					\texttt{orss} & 56.69 & 50.28 & 0.02 & 0.01 & 4.65 & 2.0\\\hline
+					\texttt{coc} & 62.37 & 50.36 & 0.02 & 0.01 & 7.25 & 3.0\\\hline
+				\end{tabular}
+				\caption{Results on iris data set, 5 clusters}
+				\label{tbl:iris5}
+			\end{center}
+		\end{table}
+		
+		\begin{table}[h]
+			\begin{center}
+				\begin{tabular}{|l|l|l|l|l|l|l|}
+					\hline
+					Initialization & Avg. In. & Min. In. & Avg. T & Min. T & Avg. It. & Min. It.\\\hline
+					\texttt{random} & 84038.0 & 75412.6 & 0.02 & 0.01 & 8.0 & 3.0\\\hline
+					\texttt{k-means++} & 82360.19 & 75399.62 & 0.02 & 0.01 & 6.25 & 2.0\\\hline
+					\texttt{orss} & 82455.88 & 75399.62 & 0.03 & 0.02 & 6.7 & 3.0\\\hline
+					\texttt{coc} & 85772.29 & 75427.71 & 0.03 & 0.01 & 8.4 & 4.0\\\hline
+				\end{tabular}
+				\caption{Results on mall data set, 5 clusters}
+				\label{tbl:mall5}
+			\end{center}
+		\end{table}
+		
+		\begin{table}[h]
+			\begin{center}
+				\begin{tabular}{|l|l|l|l|l|l|l|}
+					\hline
+					Initialization & Avg. In. & Min. In. & Avg. T & Min. T & Avg. It. & Min. It.\\\hline
+					\texttt{random} & 22.8 & 18.89 & 0.01 & 0.01 & 5.5 & 3.0\\\hline
+					\texttt{k-means++} & 20.01 & 18.89 & 0.01 & 0.01 & 4.5 & 2.0\\\hline
+					\texttt{orss} & 19.78 & 18.89 & 0.01 & 0.01 & 4.35 & 2.0\\\hline
+					\texttt{coc} & 21.98 & 18.91 & 0.01 & 0.01 & 5.05 & 2.0\\\hline
+				\end{tabular}
+				\caption{Results on moons data set, 5 clusters}
+				\label{tbl:moons5}
+			\end{center}
+		\end{table}
+		
+		\begin{table}[h]
+			\begin{center}
+				\begin{tabular}{|l|l|l|l|l|l|l|}
+					\hline
+					Initialization & Avg. In. & Min. In. & Avg. T & Min. T & Avg. It. & Min. It.\\\hline
+					\texttt{random} & 2106.59 & 2028.44 & 0.03 & 0.01 & 6.85 & 2.0\\\hline
+					\texttt{k-means++} & 2162.48 & 2028.44 & 0.03 & 0.02 & 5.05 & 2.0\\\hline
+					\texttt{orss} & 2143.76 & 2036.83 & 0.03 & 0.02 & 4.9 & 2.0\\\hline
+					\texttt{coc} & 2164.2 & 2028.44 & 0.03 & 0.02 & 5.75 & 3.0\\\hline
+				\end{tabular}
+				\caption{Results on old data set, 5 clusters}
+				\label{tbl:old5}
+			\end{center}
+		\end{table}
+		
+		\begin{table}[h]
+			\begin{center}
+				\begin{tabular}{|l|l|l|l|l|l|l|}
+					\hline
+					Initialization & Avg. In. & Min. In. & Avg. T & Min. T & Avg. It. & Min. It.\\\hline
+					\texttt{random} & 5911401430.11 & 5733432489.75 & 0.03 & 0.01 & 13.45 & 6.0\\\hline
+					\texttt{k-means++} & 6151075153.7 & 5733432489.75 & 0.02 & 0.01 & 9.75 & 3.0\\\hline
+					\texttt{orss} & 6037398253.1 & 5734713233.58 & 0.03 & 0.01 & 11.2 & 4.0\\\hline
+					\texttt{coc} & 6116023527.58 & 5733432489.75 & 0.02 & 0.01 & 9.6 & 3.0\\\hline
+				\end{tabular}
+				\caption{Results on schools data set, 5 clusters}
+				\label{tbl:schools5}
+			\end{center}
+		\end{table}
+		
+		\begin{table}[h]
+			\begin{center}
+				\begin{tabular}{|l|l|l|l|l|l|l|}
+					\hline
+					Initialization & Avg. In. & Min. In. & Avg. T & Min. T & Avg. It. & Min. It.\\\hline
+					\texttt{random} & 1005296.55 & 916424.19 & 0.03 & 0.01 & 10.5 & 4.0\\\hline
+					\texttt{k-means++} & 1005490.9 & 916424.19 & 0.02 & 0.02 & 6.25 & 3.0\\\hline
+					\texttt{orss} & 981833.05 & 916424.19 & 0.02 & 0.01 & 5.7 & 2.0\\\hline
+					\texttt{coc} & 1004998.14 & 916424.19 & 0.02 & 0.01 & 6.95 & 3.0\\\hline
+				\end{tabular}
+				\caption{Results on Wine data set, 5 clusters}
+				\label{tbl:Wine5}
+			\end{center}
+		\end{table}
+		
+		\begin{table}[h]
+			\begin{center}
+				\begin{tabular}{|l|l|l|l|l|l|l|}
+					\hline
+					Initialization & Avg. In. & Min. In. & Avg. T & Min. T & Avg. It. & Min. It.\\\hline
+					\texttt{random} & 5788610179951.84 & 5788610179951.84 & 1.91 & 1.3 & 35.25 & 23.0\\\hline
+					\texttt{k-means++} & 5841017195498.52 & 5724390573955.8 & 1.49 & 0.64 & 26.5 & 10.0\\\hline
+					\texttt{orss} & 5920823727383.38 & 5724390573955.8 & 1.36 & 0.68 & 22.1 & 9.0\\\hline
+					\texttt{coc} & 5788604697505.78 & 5788500531030.62 & 1.68 & 1.23 & 29.5 & 22.0\\\hline
+				\end{tabular}
+				\caption{Results on airlines data set, 10 clusters}
+				\label{tbl:airlines10}
+			\end{center}
+		\end{table}
+		
+		\begin{table}[h]
+			\begin{center}
+				\begin{tabular}{|l|l|l|l|l|l|l|}
+					\hline
+					Initialization & Avg. In. & Min. In. & Avg. T & Min. T & Avg. It. & Min. It.\\\hline
+					\texttt{random} & 2717448.59 & 1500209.99 & 0.08 & 0.04 & 9.45 & 4.0\\\hline
+					\texttt{k-means++} & 1687335.04 & 1475549.48 & 0.08 & 0.05 & 7.2 & 3.0\\\hline
+					\texttt{orss} & 1782584.85 & 1475549.48 & 0.09 & 0.05 & 8.1 & 3.0\\\hline
+					\texttt{coc} & 1564391.58 & 1476556.31 & 0.09 & 0.05 & 9.7 & 5.0\\\hline
+				\end{tabular}
+				\caption{Results on boston data set, 10 clusters}
+				\label{tbl:boston10}
+			\end{center}
+		\end{table}
+		
+		\begin{table}[h]
+			\begin{center}
+				\begin{tabular}{|l|l|l|l|l|l|l|}
+					\hline
+					Initialization & Avg. In. & Min. In. & Avg. T & Min. T & Avg. It. & Min. It.\\\hline
+					\texttt{random} & 17700272.49 & 17700010.65 & 0.56 & 0.18 & 37.65 & 11.0\\\hline
+					\texttt{k-means++} & 17941909.09 & 17700010.65 & 0.34 & 0.13 & 19.5 & 5.0\\\hline
+					\texttt{orss} & 17941152.22 & 17700010.65 & 0.37 & 0.12 & 22.05 & 4.0\\\hline
+					\texttt{coc} & 17780988.12 & 17700010.65 & 0.47 & 0.12 & 30.4 & 6.0\\\hline
+				\end{tabular}
+				\caption{Results on cloud data set, 10 clusters}
+				\label{tbl:cloud10}
+			\end{center}
+		\end{table}
+		
+		\begin{table}[h]
+			\begin{center}
+				\begin{tabular}{|l|l|l|l|l|l|l|}
+					\hline
+					Initialization & Avg. In. & Min. In. & Avg. T & Min. T & Avg. It. & Min. It.\\\hline
+					\texttt{random} & 58.41 & 50.33 & 0.02 & 0.01 & 6.05 & 2.0\\\hline
+					\texttt{k-means++} & 59.14 & 50.28 & 0.02 & 0.01 & 5.8 & 2.0\\\hline
+					\texttt{orss} & 56.36 & 50.28 & 0.02 & 0.01 & 4.6 & 2.0\\\hline
+					\texttt{coc} & 62.19 & 50.28 & 0.02 & 0.01 & 6.55 & 2.0\\\hline
+				\end{tabular}
+				\caption{Results on iris data set, 10 clusters}
+				\label{tbl:iris10}
+			\end{center}
+		\end{table}
+		
+		\begin{table}[h]
+			\begin{center}
+				\begin{tabular}{|l|l|l|l|l|l|l|}
+					\hline
+					Initialization & Avg. In. & Min. In. & Avg. T & Min. T & Avg. It. & Min. It.\\\hline
+					\texttt{random} & 84902.83 & 75399.62 & 0.04 & 0.02 & 7.9 & 4.0\\\hline
+					\texttt{k-means++} & 81352.0 & 75399.62 & 0.05 & 0.03 & 5.65 & 3.0\\\hline
+					\texttt{orss} & 81631.34 & 75399.62 & 0.05 & 0.03 & 8.65 & 3.0\\\hline
+					\texttt{coc} & 83759.84 & 75427.71 & 0.04 & 0.02 & 8.4 & 3.0\\\hline
+				\end{tabular}
+				\caption{Results on mall data set, 10 clusters}
+				\label{tbl:mall10}
+			\end{center}
+		\end{table}
+		
+		\begin{table}[h]
+			\begin{center}
+				\begin{tabular}{|l|l|l|l|l|l|l|}
+					\hline
+					Initialization & Avg. In. & Min. In. & Avg. T & Min. T & Avg. It. & Min. It.\\\hline
+					\texttt{random} & 23.62 & 18.91 & 0.02 & 0.01 & 5.7 & 4.0\\\hline
+					\texttt{k-means++} & 20.22 & 18.89 & 0.01 & 0.01 & 4.2 & 1.0\\\hline
+					\texttt{orss} & 20.46 & 18.89 & 0.01 & 0.01 & 4.7 & 2.0\\\hline
+					\texttt{coc} & 20.4 & 18.89 & 0.01 & 0.01 & 5.5 & 2.0\\\hline
+				\end{tabular}
+				\caption{Results on moons data set, 10 clusters}
+				\label{tbl:moons10}
+			\end{center}
+		\end{table}
+		
+		\begin{table}[h]
+			\begin{center}
+				\begin{tabular}{|l|l|l|l|l|l|l|}
+					\hline
+					Initialization & Avg. In. & Min. In. & Avg. T & Min. T & Avg. It. & Min. It.\\\hline
+					\texttt{random} & 2186.18 & 2028.44 & 0.04 & 0.01 & 7.1 & 2.0\\\hline
+					\texttt{k-means++} & 2222.88 & 2039.55 & 0.04 & 0.02 & 4.7 & 2.0\\\hline
+					\texttt{orss} & 2171.94 & 2028.44 & 0.03 & 0.02 & 3.5 & 1.0\\\hline
+					\texttt{coc} & 2188.5 & 2028.44 & 0.03 & 0.02 & 5.85 & 2.0\\\hline
+				\end{tabular}
+				\caption{Results on old data set, 10 clusters}
+				\label{tbl:old10}
+			\end{center}
+		\end{table}
+		
+		\begin{table}[h]
+			\begin{center}
+				\begin{tabular}{|l|l|l|l|l|l|l|}
+					\hline
+					Initialization & Avg. In. & Min. In. & Avg. T & Min. T & Avg. It. & Min. It.\\\hline
+					\texttt{random} & 6036905058.56 & 5729423591.21 & 0.02 & 0.01 & 9.95 & 4.0\\\hline
+					\texttt{k-means++} & 6071879236.33 & 5728232615.59 & 0.02 & 0.01 & 7.95 & 2.0\\\hline
+					\texttt{orss} & 6152682962.47 & 5729423591.21 & 0.03 & 0.02 & 8.4 & 4.0\\\hline
+					\texttt{coc} & 6122042430.59 & 5739498515.77 & 0.03 & 0.01 & 11.85 & 4.0\\\hline
+				\end{tabular}
+				\caption{Results on schools data set, 10 clusters}
+				\label{tbl:schools10}
+			\end{center}
+		\end{table}
+		
+		\begin{table}[h]
+			\begin{center}
+				\begin{tabular}{|l|l|l|l|l|l|l|}
+					\hline
+					Initialization & Avg. In. & Min. In. & Avg. T & Min. T & Avg. It. & Min. It.\\\hline
+					\texttt{random} & 1010055.91 & 916424.19 & 0.03 & 0.01 & 9.2 & 3.0\\\hline
+					\texttt{k-means++} & 990859.67 & 916424.19 & 0.03 & 0.02 & 6.25 & 3.0\\\hline
+					\texttt{orss} & 1014711.02 & 916424.19 & 0.03 & 0.02 & 5.95 & 2.0\\\hline
+					\texttt{coc} & 1005327.62 & 916424.19 & 0.03 & 0.01 & 7.95 & 3.0\\\hline
+				\end{tabular}
+				\caption{Results on Wine data set, 10 clusters}
+				\label{tbl:Wine10}
+			\end{center}
+		\end{table}
+		
+		\begin{table}[h]
+			\begin{center}
+				\begin{tabular}{|l|l|l|l|l|l|l|}
+					\hline
+					Initialization & Avg. In. & Min. In. & Avg. T & Min. T & Avg. It. & Min. It.\\\hline
+					\texttt{random} & 980841.16 & 712861.81 & 0.14 & 0.07 & 11.9 & 5.0\\\hline
+					\texttt{k-means++} & 794206.31 & 708048.83 & 0.19 & 0.1 & 12.55 & 4.0\\\hline
+					\texttt{orss} & 808695.94 & 708048.83 & 0.16 & 0.09 & 10.3 & 3.0\\\hline
+					\texttt{coc} & 880216.31 & 750170.64 & 0.18 & 0.09 & 15.45 & 7.0\\\hline
+				\end{tabular}
+				\caption{Results on boston data set, 25 clusters}
+				\label{tbl:boston25}
+			\end{center}
+		\end{table}
+		
+		\begin{table}[h]
+			\begin{center}
+				\begin{tabular}{|l|l|l|l|l|l|l|}
+					\hline
+					Initialization & Avg. In. & Min. In. & Avg. T & Min. T & Avg. It. & Min. It.\\\hline
+					\texttt{random} & 8060421.03 & 6080623.47 & 0.8 & 0.41 & 39.1 & 19.0\\\hline
+					\texttt{k-means++} & 6307066.46 & 5754925.79 & 0.65 & 0.37 & 25.3 & 12.0\\\hline
+					\texttt{orss} & 6179838.38 & 5754925.79 & 0.65 & 0.26 & 25.55 & 5.0\\\hline
+					\texttt{coc} & 6798881.05 & 5754925.79 & 1.2 & 0.7 & 57.4 & 33.0\\\hline
+				\end{tabular}
+				\caption{Results on cloud data set, 25 clusters}
+				\label{tbl:cloud25}
+			\end{center}
+		\end{table}
+		
+		\begin{table}[h]
+			\begin{center}
+				\begin{tabular}{|l|l|l|l|l|l|l|}
+					\hline
+					Initialization & Avg. In. & Min. In. & Avg. T & Min. T & Avg. It. & Min. It.\\\hline
+					\texttt{random} & 31.67 & 27.26 & 0.03 & 0.01 & 6.95 & 3.0\\\hline
+					\texttt{k-means++} & 30.13 & 26.81 & 0.03 & 0.03 & 5.2 & 3.0\\\hline
+					\texttt{orss} & 30.01 & 27.29 & 0.04 & 0.02 & 5.9 & 2.0\\\hline
+					\texttt{coc} & 36.43 & 31.04 & 0.03 & 0.02 & 8.3 & 4.0\\\hline
+				\end{tabular}
+				\caption{Results on iris data set, 25 clusters}
+				\label{tbl:iris25}
+			\end{center}
+		\end{table}
+		
+		\begin{table}[h]
+			\begin{center}
+				\begin{tabular}{|l|l|l|l|l|l|l|}
+					\hline
+					Initialization & Avg. In. & Min. In. & Avg. T & Min. T & Avg. It. & Min. It.\\\hline
+					\texttt{random} & 42389.69 & 37446.98 & 0.03 & 0.02 & 7.45 & 3.0\\\hline
+					\texttt{k-means++} & 40112.88 & 37617.71 & 0.05 & 0.04 & 6.95 & 4.0\\\hline
+					\texttt{orss} & 40586.12 & 37425.92 & 0.05 & 0.03 & 6.9 & 3.0\\\hline
+					\texttt{coc} & 42762.76 & 38143.41 & 0.04 & 0.02 & 8.85 & 4.0\\\hline
+				\end{tabular}
+				\caption{Results on mall data set, 25 clusters}
+				\label{tbl:mall25}
+			\end{center}
+		\end{table}
+		
+		\begin{table}[h]
+			\begin{center}
+				\begin{tabular}{|l|l|l|l|l|l|l|}
+					\hline
+					Initialization & Avg. In. & Min. In. & Avg. T & Min. T & Avg. It. & Min. It.\\\hline
+					\texttt{random} & 11.08 & 7.61 & 0.02 & 0.01 & 6.75 & 3.0\\\hline
+					\texttt{k-means++} & 9.16 & 7.74 & 0.02 & 0.02 & 3.85 & 1.0\\\hline
+					\texttt{orss} & 8.77 & 7.59 & 0.02 & 0.02 & 4.5 & 3.0\\\hline
+					\texttt{coc} & 9.97 & 7.72 & 0.02 & 0.01 & 5.65 & 4.0\\\hline
+				\end{tabular}
+				\caption{Results on moons data set, 25 clusters}
+				\label{tbl:moons25}
+			\end{center}
+		\end{table}
+		
+		\begin{table}[h]
+			\begin{center}
+				\begin{tabular}{|l|l|l|l|l|l|l|}
+					\hline
+					Initialization & Avg. In. & Min. In. & Avg. T & Min. T & Avg. It. & Min. It.\\\hline
+					\texttt{random} & 782.76 & 547.03 & 0.04 & 0.03 & 6.1 & 3.0\\\hline
+					\texttt{k-means++} & 611.47 & 541.94 & 0.05 & 0.04 & 3.3 & 2.0\\\hline
+					\texttt{orss} & 639.5 & 537.26 & 0.05 & 0.04 & 3.55 & 2.0\\\hline
+					\texttt{coc} & 778.12 & 553.8 & 0.04 & 0.03 & 5.85 & 3.0\\\hline
+				\end{tabular}
+				\caption{Results on old data set, 25 clusters}
+				\label{tbl:old25}
+			\end{center}
+		\end{table}
+		
+		\begin{table}[h]
+			\begin{center}
+				\begin{tabular}{|l|l|l|l|l|l|l|}
+					\hline
+					Initialization & Avg. In. & Min. In. & Avg. T & Min. T & Avg. It. & Min. It.\\\hline
+					\texttt{random} & 2699016663.5 & 2456647241.07 & 0.03 & 0.02 & 7.85 & 4.0\\\hline
+					\texttt{k-means++} & 2632112716.8 & 2342751060.42 & 0.03 & 0.02 & 6.85 & 3.0\\\hline
+					\texttt{orss} & 2673580927.89 & 2349813788.08 & 0.03 & 0.02 & 6.65 & 3.0\\\hline
+					\texttt{coc} & 2841756249.56 & 2447984547.05 & 0.03 & 0.02 & 9.65 & 4.0\\\hline
+				\end{tabular}
+				\caption{Results on schools data set, 25 clusters}
+				\label{tbl:schools25}
+			\end{center}
+		\end{table}
+		
+		\begin{table}[h]
+			\begin{center}
+				\begin{tabular}{|l|l|l|l|l|l|l|}
+					\hline
+					Initialization & Avg. In. & Min. In. & Avg. T & Min. T & Avg. It. & Min. It.\\\hline
+					\texttt{random} & 444405.79 & 227519.09 & 0.04 & 0.02 & 10.45 & 4.0\\\hline
+					\texttt{k-means++} & 256677.62 & 219660.89 & 0.05 & 0.03 & 6.8 & 3.0\\\hline
+					\texttt{orss} & 257793.5 & 227206.02 & 0.05 & 0.03 & 6.35 & 3.0\\\hline
+					\texttt{coc} & 287424.14 & 226683.67 & 0.05 & 0.03 & 11.25 & 5.0\\\hline
+				\end{tabular}
+				\caption{Results on Wine data set, 25 clusters}
+				\label{tbl:Wine25}
+			\end{center}
+		\end{table}
+		
 		\begin{table}
 			\begin{center}
 				\begin{tabular}{|l|l|l|}
@@ -230,5 +623,15 @@
 
 	\section{Conclusion}
 	We argued that \texttt{k-means++} results may be wrong and discussed different seeding methods to improve \texttt{k-means} algorithms. Then we showed in terms of convergence and inertia that \texttt{k-means++} is usually worse than both our proposed algorithm and \texttt{ORSS}.\clearpage
-	\subfile{bib}
+	\begin{thebibliography}{99}
+		\bibitem[Arthur et al.(2007)]{kmeans++} D. Arthur and S. Vassilvitskii. \texttt{k-means++}: The Advantages of Careful Seeding. Proceedings of the eighteenth annual ACM-SIAM symposium on Discrete algorithms. Society for Industrial and Applied Mathematics Philadelphia, PA, USA. pp. $1027–1035$.
+		\bibitem[Forgy(1965)]{forgy} E. Forgy. Cluster analysis of multivariate data: Efficiency versus interpretability of classification. Biometrics, $21, 768-780, 1965$.
+		\bibitem[Lloyd(1982)]{lloyd} Stuart P. Lloyd. Least squares quantization in pcm. IEEE Transactions on Information Theory, $28(2):129–136, 1982$.
+		\bibitem[Dyer(1985)]{dyer} M. E. Dyer. A simple heuristic for the p-center problem. Operations Research Letters, Volume $3$, February $1985$, pp. $285-288$.
+		\bibitem[Miligan et al.(1988)]{miligan} G. Milligan, M. C. Coope. A Study of Standardization of Variables in Cluster Analysis, Journal of Classification 5(2) (1988) 181–204.
+		\bibitem[Ostrovsky et al.(2006)]{ostrovsky} R. Ostrovsky, Y. Rabani, Leonard J. Schulman, C. Swamy. The Effectiveness of Lloyd-Type Methods for the k-Means Problem. Proceedings of the $47$th Annual Symposium on Foundations of Computer Science. $2006$.
+		\bibitem[Celebi et al.(2013)]{celebi} M. Emre Celebi, Hassan A. Kingravi, Patricio A. Vela. A Comparative Study of Efficient Initialization Methods for the K-Means Clustering Algorithm. Expert Systems with Applications, $40(1): 200–210, 2013$.
+		\bibitem[Apostol(1976)]{apostol} Tom M. Apostol. Introduction to Analytic Number Theory. Springer, $10.1007/978-3-662-28579-4$, $1976$.
+		\bibitem[Pedregosa et al.(2011)]{sklearn} Pedregosa, F., Varoquaux, G., Gramfort, A., Michel, V., Thirion, B., Grisel, O., Blondel, M., Prettenhofer, P., Weiss, R., Dubourg, V., Vanderplas, J., Passos, A., Cournapeau, D., Brucher, M., Perrot, M., Duchesnay, E. Scikit-learn: Machine Learning in Python, , JMLR 12, pp. 2825-2830, 2011.
+	\end{thebibliography}
 \end{document}
