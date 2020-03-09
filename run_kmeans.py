@@ -10,6 +10,7 @@ from os.path import join, exists
 class RunKmeans:
     file = None
     num_exp = None
+    do_pca = False
     initlizations_ = [
         'random',
         'k-means++',
@@ -18,7 +19,7 @@ class RunKmeans:
     ]
     n_clusters = 5
 
-    def __init__(self, file, num_exp=20, n_clusters=5):
+    def __init__(self, file, num_exp=20, n_clusters=5, do_pca=False):
         if type(file) != type('a'):
             raise ValueError('File path must be valid')
         elif exists(file):
@@ -27,12 +28,13 @@ class RunKmeans:
             raise FileNotFoundError('Check file path')
         self.num_exp = num_exp
         self.n_clusters = n_clusters
+        self.do_pca = do_pca
 
     def __get_data(self):
         if self.file == None:
             raise ValueError('Input a valid file')
         df = pd.read_csv(self.file)
-        return process(df)
+        return process(df, do_pca=self.do_pca)
 
     def run_kmeans(self):
         X = self.__get_data()

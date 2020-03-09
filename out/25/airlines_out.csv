@@ -1,5 +1,5 @@
 Initialization,Average Inertia,Minimum Inertia,Average Time,Minimum Time,Average Iteration,Minimum Iteration
-random,,,5.6,4.35,,
-k-means++,,,3.83,1.71,,
-orss,,,3.42,1.74,,
-coc,,,5.15,3.74,,
+random,,,7.01,5.51,,
+k-means++,2683299836781.09,2621426016918.97,4.54,2.33,45.0,19.0
+orss,,,3.67,2.01,,
+coc,,,5.76,3.62,,

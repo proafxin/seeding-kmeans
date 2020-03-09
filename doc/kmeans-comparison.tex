@@ -273,10 +273,25 @@
 		\begin{tabular}{|l|l|l|l|l|l|l|}
 			\hline
 			Initialization & Avg. In. & Min. In. & Avg. T & Min. T & Avg. It. & Min. It.\\\hline
-			\texttt{random} & 980841.16 & 712861.81 & 0.14 & 0.07 & 11.9 & 5.0\\\hline
-			\texttt{k-means++} & 794206.31 & 708048.83 & 0.19 & 0.1 & 12.55 & 4.0\\\hline
-			\texttt{orss} & 808695.94 & 708048.83 & 0.16 & 0.09 & 10.3 & 3.0\\\hline
-			\texttt{coc} & 880216.31 & 750170.64 & 0.18 & 0.09 & 15.45 & 7.0\\\hline
+			\texttt{random} & nan & nan & 7.01 & 5.51 & nan & nan\\\hline
+			\texttt{k-means++} & 2683299836781.09 & 2621426016918.97 & 4.54 & 2.33 & 45.0 & 19.0\\\hline
+			\texttt{orss} & nan & nan & 3.67 & 2.01 & nan & nan\\\hline
+			\texttt{coc} & nan & nan & 5.76 & 3.62 & nan & nan\\\hline
+		\end{tabular}
+		\caption{Results on airlines data set, 25 clusters}
+		\label{tbl:airlines25}
+	\end{center}
+\end{table}
+
+\begin{table}[h]
+	\begin{center}
+		\begin{tabular}{|l|l|l|l|l|l|l|}
+			\hline
+			Initialization & Avg. In. & Min. In. & Avg. T & Min. T & Avg. It. & Min. It.\\\hline
+			\texttt{random} & 1179535.38 & 726875.22 & 0.18 & 0.11 & 13.95 & 7.0\\\hline
+			\texttt{k-means++} & 796562.49 & 707943.36 & 0.17 & 0.12 & 8.55 & 4.0\\\hline
+			\texttt{orss} & 783434.35 & 708148.86 & 0.19 & 0.12 & 9.85 & 4.0\\\hline
+			\texttt{coc} & 836074.29 & 714810.01 & 0.22 & 0.12 & 15.65 & 7.0\\\hline
 		\end{tabular}
 		\caption{Results on boston data set, 25 clusters}
 		\label{tbl:boston25}
@@ -288,10 +303,10 @@
 		\begin{tabular}{|l|l|l|l|l|l|l|}
 			\hline
 			Initialization & Avg. In. & Min. In. & Avg. T & Min. T & Avg. It. & Min. It.\\\hline
-			\texttt{random} & 8060421.03 & 6080623.47 & 0.8 & 0.41 & 39.1 & 19.0\\\hline
-			\texttt{k-means++} & 6307066.46 & 5754925.79 & 0.65 & 0.37 & 25.3 & 12.0\\\hline
-			\texttt{orss} & 6179838.38 & 5754925.79 & 0.65 & 0.26 & 25.55 & 5.0\\\hline
-			\texttt{coc} & 6798881.05 & 5754925.79 & 1.2 & 0.7 & 57.4 & 33.0\\\hline
+			\texttt{random} & 7778602.59 & 6286432.16 & 1.13 & 0.39 & 46.5 & 15.0\\\hline
+			\texttt{k-means++} & 6175654.25 & 5754925.79 & 0.66 & 0.24 & 21.55 & 4.0\\\hline
+			\texttt{orss} & 6313890.31 & 5754925.79 & 0.79 & 0.34 & 27.85 & 7.0\\\hline
+			\texttt{coc} & 6684716.64 & 5754925.79 & 1.49 & 0.27 & 64.15 & 10.0\\\hline
 		\end{tabular}
 		\caption{Results on cloud data set, 25 clusters}
 		\label{tbl:cloud25}
@@ -303,10 +318,10 @@
 		\begin{tabular}{|l|l|l|l|l|l|l|}
 			\hline
 			Initialization & Avg. In. & Min. In. & Avg. T & Min. T & Avg. It. & Min. It.\\\hline
-			\texttt{random} & 31.67 & 27.26 & 0.03 & 0.01 & 6.95 & 3.0\\\hline
-			\texttt{k-means++} & 30.13 & 26.81 & 0.03 & 0.03 & 5.2 & 3.0\\\hline
-			\texttt{orss} & 30.01 & 27.29 & 0.04 & 0.02 & 5.9 & 2.0\\\hline
-			\texttt{coc} & 36.43 & 31.04 & 0.03 & 0.02 & 8.3 & 4.0\\\hline
+			\texttt{random} & 31.57 & 27.59 & 0.03 & 0.02 & 6.85 & 4.0\\\hline
+			\texttt{k-means++} & 29.41 & 27.29 & 0.04 & 0.03 & 4.75 & 3.0\\\hline
+			\texttt{orss} & 30.38 & 26.84 & 0.04 & 0.03 & 5.8 & 3.0\\\hline
+			\texttt{coc} & 34.62 & 28.35 & 0.04 & 0.02 & 8.2 & 4.0\\\hline
 		\end{tabular}
 		\caption{Results on iris data set, 25 clusters}
 		\label{tbl:iris25}
@@ -318,10 +333,10 @@
 		\begin{tabular}{|l|l|l|l|l|l|l|}
 			\hline
 			Initialization & Avg. In. & Min. In. & Avg. T & Min. T & Avg. It. & Min. It.\\\hline
-			\texttt{random} & 42389.69 & 37446.98 & 0.03 & 0.02 & 7.45 & 3.0\\\hline
-			\texttt{k-means++} & 40112.88 & 37617.71 & 0.05 & 0.04 & 6.95 & 4.0\\\hline
-			\texttt{orss} & 40586.12 & 37425.92 & 0.05 & 0.03 & 6.9 & 3.0\\\hline
-			\texttt{coc} & 42762.76 & 38143.41 & 0.04 & 0.02 & 8.85 & 4.0\\\hline
+			\texttt{random} & 43066.3 & 37747.05 & 0.04 & 0.03 & 7.9 & 5.0\\\hline
+			\texttt{k-means++} & 40317.7 & 37581.02 & 0.05 & 0.05 & 6.1 & 4.0\\\hline
+			\texttt{orss} & 40096.13 & 37819.5 & 0.06 & 0.05 & 6.15 & 4.0\\\hline
+			\texttt{coc} & 42233.13 & 39118.08 & 0.05 & 0.03 & 8.15 & 5.0\\\hline
 		\end{tabular}
 		\caption{Results on mall data set, 25 clusters}
 		\label{tbl:mall25}
@@ -333,10 +348,10 @@
 		\begin{tabular}{|l|l|l|l|l|l|l|}
 			\hline
 			Initialization & Avg. In. & Min. In. & Avg. T & Min. T & Avg. It. & Min. It.\\\hline
-			\texttt{random} & 11.08 & 7.61 & 0.02 & 0.01 & 6.75 & 3.0\\\hline
-			\texttt{k-means++} & 9.16 & 7.74 & 0.02 & 0.02 & 3.85 & 1.0\\\hline
-			\texttt{orss} & 8.77 & 7.59 & 0.02 & 0.02 & 4.5 & 3.0\\\hline
-			\texttt{coc} & 9.97 & 7.72 & 0.02 & 0.01 & 5.65 & 4.0\\\hline
+			\texttt{random} & 10.26 & 7.6 & 0.02 & 0.01 & 7.05 & 4.0\\\hline
+			\texttt{k-means++} & 9.24 & 8.06 & 0.03 & 0.02 & 5.1 & 3.0\\\hline
+			\texttt{orss} & 8.78 & 7.59 & 0.02 & 0.02 & 4.25 & 2.0\\\hline
+			\texttt{coc} & 10.57 & 7.58 & 0.02 & 0.01 & 6.85 & 3.0\\\hline
 		\end{tabular}
 		\caption{Results on moons data set, 25 clusters}
 		\label{tbl:moons25}
@@ -348,10 +363,10 @@
 		\begin{tabular}{|l|l|l|l|l|l|l|}
 			\hline
 			Initialization & Avg. In. & Min. In. & Avg. T & Min. T & Avg. It. & Min. It.\\\hline
-			\texttt{random} & 782.76 & 547.03 & 0.04 & 0.03 & 6.1 & 3.0\\\hline
-			\texttt{k-means++} & 611.47 & 541.94 & 0.05 & 0.04 & 3.3 & 2.0\\\hline
-			\texttt{orss} & 639.5 & 537.26 & 0.05 & 0.04 & 3.55 & 2.0\\\hline
-			\texttt{coc} & 778.12 & 553.8 & 0.04 & 0.03 & 5.85 & 3.0\\\hline
+			\texttt{random} & 767.68 & 541.06 & 0.04 & 0.03 & 5.15 & 3.0\\\hline
+			\texttt{k-means++} & 599.9 & 545.47 & 0.06 & 0.05 & 3.65 & 2.0\\\hline
+			\texttt{orss} & 636.81 & 553.1 & 0.06 & 0.06 & 4.0 & 3.0\\\hline
+			\texttt{coc} & 747.26 & 556.26 & 0.05 & 0.03 & 6.05 & 2.0\\\hline
 		\end{tabular}
 		\caption{Results on old data set, 25 clusters}
 		\label{tbl:old25}
@@ -363,10 +378,10 @@
 		\begin{tabular}{|l|l|l|l|l|l|l|}
 			\hline
 			Initialization & Avg. In. & Min. In. & Avg. T & Min. T & Avg. It. & Min. It.\\\hline
-			\texttt{random} & 2699016663.5 & 2456647241.07 & 0.03 & 0.02 & 7.85 & 4.0\\\hline
-			\texttt{k-means++} & 2632112716.8 & 2342751060.42 & 0.03 & 0.02 & 6.85 & 3.0\\\hline
-			\texttt{orss} & 2673580927.89 & 2349813788.08 & 0.03 & 0.02 & 6.65 & 3.0\\\hline
-			\texttt{coc} & 2841756249.56 & 2447984547.05 & 0.03 & 0.02 & 9.65 & 4.0\\\hline
+			\texttt{random} & 2780499617.96 & 2382345958.39 & 0.03 & 0.02 & 7.85 & 3.0\\\hline
+			\texttt{k-means++} & 2574515408.9 & 2346464028.7 & 0.04 & 0.02 & 6.1 & 2.0\\\hline
+			\texttt{orss} & 2564154859.1 & 2413558849.09 & 0.04 & 0.03 & 7.05 & 3.0\\\hline
+			\texttt{coc} & 2870371762.13 & 2436964942.43 & 0.03 & 0.02 & 8.75 & 4.0\\\hline
 		\end{tabular}
 		\caption{Results on schools data set, 25 clusters}
 		\label{tbl:schools25}
@@ -378,10 +393,10 @@
 		\begin{tabular}{|l|l|l|l|l|l|l|}
 			\hline
 			Initialization & Avg. In. & Min. In. & Avg. T & Min. T & Avg. It. & Min. It.\\\hline
-			\texttt{random} & 444405.79 & 227519.09 & 0.04 & 0.02 & 10.45 & 4.0\\\hline
-			\texttt{k-means++} & 256677.62 & 219660.89 & 0.05 & 0.03 & 6.8 & 3.0\\\hline
-			\texttt{orss} & 257793.5 & 227206.02 & 0.05 & 0.03 & 6.35 & 3.0\\\hline
-			\texttt{coc} & 287424.14 & 226683.67 & 0.05 & 0.03 & 11.25 & 5.0\\\hline
+			\texttt{random} & 341878.83 & 219710.39 & 0.05 & 0.02 & 10.3 & 4.0\\\hline
+			\texttt{k-means++} & 249461.66 & 224847.92 & 0.05 & 0.04 & 5.9 & 3.0\\\hline
+			\texttt{orss} & 242546.38 & 218112.55 & 0.05 & 0.04 & 7.05 & 4.0\\\hline
+			\texttt{coc} & 273645.86 & 234824.73 & 0.08 & 0.04 & 16.2 & 8.0\\\hline
 		\end{tabular}
 		\caption{Results on Wine data set, 25 clusters}
 		\label{tbl:Wine25}
