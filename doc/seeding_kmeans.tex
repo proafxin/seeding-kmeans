@@ -79,7 +79,7 @@
 		\end{align*}
 	Since we tried to improve \texttt{k-means++}, obviously we made our own implementations of the algorithm and checked the results against the ones shown in the paper. Our results conflict with some results shown in \texttt{k-means++} paper \cite{kmeans++}. For this reason, we ran clustering on the same data set (cloud data set) using \texttt{k-means} package from \texttt{scikit-learn} library \citep{sklearn}. We found out that our implementations achieve similar inertia to the one in \texttt{scikit-learn}. On the other hand, results shown in \texttt{k-means++} paper differ from both our and \texttt{scikit-learn} results. At first, we thought this might be due to normalization or standardization. However, even after using both \texttt{min max} and \texttt{standard} normalization (also known as $z$-score), we found out that \texttt{k-means++} results still do not match with neither of the results. For cloud data set, both our and \texttt{scikit-learn} implementations have similar inertia values. The results are shown in tables \ref{tbl:cloud_minmaxscaler} (min-max scalar used to process data), \ref{tbl:cloud_no_preprocess} (no pre-processing) and \ref{tbl:cloud_standardscaler} (standard scalar pre-processing). But \texttt{k-means++} results \citep[Table $3$]{kmeans++} do not match with ours. We confirmed that our data set consisted of $1024$ rows and had dimension $10$. 
 	
-	We also tried collecting every data set that was used in \texttt{k-means++} paper but we managed to get only the cloud data set. We could not find the other real world data set \textit{Intrusion} either. There were some similar data sets but they matched neither the number of data points (494019) nor the dimension (35). Therefore, cloud data set was our primary source of comparison. We would like to mention that in a footnote in \cite[Section $6$, page $8$]{kmeans++}, the authors\footnote{We emailed the second author for both concerns and we have yet to receive any reply. We contacted them since it is possible that we are missing something.} mentioned that \url{http://theory.stanford.edu/~sergei/kmeans} contained full test suite. However, the site seems to be no longer accessible even though \url{http://theory.stanford.edu/~sergei} is. Therefore, we could neither retrieve the original data sets used in their paper nor check their implementation.
+	We also tried collecting every data set that was used in \texttt{k-means++} paper but we managed to get only the cloud data set. We could not find the other real world data set \textit{Intrusion} either. There were some similar data sets but they matched neither the number of data points (494019) nor the dimension (35). Therefore, cloud data set was our primary source of comparison. We would like to mention that in a footnote \citep[Section $6$, page $8$]{kmeans++}, the authors\footnote{We emailed the second author for both concerns and we have yet to receive any reply. We contacted them since it is possible that we are missing something.} mentioned that \url{http://theory.stanford.edu/~sergei/kmeans} contained full test suite. However, the site seems to be no longer accessible even though \url{http://theory.stanford.edu/~sergei} is. Therefore, we could neither retrieve the original data sets used in their paper nor check their implementation.
 	\section{Proposed Initialization Methods}
 	For a set of points $S$ and a point $x$, we use $\min(\|x-S\|)$ to denote the minimum of distances from $x$ to the points of $S$ that is $\min(\| x-S\|)=\min_{a\in S}(\| x-a\|)$. Set $D(\x)=\min(\|\x-\C\|)$ for a point $x$ and a set of centers $\C$. Let us denote the centroid of $S$ by $\mu_S$ that is $\mu_S=\dfrac{1}{|S|}\sum_{x\in S}x$.
 	\subsection{First center for \texttt{k-means++}}\label{sec:first_center}
@@ -98,8 +98,8 @@
 			\item Set $c_i=\mu_{\C_i}$.\label{step:coc_update}
 			\item Repeat \eqref{step:coc_cluster} and \eqref{step:coc_update} until convergence is reached.
 		\end{enumerate}
-	\section{Motivation}\label{sec:motivation}
-	In this section, we discuss the motivation behind our algorithm and why they make sense mathematically. 
+	\section{\texttt{k-means++} Improvement}\label{sec:motivation}
+	In this section, we discuss the motivation behind our idea of improving \texttt{k-means++}. 
 	Consider a set of $n$ points $\X$ and that the probability of $x\in\X$ being chosen as a center as $p(x)$. Following the definition of variance, for a set of points $S$, we define
 		\begin{align}
 			\sigma^2(S) & = \dfrac{\sum_{x\in S} \|x-\mu_{S}\|^2}{|S|}\nonumber\\
@@ -133,7 +133,7 @@
 		\begin{align*}
 			p(x) & = \dfrac{\|\mu-\x\|^2}{n\sigma^2}
 		\end{align*}
-	Notice that the variance of $S$ is in the denominator. We can consider $p(x)$ as if it is the amount of variance explained by $x$. Also, this version of $p(x)$ is computationally much cheaper than $\sum_{\y\in\X}\|\x-\y\|^2$. Therefore, we considered $p(x)$ proportional to $\|x-\mu\|^2$ for choosing $x$ as the first center in our experiments.
+	Notice that the variance of $S$ is in the denominator. We can think of $p(x)$ as if it is the amount of variance explained by $x$. Also, this version of $p(x)$ is computationally much cheaper than $\sum_{\y\in\X}\|\x-\y\|^2$. Therefore, we considered $p(x)$ proportional to $\|x-\mu\|^2$ for choosing $x$ as the first center in our experiments.
 	\section{The Inertia Theorem}
 	%Since the algorithms in discussion are probabilistic, we should look at the expected value of inertia. For a set of points $\X$ and a set of centers $\C$, we denote the inertia by $\I_\C(\X)$. %For the optimal set of cluster centers $\C_{opt}$, we denote the corresponding inertia by $\I_{opt}(\X)$.
 		%align*}
