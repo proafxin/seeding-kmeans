@@ -161,9 +161,7 @@
 			regardless of what seeding method is used.
 		\end{theorem}
 	\section{Experiment Setup}
-	We ensure that all algorithms are run under the same conditions. All of them share the same environment and no special optimizations were made for any particular algorithm. Only CPU was used to determine the values we are interested in and no parallelism mechanism was in place for speeding up the process. This way, we can get an idea about the raw performances of the algorithms involved.
-	
-	Python is used as the programming language to write necessary codes. Some common auxiliary packages such as \textit{scipy, scikit-learn, numpy} etc are used to help with the code. The algorithms are simply different methods of the same class, so they share the same fitting and prediction function. Only the initialization differs for different algorithm. It should be mentioned that even though some packages have native support for \texttt{k-means} implementation, we did not use them to run the experiments. Not all algorithms we want to test are available in those packages. Therefore, in order to ensure same environment and optimizations for every algorithm, we wrote them all from scratch so that we could be sure they are tested under the same settings. Here is the list of data sets used
+	We ensure that all algorithms are run under the same conditions. All of them share the same environment and no special optimizations were made for any particular algorithm. Only CPU was used to determine the values we are interested in and no parallelism mechanism was in place for speeding up the process. This way, we can get an idea about the raw performances of the algorithms involved. Here is the list of data sets used.
 		\begin{enumerate}[i]
 			\item Boston housing data set
 			\item Wine quality testing data set
@@ -177,11 +175,9 @@
 		\end{enumerate}
 	\cite{miligan} shows that using $z$-score to standardize the data is not favorable for clustering because it loses between-cluster variation. Therefore, we did not use any sort of standardization or normalization lest it should lose variance or become prone to bias. Instead, we have used PCA to remove linear dependency among variables. 
 	
-	While experimenting on such algorithms, it is of utmost importance to run the same experiment more than once under the same parameters and conditions. For example, assume that we want to compare \texttt{k-means++} and Forgy's algorithm \citep{forgy} for $k=5$ clusters. We should run this experiment at least $m$ times where $m>1$ in order to eliminate bias and account for randomness. We run each experiment a total of $20$ times and take the average and minimum values of inertia.
-	
-	As we will see in section \eqref{sec:results}, usually every method can reach the minimum inertia at least once. Therefore, the method with lower average performs more consistently without any doubt. However, there are also cases where the difference between default \texttt{k-means} and seeded \texttt{k-means} becomes obvious.
+	While experimenting on such algorithms, it is of utmost importance to run the same experiment more than once under the same parameters and conditions. We ran each experiment a total of $20$ times. The average and minimum values of inertia, CPU time taken are reported in the result section.
 	\section{Results}\label{sec:results}
-	We present the results on the initialization procedures mentioned before. We have shown the results for $k\in\{5,10,25\}$ clusters. The ceiling of average number of iterations is taken since it may not be an integer. The time registered here is the average CPU time taken by each algorithm for those $20$ iterations (we used the same number as \texttt{k-means++}). We can see the results in tables \ref{tbl:airlines5} to \ref{tbl:Wine25}. As expected, default \texttt{k-means} is usually the fastest algorithm but also the worst in terms of optimizing inertia. 
+	We have shown the results for $k\in\{5,10,25\}$ clusters in tables \ref{tbl:airlines5} to \ref{tbl:Wine25}. As expected, default \texttt{k-means} is usually the fastest algorithm but also the worst in terms of optimizing inertia. 
 	
 	The comparison of inertia for \texttt{k-means++} seeding is showed in tables \ref{tbl:cloud_no_preprocess}, \ref{tbl:cloud_standardscaler}, \ref{tbl:cloud_minmaxscaler}. We can check the results against \citet[Table $3$]{kmeans++}. See that even though we used both standard and min-max scaled data, their inertia values do not match with ours for any of the number of clusters in $\{10,25,50\}$. Since both our and \texttt{scikit-learn} implementations achieve similar inertia values, we believe our coding is correct. Also, since the cloud data set we used had exactly the number of dimension and rows as in \texttt{k-means++} paper, we believe that this is also the correct data set. Our codes are available at \url{https://github.com/proafxin/clustering}.
 		\begin{table}[p]
