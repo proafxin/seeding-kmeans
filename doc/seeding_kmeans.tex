@@ -1,12 +1,15 @@
 \documentclass[twoside, 11pt]{article}
 
-\usepackage{jmlr2e}
+%\usepackage{jmlr2e}
+\usepackage{natbib}
+%\usepackage{amsmath, amsfonts, enumerate, color, url}
 
-\usepackage{amsmath, amsfonts, enumerate, color, url}
+\usepackage{amsthm, amssymb, amsfonts, amsmath, geometry, enumerate}
+\usepackage{url}
+\geometry{left=1in,right=1in,top=.5in,bottom=1in,headheight=4pt,headsep=0.3in}
 
-%\usepackage{amsthm, amssymb, amsfonts, amsmath, geometry, enumerate}
-%\geometry{left=1in,right=1in,top=.5in,bottom=1in,headheight=4pt,headsep=0.3in}
-
+\newtheorem{lemma}{Lemma}
+\newtheorem{theorem}{Theorem}
 
 \newcommand{\x}{\mathbf{x}}
 \newcommand{\X}{\mathbf{X}}
@@ -18,67 +21,56 @@
 \renewcommand{\S}{\mathcal{S}}
 
 \title{Seeding in \texttt{k-means} Clustering}
-\author{\name Masum Billal 
-	\email billalmasum93@gmail.com\\
-	\name Md. Walid Amin Khan
-	\email walid.sec3.034@gmail.com\\
-	\name Farhad Alam Bhuiyan
-	\email pdcsedu@gmail.com\\
-	%\name Khandaker Amitabh Nobel
-	%\email nobel.khandaker@shohoz.com\\
-	\addr Data Science Department\\
-	Shohoz\\
-	Bangladesh
-}
-\editor{Not assigned}
+\author{Masum Billal\and Walid Khan}
+%\editor{Not assigned}
 % Heading arguments are {volume}{year}{pages}{date submitted}{date published}{paper id}{author-full-names}
-\jmlrheading{119}{2020}{}{\today}{}{}{Masum Billal, Md. Walid Amin Khan and Farhad Alam Bhuiyan}
-\ShortHeadings{Seeding \texttt{k-means}}{M. Billal, W. Khan, F. Alam}
+%\jmlrheading{119}{2020}{}{\today}{}{}{Masum Billal, Md. Walid Amin Khan}
+%\ShortHeadings{Seeding \texttt{k-means}}{M. Billal, W. Khan}
 \begin{document}
 	\bibliographystyle{plain}
 	\maketitle
 		\begin{abstract}%
 			\texttt{k-means} is a popular clustering algorithm that aims to reduce the sum of minimum squared distances from data points to the centers. Now a days most of the times seeded centers are used instead of choosing all uniformly at random. This paper will serve for multiple purposes. First, we express our concerns about the results presented in \texttt{k-means++} paper. Then we will discuss various types of seeding methods and compare their performances. So, this paper can serve as an updated survey of seeding initial centers in \texttt{k-means} algorithm. We also show an upper bound of inertia for any seeding method.
 		\end{abstract}
-	
-		\begin{keywords}
-			clustering, \texttt{k-means}, seeding centers, inertia optimization, \texttt{k-means++}
-		\end{keywords}
+
+		%\begin{keywords}
+		%	clustering, \texttt{k-means}, seeding centers, inertia optimization, \texttt{k-means++}
+		%\end{keywords}
 	\section{Introduction}
 	Widely regarded as the most popular clustering techniques, \texttt{k-means} remains a humble interesting topic in machine learning as well as computational geometry. Roughly the problem is: given a set of points $\X$ in $\mathbb{R}^d$. Find a set of centers $\mathcal{C}$ such that the function \textit{inertia}
 		\begin{align*}
 			\mathcal{I} & = \sum_{\x\in\X}\min_{\c\in\C}(\|\c-\x\|^2)
 		\end{align*}
 	is minimum where $\|\cdot\|$ is the $L_2$ norm\footnote{$\|c-x\|$ or $L_2$ norm of $\c-\x$ is the distance between the center $\c$ and point $\x$ or the magnitude of the vector $\c-\x$.}.
-	
+
 	Default \texttt{k-means} algorithm starts with random centers and then converge based on minimum distances of the centers from the data points. New centers are calculated based on the centroid. This is known as Lloyd's algorithm \citep{lloyd}. We repeat this process until no more change is possible. \cite{ostrovsky} and \cite{kmeans++} take it one step further by choosing the initial centers with a probability. And today, \texttt{k-means++} is without a doubt the most popular clustering technique. We intend to introduce other ways of initialization and compare their performances in terms of inertia, convergence speed and CPU time taken.
-	
+
 	First, we will discuss a sensitive issue regarding \texttt{k-means++} algorithm. Then we discuss the initialization methods used to compare the performance of clustering. We also prove a theorem that provides an upper bound for the inertia when \texttt{k-means} is done using seeded centers. Finally, we show experimental results for both our argument regarding \texttt{k-means++} and performance of initialization methods. For experimental results, we assumed that an algorithm converges only when the centers do not change anymore, that is, the algorithm absolutely stops changing centers altogether. There are some available techniques of stopping \texttt{k-means} algorithms but we chose not to use any of them as they might produce unreliable results.
 	\section{Related Work}
 	There has been multiple surveys and a lot of work on \texttt{k-means} in the literature. For our context, probably the most relevant work is done in \citet{celebi}. However, most of the algorithms used in that paper are practically not very useful. The same was also noted by the authors themselves. They concluded that \texttt{k-means++} and its greedy version work better than most. They also mention that probabilistic algorithms perform better than deterministic ones. Therefore, our primary focus has been on non-deterministic algorithms in this paper. We take this chance to introduce the not so popular algorithm \citet{ostrovsky} (\texttt{ORSS}). \texttt{ORSS} was not considered in their experiments. As we will show, \texttt{ORSS} is actually a very relevant topic in this regard.
-	
+
 	We would like to point out that to our knowledge no surveys were done after removing linear dependency prior to running the experiments. This is a very important step if we are to get a meaningful clustering out of \texttt{k-means} algorithm. We can achieve this using some known algorithm such as \textbf{principle component analysis} (PCA) or \textbf{singular value decomposition}. We opted for PCA in this paper. PCA decomposes the existing data points into orthogonal\footnote{It is well known that orthogonal vectors are linearly independent.} ones. If we use PCA before running a clustering algorithm, we can redefine the variables into linearly independent ones. For our experiment, we have used PCA on every data set before running cluster algorithm. However, we did not reduce dimensions in order to preserve the originality of the data set. We only used PCA for removing linear dependency among variables. We strongly believe this strengthens our result over other available results.
 	\section{Concerns Regarding \texttt{k-means++}}\label{sec:kmeans++vsorss}
 	Given how simple Lloyd's algorithm is, it seems very justified that it is the most popular algorithm for \texttt{k-means}. And nowadays most of the times initial centers are chosen with a seeded probability rather than at random. This idea has gained much popularity in recent years. Even in the very well known scientific python package \texttt{scikit-learn} \citep{sklearn}, \texttt{k-means++} initialization is supported by default. And it is no surprise considering the theoretical and experimental results are presented in \citep{kmeans++}. For example, \cite{kmeans++} claim \texttt{k-means++} is $\log{k}$ competitive which is a very lucrative result without any doubt. Moreover, they show experimental results that \texttt{k-means++} performs tenfold or even better in most data sets. These are all properties we look for in an ideal algorithm. However, there are some concerns we raise in the next section.
 	\subsection{\texttt{k-means++} and \texttt{ORSS}}
 	Surprisingly, there is no mention of Ostrovsky's algorithm in \texttt{k-means++} paper either even though it was published in $2007$ whereas \cite{ostrovsky} was published in $2006$. In fact, after going through \texttt{ORSS} paper again, we can argue that \texttt{k-means++} algorithm is actually a special case of \texttt{ORSS} algorithm. In \texttt{k-means++}, the first center is chosen at random. Then every center is chosen based on the minimum distance of the existing centers from the point in consideration, which \cite{kmeans++} call $D^2$ \textit{weighting}. Now, \texttt{ORSS} chooses two centers $x,y$ with probability proportional to $\|x-y\|^2$. After choosing those two centers, a new center is added to the set of centers in each iteration until there are $k$ centers, which is done exactly as in \texttt{k-means++}. So, the center adding step is same for both \texttt{k-means++} and \texttt{ORSS}.
-	
+
 	Next, we talk about the first step where \texttt{k-means++} chooses first center at random and \texttt{ORSS} chooses two centers with probability proportional to $\|x-y\|^2$. At this point, we would like to point out that our proposed method of improving \texttt{k-means++} is not actually a novel idea. This was already discussed in \citet{ostrovsky}. Regretfully, we did not know that at the time because we did not read the full paper back then. It was only after we found out that \texttt{k-means++} results could be wrong, we went through the \texttt{ORSS} paper again. When we read their paper for the second time, we found out that they had already mentioned a result \cite[Page 4, section 3, Paragraph: Running Time]{ostrovsky} similar to ours in their paper. They say that choosing two centers $x,y$ as in \texttt{ORSS} is the same as choosing the first center $c_1$ with probability proportional to $\sum_{y\in X}\|x-y\|^2$ and the second center with probability proportional to $\|y-c_1\|^2$. As we will see in section \ref{sec:motivation} that the first step was exactly our idea of improving \texttt{k-means++}. Despite being a duplicate result, we have decided to discuss our reasoning in this paper because we believe our motivation was different than theirs. As for the second step, again, notice that this is the same as second step in \texttt{k-means++}. In \texttt{k-means++}, after the first center has been chosen randomly, a point $x$ actually gets chosen with probability $\|x-c_1\|^2$. The reason is, there is only one center so the minimum distance is the only distance from $c_1$ to $x$. Therefore, we argue that \texttt{ORSS} is an improvement\footnote{To be more precise, this is exactly the improvement that we were trying to suggest} over \texttt{k-means++}.
 	\subsection{Accuracy of \texttt{k-means++} Results}
 	We will now discuss the other issue at hand. Regarding the accuracy of \texttt{k-means++} results, we have two concerns. One is that the theoretical results may not be correct. And the other is that experimental results might not be correct either. This does not imply that \texttt{k-means++} is a bad algorithm. It still works really well, just that we do not think the results mentioned in the paper are correct.
-	
+
 	First, let us discuss the theoretical concern. In the paper \cite{kmeans++}, $D(x)$ is assumed to be the minimum of squared distances  from $x$ to the centers $\C$. In \citep[Lemma $3.3$, section $3$]{kmeans++}, for two distinct point $a,a_0\in A$, the authors use \textit{triangle inequality}\footnote{Triangle inequality states that for any triangle $ABC$, we have $\|AB\|+\|BC\|\geq \|AC\|$. This transforms into $|a|+|b|\geq |a+b|$ for real numbers, consequently $|a|+|x-a|\geq |x|$ holds as well.} for expressing $D(a)^2$ in terms of $D(a_0)$ and $\|a-a_0\|$. Check the statement of \citet[Lemma $3.3$]{kmeans++}.
 		\begin{lemma}
 			Let $A$ be an arbitrary cluster in $\C_{opt}$ and let $\C$ be an arbitrary clustering. If we add a random center to $\C$ from $A$, chosen with $D^2$ weighting, then $E[\phi(A)] \leq 8\phi_{opt}(A)$.
 		\end{lemma}
 	The statement seems a bit vague to us for the reason mentioned below. Therefore, it is possible that we did not fully understand what they meant in this lemma. However, based on our interpretation, this lemma is wrong.
-	
+
 	They claim in the proof that $D(a_0)\leq D(a)+\|a-a_0\|$. Our concern is whether this is necessarily true or not. First, they take an arbitrary cluster $A$ from the optimal set of centers $\C_{opt}$. Then they choose a point $a_0$ from $A$ with $D^2$ weighting to be added to $\C$, which is an arbitrary clustering. This is the part where our argument lies. Since a center is being added to $\C$ and not $\C_{opt}$, here $D(a)$ is the minimum distance from $a$ to $\C$. If we consider $D(a)=\min(\|a-\C_{opt}\|)$, then the inequality $D(a_0)\leq D(a)+\|a-a_0\|$ holds true. However, in this case $D(a)=\min(\|a-\C\|)$ should be used instead since the center is being added to $\C$. By definition $D(x)$ is the minimum distance from $x$ to the centers in $\C$ and not $\C_{opt}$. Therefore in the inequality, $D(a)$ and $D(a_0)$ are not distances from the same center and hence, it is not directly implied by triangle inequality. We would like to correct the authors of \texttt{k-means++} that the inequality $\dfrac{a^2+b^2}{2} \geq \left(\dfrac{a+b}{2}\right)^2$ is not the \textit{power mean inequality}. This inequality can be derived in many ways, including power mean inequality, but it itself is not power mean inequality. Power mean inequality states that for any $r\leq s$ and $n$ real numbers $a_1,\cdots,a_n$,
 		\begin{align*}
 			\left(\dfrac{a_1^r+a_2^r+\cdots+a_n^r}{n}\right)^{\frac{1}{r}} & \leq \left(\dfrac{a_1^s+a_2^s+\cdots+a_n^s}{n}\right)^{\frac{1}{s}}
 		\end{align*}
-	Since we tried to improve \texttt{k-means++}, obviously we made our own implementations of the algorithm and checked the results against the ones shown in the paper. Our results conflict with some results shown in \texttt{k-means++} paper \cite{kmeans++}. For this reason, we ran clustering on the same data set (cloud data set) using \texttt{k-means} package from \texttt{scikit-learn} library \citep{sklearn}. We found out that our implementations achieve similar inertia to the one in \texttt{scikit-learn}. On the other hand, results shown in \texttt{k-means++} paper differ from both our and \texttt{scikit-learn} results. At first, we thought this might be due to normalization or standardization. However, even after using both \texttt{min max} and \texttt{standard} normalization (also known as $z$-score), we found out that \texttt{k-means++} results do not match with ours. For cloud data set, both our and \texttt{scikit-learn} implementations have similar inertia values. The results are shown in tables \ref{tbl:cloud_minmaxscaler} (min-max scalar used to process data), \ref{tbl:cloud_no_preprocess} (no pre-processing) and \ref{tbl:cloud_standardscaler} (standard scalar pre-processing). But \texttt{k-means++} results \citep[Table $3$]{kmeans++} do not match with ours. We confirmed that our data set consisted of $1024$ rows and had dimension $10$. Moreover, we obtained the data set from UC-Irvine Machine Learning Repository which is the same source stated in \citet[Section $6.1$]{kmeans++}. 
-	
+	Since we tried to improve \texttt{k-means++}, obviously we made our own implementations of the algorithm and checked the results against the ones shown in the paper. Our results conflict with some results shown in \texttt{k-means++} paper \cite{kmeans++}. For this reason, we ran clustering on the same data set (cloud data set) using \texttt{k-means} package from \texttt{scikit-learn} library \citep{sklearn}. We found out that our implementations achieve similar inertia to the one in \texttt{scikit-learn}. On the other hand, results shown in \texttt{k-means++} paper differ from both our and \texttt{scikit-learn} results. At first, we thought this might be due to normalization or standardization. However, even after using both \texttt{min max} and \texttt{standard} normalization (also known as $z$-score), we found out that \texttt{k-means++} results do not match with ours. For cloud data set, both our and \texttt{scikit-learn} implementations have similar inertia values. The results are shown in tables \ref{tbl:cloud_minmaxscaler} (min-max scalar used to process data), \ref{tbl:cloud_no_preprocess} (no pre-processing) and \ref{tbl:cloud_standardscaler} (standard scalar pre-processing). But \texttt{k-means++} results \citep[Table $3$]{kmeans++} do not match with ours. We confirmed that our data set consisted of $1024$ rows and had dimension $10$. Moreover, we obtained the data set from UC-Irvine Machine Learning Repository which is the same source stated in \citet[Section $6.1$]{kmeans++}.
+
 	We also tried collecting every data set that was used in \texttt{k-means++} paper but we managed to get only the cloud data set. We could not find the other real world data set \textit{Intrusion} either. There were some similar data sets but they matched neither the number of data points (494019) nor the dimension (35). Therefore, cloud data set was our primary source of comparison. We would like to mention that in a footnote \citep[Section $6$, page $8$]{kmeans++}, the authors\footnote{We emailed the second author for both concerns and we have yet to receive any reply. We contacted them since it is possible that we are missing something.} mentioned that \url{http://theory.stanford.edu/~sergei/kmeans} contained full test suite. However, the site seems to be no longer accessible even though \url{http://theory.stanford.edu/~sergei} is. Therefore, we could neither retrieve the original data sets used in their paper nor check their implementation.
 	\section{Proposed Initialization Methods}
 	For a set of points $S$ and a point $x$, we use $\min(\|x-S\|)$ to denote the minimum of distances from $x$ to the points of $S$ that is $\min(\| x-S\|)=\min_{a\in S}(\| x-a\|)$. Set $D(\x)=\min(\|\x-\C\|)$ for a point $x$ and a set of centers $\C$. Let us denote the centroid of $S$ by $\mu_S$ that is $\mu_S=\dfrac{1}{|S|}\sum_{x\in S}x$.
@@ -99,7 +91,7 @@
 			\item Repeat \eqref{step:coc_cluster} and \eqref{step:coc_update} until convergence is reached.
 		\end{enumerate}
 	\section{\texttt{k-means++} Improvement}\label{sec:motivation}
-	In this section, we discuss the motivation behind our idea of improving \texttt{k-means++}. 
+	In this section, we discuss the motivation behind our idea of improving \texttt{k-means++}.
 	Consider a set of $n$ points $\X$ and that the probability of $x\in\X$ being chosen as a center as $p(x)$. Following the definition of variance, for a set of points $S$, we define
 		\begin{align}
 			\sigma^2(S) & = \dfrac{\sum_{x\in S} \|x-\mu_{S}\|^2}{|S|}\nonumber\\
@@ -116,7 +108,7 @@
 		\end{align}
 	Here $\langle a,b\rangle$ is the dot product of vectors $a$ and $b$. Using equation \eqref{eqn:2}, we have the following.
 		\begin{align}
-			\sum_{\x\in\X}\sum_{\y\in\X}\|\x-\y\|^2 
+			\sum_{\x\in\X}\sum_{\y\in\X}\|\x-\y\|^2
 				& = \sum_{\x\in\X}n(\sigma^2+\|\mu-\x\|^2)\nonumber\\
 				& = n(n\sigma^2+\sum_{\x\in\X}\|\mu-\x\|^2)\nonumber\\
 				& = n(n\sigma^2+n\sigma^2)\nonumber\\
@@ -143,7 +135,7 @@
 					& = \dfrac{1}{k}\left(k\|x-\mu_{\C}\|^2+\sum_{c\in\C}\|\mu_{\C}-c\|^2\right)\\
 					& = \|x-\mu_{\C}\|^2+\dfrac{1}{k}\sum_{c\in\C}\|\mu_{\C}-c\|^2
 		\end{align*}
-	Thus, we can write inertia as 
+	Thus, we can write inertia as
 		\begin{align*}
 			\cal I & = \sum_{x\in S}\min_{c\in C}\|x-c\|^2\\
 			D(x)^2 & = \min_{c\in C}\|x-c\|^2\\
@@ -173,12 +165,12 @@
 			\item Old faithful geyser data set
 			\item Iris data set
 		\end{enumerate}
-	\cite{miligan} shows that using $z$-score to standardize the data is not favorable for clustering because it loses between-cluster variation. Therefore, we did not use any sort of standardization or normalization lest it should lose variance or become prone to bias. Instead, we have used PCA to remove linear dependency among variables. 
-	
+	\cite{miligan} shows that using $z$-score to standardize the data is not favorable for clustering because it loses between-cluster variation. Therefore, we did not use any sort of standardization or normalization lest it should lose variance or become prone to bias. Instead, we have used PCA to remove linear dependency among variables.
+
 	While experimenting on such algorithms, it is of utmost importance to run the same experiment more than once under the same parameters and conditions. We ran each experiment a total of $20$ times. The average and minimum values of inertia, CPU time taken are reported in the result section.
 	\section{Results}\label{sec:results}
-	We have shown the results for $k\in\{5,10,25\}$ clusters in tables \ref{tbl:airlines5} to \ref{tbl:Wine25}. As expected, default \texttt{k-means} is usually the fastest algorithm but also the worst in terms of optimizing inertia. 
-	
+	We have shown the results for $k\in\{5,10,25\}$ clusters in tables \ref{tbl:airlines5} to \ref{tbl:Wine25}. As expected, default \texttt{k-means} is usually the fastest algorithm but also the worst in terms of optimizing inertia.
+
 	The comparison of inertia for \texttt{k-means++} seeding is showed in tables \ref{tbl:cloud_no_preprocess}, \ref{tbl:cloud_standardscaler}, \ref{tbl:cloud_minmaxscaler}. We can check the results against \citet[Table $3$]{kmeans++}. See that even though we used both standard and min-max scaled data, their inertia values do not match with ours for any of the number of clusters in $\{10,25,50\}$. Since both our and \texttt{scikit-learn} implementations achieve similar inertia values, we believe our coding is correct. Also, since the cloud data set we used had exactly the number of dimension and rows as in \texttt{k-means++} paper, we believe that this is also the correct data set. Our codes are available at \url{https://github.com/proafxin/clustering}.
 		\begin{table}[p]
 			\begin{center}
@@ -194,7 +186,7 @@
 				\label{tbl:airlines5}
 			\end{center}
 		\end{table}
-		
+
 		\begin{table}[p]
 			\begin{center}
 				\begin{tabular}{|l|l|l|l|l|l|l|}
@@ -209,7 +201,7 @@
 				\label{tbl:boston5}
 			\end{center}
 		\end{table}
-		
+
 		\begin{table}[p]
 			\begin{center}
 				\begin{tabular}{|l|l|l|l|l|l|l|}
@@ -224,7 +216,7 @@
 				\label{tbl:cloud5}
 			\end{center}
 		\end{table}
-		
+
 		\begin{table}[p]
 			\begin{center}
 				\begin{tabular}{|l|l|l|l|l|l|l|}
@@ -239,7 +231,7 @@
 				\label{tbl:iris5}
 			\end{center}
 		\end{table}
-		
+
 		\begin{table}[p]
 			\begin{center}
 				\begin{tabular}{|l|l|l|l|l|l|l|}
@@ -254,7 +246,7 @@
 				\label{tbl:mall5}
 			\end{center}
 		\end{table}
-		
+
 		\begin{table}[p]
 			\begin{center}
 				\begin{tabular}{|l|l|l|l|l|l|l|}
@@ -269,7 +261,7 @@
 				\label{tbl:moons5}
 			\end{center}
 		\end{table}
-		
+
 		\begin{table}[p]
 			\begin{center}
 				\begin{tabular}{|l|l|l|l|l|l|l|}
@@ -284,7 +276,7 @@
 				\label{tbl:old5}
 			\end{center}
 		\end{table}
-		
+
 		\begin{table}[p]
 			\begin{center}
 				\begin{tabular}{|l|l|l|l|l|l|l|}
@@ -299,7 +291,7 @@
 				\label{tbl:schools5}
 			\end{center}
 		\end{table}
-		
+
 		\begin{table}[p]
 			\begin{center}
 				\begin{tabular}{|l|l|l|l|l|l|l|}
@@ -314,7 +306,7 @@
 				\label{tbl:Wine5}
 			\end{center}
 		\end{table}
-		
+
 		\begin{table}[p]
 			\begin{center}
 				\begin{tabular}{|l|l|l|l|l|l|l|}
@@ -329,7 +321,7 @@
 				\label{tbl:airlines10}
 			\end{center}
 		\end{table}
-		
+
 		\begin{table}[p]
 			\begin{center}
 				\begin{tabular}{|l|l|l|l|l|l|l|}
@@ -344,7 +336,7 @@
 				\label{tbl:boston10}
 			\end{center}
 		\end{table}
-		
+
 		\begin{table}[p]
 			\begin{center}
 				\begin{tabular}{|l|l|l|l|l|l|l|}
@@ -359,7 +351,7 @@
 				\label{tbl:cloud10}
 			\end{center}
 		\end{table}
-		
+
 		\begin{table}[p]
 			\begin{center}
 				\begin{tabular}{|l|l|l|l|l|l|l|}
@@ -374,7 +366,7 @@
 				\label{tbl:iris10}
 			\end{center}
 		\end{table}
-		
+
 		\begin{table}[p]
 			\begin{center}
 				\begin{tabular}{|l|l|l|l|l|l|l|}
@@ -389,7 +381,7 @@
 				\label{tbl:mall10}
 			\end{center}
 		\end{table}
-		
+
 		\begin{table}[p]
 			\begin{center}
 				\begin{tabular}{|l|l|l|l|l|l|l|}
@@ -404,7 +396,7 @@
 				\label{tbl:moons10}
 			\end{center}
 		\end{table}
-		
+
 		\begin{table}[p]
 			\begin{center}
 				\begin{tabular}{|l|l|l|l|l|l|l|}
@@ -419,7 +411,7 @@
 				\label{tbl:old10}
 			\end{center}
 		\end{table}
-		
+
 		\begin{table}[p]
 			\begin{center}
 				\begin{tabular}{|l|l|l|l|l|l|l|}
@@ -434,7 +426,7 @@
 				\label{tbl:schools10}
 			\end{center}
 		\end{table}
-		
+
 		\begin{table}[p]
 			\begin{center}
 				\begin{tabular}{|l|l|l|l|l|l|l|}
@@ -449,7 +441,7 @@
 				\label{tbl:Wine10}
 			\end{center}
 		\end{table}
-		
+
 		\begin{table}[p]
 			\begin{center}
 				\begin{tabular}{|l|l|l|l|l|l|l|}
@@ -464,7 +456,7 @@
 				\label{tbl:boston25}
 			\end{center}
 		\end{table}
-		
+
 		\begin{table}[p]
 			\begin{center}
 				\begin{tabular}{|l|l|l|l|l|l|l|}
@@ -479,7 +471,7 @@
 				\label{tbl:cloud25}
 			\end{center}
 		\end{table}
-		
+
 		\begin{table}[p]
 			\begin{center}
 				\begin{tabular}{|l|l|l|l|l|l|l|}
@@ -494,7 +486,7 @@
 				\label{tbl:iris25}
 			\end{center}
 		\end{table}
-		
+
 		\begin{table}[p]
 			\begin{center}
 				\begin{tabular}{|l|l|l|l|l|l|l|}
@@ -509,7 +501,7 @@
 				\label{tbl:mall25}
 			\end{center}
 		\end{table}
-		
+
 		\begin{table}[p]
 			\begin{center}
 				\begin{tabular}{|l|l|l|l|l|l|l|}
@@ -524,7 +516,7 @@
 				\label{tbl:moons25}
 			\end{center}
 		\end{table}
-		
+
 		\begin{table}[p]
 			\begin{center}
 				\begin{tabular}{|l|l|l|l|l|l|l|}
@@ -539,7 +531,7 @@
 				\label{tbl:old25}
 			\end{center}
 		\end{table}
-		
+
 		\begin{table}[p]
 			\begin{center}
 				\begin{tabular}{|l|l|l|l|l|l|l|}
@@ -554,7 +546,7 @@
 				\label{tbl:schools25}
 			\end{center}
 		\end{table}
-		
+
 		\begin{table}[p]
 			\begin{center}
 				\begin{tabular}{|l|l|l|l|l|l|l|}
@@ -569,7 +561,7 @@
 				\label{tbl:Wine25}
 			\end{center}
 		\end{table}
-		
+
 		\begin{table}[p]
 			\begin{center}
 				\begin{tabular}{|l|l|l|}
