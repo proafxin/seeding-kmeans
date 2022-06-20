@@ -797,3 +797,12 @@ $RECYCLE.BIN/
 *.lnk
 
 # End of https://www.gitignore.io/api/c,c++,linux,macos,python,windows,virtualenv,jupyternotebooks
+doc/cover.pdf
+doc/title.pdf
+doc/paper.pdf
+doc/paper.tex
+doc/seeding_kmeans.pdf
+doc/seeding_kmeans.tex
+doc/title.tex
+doc/seeding_kmeans.tex
+doc/seeding_kmeans.tex
