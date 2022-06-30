@@ -1,4 +1,4 @@
-import os, random, math, cv2
+import random
 
 import numpy as np
 
@@ -11,8 +11,10 @@ from numpy.random import choice, shuffle
 from numpy.linalg import norm
 from scipy.stats import pearsonr
 from scipy.spatial.distance import cdist
-from sklearn.cluster import KMeans
-from metrics import cos, pearson, correlation, distance_squared
+# from sklearn.cluster import KMeans
+# from metrics import cos, pearson, correlation, distance_squared
+
+from utils import threadpool_limits
 
 class KMeansClustering():
     init = None
@@ -113,31 +115,32 @@ class KMeansClustering():
             print(self.cluster_centers_)
 
     def __converge(self, X):
-        for i in range(self.max_iter):
-            centers_old = self.cluster_centers_.copy()
-            C = {}
-            for j in range(self.n_clusters):
-                C[j] = []
-            inertia = 0.0
-            for x in X:
-                D = []
-                for c in self.cluster_centers_:
-                    y = c-x
-                    D.append(dot(y, y))
-                d_min = min(D)
-                inertia += d_min
-                for (j, d) in enumerate(D):
-                    if d == d_min:
-                        C[j].append(x.tolist())
-                        break
-            for j in range(self.n_clusters):
-                if len(C[j]) < 1:
-                    continue
-                self.cluster_centers_[j] = mean(C[j], axis=0)
-            if all(centers_old == self.cluster_centers_):
-                self.n_iter_ = i
-                self.inertia_ = inertia
-                break
+        with threadpool_limits(limits=1, user_api="blas"):
+            for i in range(self.max_iter):
+                centers_old = self.cluster_centers_.copy()
+                C = {}
+                for j in range(self.n_clusters):
+                    C[j] = []
+                inertia = 0.0
+                for x in X:
+                    D = []
+                    for c in self.cluster_centers_:
+                        y = c-x
+                        D.append(dot(y, y))
+                    d_min = min(D)
+                    inertia += d_min
+                    for (j, d) in enumerate(D):
+                        if d == d_min:
+                            C[j].append(x.tolist())
+                            break
+                for j in range(self.n_clusters):
+                    if len(C[j]) < 1:
+                        continue
+                    self.cluster_centers_[j] = mean(C[j], axis=0)
+                if all(centers_old == self.cluster_centers_):
+                    self.n_iter_ = i
+                    self.inertia_ = inertia
+                    break
 
     def fit(self, X):
         self.__initialize_centers(X)
