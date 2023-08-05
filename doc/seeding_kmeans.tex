@@ -50,41 +50,43 @@
 
 	We would like to point out that to our knowledge no surveys were done after removing linear dependency prior to running the experiments. This is a very important step if we are to get a meaningful clustering out of \texttt{k-means} algorithm. We can achieve this using some known algorithm such as \textbf{principle component analysis} (PCA, see \textcite{pearson_1901}, \textcite{hotelling_1933}) . We opted for PCA in this paper. PCA decomposes the existing data points into orthogonal\footnote{It is well known that orthogonal vectors are linearly independent.} ones. If we use PCA before running a clustering algorithm, we can redefine the variables into linearly independent ones. For our experiment, we have used PCA on every data set before running cluster algorithm. However, we did not reduce dimensions in order to preserve the originality of the data set. We only used PCA for removing linear dependency among variables. We strongly believe this strengthens our result over other available results.
 	\section{A Brief Comparison on Synthetic Data}
-	As a refresher we will mention some well known algorithms and compare their performances for practical purposes\footnote{The code used for this experiment is based on scikit-learn library and the code is a modified form of \url{https://scikit-learn.org/stable/auto_examples/cluster/plot_cluster_comparison.html#sphx-glr-auto-examples-cluster-plot-cluster-comparison-py}}. \textcite{Frey_Dueck_2007} discusses a similarity based clustering method but as we will show later, it is very slow and does not scale. But more importantly, the data points do not necessarily always converge as noted in this experiment. There are also hierarchical algorithms such as DBSCAN by \textcite{Ester_Kriegel_Sander_Xu_1996}, HDBSCAN by \textcite{Campello_Moulavi_Sander_2013}, and improvements on DBSCAN and HDBSCAN by \textcite{McInnes_Healy_2017}. OPTICS by \textcite{Ankerst_Breunig_Kriegel_Sander_1999} is a generalization of DBSCAN which aims to build some sort of reachability graph to understand the inner structure of the data points. But for large datasets, similar results can be obtained using HDBSCAN so we do not use OPTICS. \textcite{Comaniciu_Meer_2002} is a robust technique that tries to show convergence of underlying density function and performs relatively well but not as good as KMeans. A comparatively efficient version of \textcite{Yu_Shi_2003} by \textcite{Damle_Minden_Ying_2018} discusses a spectral clustering based on Eigen decomposition although it struggles to scale. \textcite{forgy_1965} also discusses There is also BIRCH by \textcite{Zhang_Ramakrishnan_Livny_1996} which is based on a tree called cluster feature tree. However, it also struggles with high dimensional data, specially if the dimension is over $20$.
+	As a refresher we will mention some well known algorithms and compare their performances for practical purposes\footnote{The code used for this experiment is based on scikit-learn library and the code is a modified form of \url{https://scikit-learn.org/stable/auto_examples/cluster/plot_cluster_comparison.html#sphx-glr-auto-examples-cluster-plot-cluster-comparison-py}}. Affinity Propagation by \textcite{Frey_Dueck_2007} discusses a similarity based clustering method but as we will show later, it is very slow and does not scale. But more importantly, the data points do not necessarily always converge as noted in this experiment. There are also hierarchical algorithms such as DBSCAN by \textcite{Ester_Kriegel_Sander_Xu_1996}, HDBSCAN by \textcite{Campello_Moulavi_Sander_2013}, and improvements on DBSCAN and HDBSCAN by \textcite{McInnes_Healy_2017}. OPTICS by \textcite{Ankerst_Breunig_Kriegel_Sander_1999} is a generalization of DBSCAN which aims to build some sort of reachability graph to understand the inner structure of the data points. But for large datasets, similar results can be obtained using HDBSCAN so we do not use OPTICS. \textcite{Comaniciu_Meer_2002} is a robust technique that tries to show convergence of underlying density function and performs relatively well but not as good as KMeans. A comparatively efficient version of \textcite{Yu_Shi_2003} by \textcite{Damle_Minden_Ying_2018} discusses a spectral clustering based on Eigen decomposition although it struggles to scale. \textcite{forgy_1965} also discusses There is also BIRCH by \textcite{Zhang_Ramakrishnan_Livny_1996} which is based on a tree called cluster feature tree. However, it also struggles with high dimensional data, specially if the dimension is over $20$.
+
+	The summary of the following results is that, considering all factors, KMeans is the only realistic solution clustering any kind of data. It also offers the extra benefit for us to choose the number of clusters and that is also sometimes important. The practical implication is that some methods e.g. Affine Propagation
 
 	\begin{center}
 		\begin{minipage}{\linewidth}
 			\includegraphics[width=\linewidth]{../clustering_result_500}
 			\captionof{figure}{Time taken for 500 points}
-		\end{minipage}%
-		\hfill
-		\begin{minipage}{\linewidth}
+		\end{minipage}
+	\end{center}
+
+	\begin{center}
+		\begin{minipage}{.9\linewidth}
 			\includegraphics[width=\linewidth]{../clustering_result_1000}
 			\captionof{figure}{Time taken for 1000 points}
 		\end{minipage}
-	\end{center}
-
-	\begin{center}
-		\begin{minipage}{.8\linewidth}
+		\hfill
+		\begin{minipage}{.9\linewidth}
 			\includegraphics[width=\linewidth]{../clustering_result_2000}
 			\captionof{figure}{Time taken for 2000 points}
 		\end{minipage}%
-		\hfill
-		\begin{minipage}{.8\linewidth}
-			\includegraphics[width=\linewidth]{../clustering_result_5000}
-			\captionof{figure}{Time taken for 5000 points}
-		\end{minipage}
 	\end{center}
 
 	\begin{center}
-		\begin{minipage}{\linewidth}
+		\begin{minipage}{.9\linewidth}
+			\includegraphics[width=\linewidth]{../clustering_result_5000}
+			\captionof{figure}{Time taken for 5000 points}
+		\end{minipage}
+		\hfill
+		\begin{minipage}{.9\linewidth}
 			\includegraphics[width=\linewidth]{../clustering_result_10000}
 			\captionof{figure}{Time taken for 10000 points}
 		\end{minipage}
 	\end{center}
 
-	\section{Concerns Regarding \texttt{k-means++}}\label{sec:kmeans++vsorss}
-	Given how simple Lloyd's algorithm is, it seems very justified that it is the most popular algorithm for \texttt{k-means}. And nowadays most of the times initial centers are chosen with a seeded probability rather than at random. This idea has gained much popularity in recent years. Even in the very well known scientific python package \texttt{scikit-learn} \textcite{pedregosa__et_al_2011}, \texttt{k-means++} initialization is supported by default. And it is no surprise considering the theoretical and experimental results are presented in \textcite{arthur_vassilvitskii_2007}. For example, \textcite{arthur_vassilvitskii_2007} claim \texttt{k-means++} is $\log{k}$ competitive which is a very lucrative result without any doubt. Moreover, they show experimental results that \texttt{k-means++} performs tenfold or even better in most data sets. These are all properties we look for in an ideal algorithm. However, the validity of these results seems to be questionable.
+	\section{Concerns Regarding \texttt{k-means++} Paper}\label{sec:kmeans++vsorss}
+	Given how simple Lloyd's algorithm is, it seems very justified that it is the most popular algorithm for \texttt{k-means}. \textcite{ostrovsky_rabani_schulman_swamy_2012} is a great study on the unusual effectiveness of Lloyd's algorithm. Nowadays most of the times initial centers are chosen with a seeded probability rather than at random. This idea has gained much popularity in recent years. Even in the very well known scientific python package \texttt{scikit-learn} \textcite{pedregosa__et_al_2011}, \texttt{k-means++} initialization is supported by default. And it is no surprise considering the theoretical and experimental results are presented in \textcite{arthur_vassilvitskii_2007}. For example, \textcite{arthur_vassilvitskii_2007} claim \texttt{k-means++} is $\log{k}$ competitive which is a very lucrative result without any doubt. Moreover, they show experimental results that \texttt{k-means++} performs tenfold or even better in most data sets. These are all properties we look for in an ideal algorithm. However, the validity of these results seems to be questionable.
 	\subsection{\texttt{k-means++} and \texttt{ORSS}}
 	The author remarks that \texttt{k-means++} algorithm is actually a special case of \texttt{ORSS} algorithm. In \texttt{k-means++}, the first center is chosen at random. Then every center is chosen based on the minimum distance of the existing centers from the point in consideration, which \textcite{arthur_vassilvitskii_2007} call $D^2$ \textit{weighting}. Now, \texttt{ORSS} chooses two centers $x,y$ with probability proportional to $\|x-y\|^2$. After choosing those two centers, a new center is added to the set of centers in each iteration until there are $k$ centers, which is done exactly as in \texttt{k-means++}. So, the center adding step is same for both \texttt{k-means++} and \texttt{ORSS}.
 
