@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "clustering"
-version = "0.1.0"
+version = "1.0.0"
 description = ""
 authors = ["Masum Billal <proafxin@users.noreply.github.com>"]
 readme = "README.md"
@@ -24,6 +24,5 @@ mypy = "^1.4.1"
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
 
-
-[tool.poetry.isort]
+[tool.isort]
 profile = "black"
