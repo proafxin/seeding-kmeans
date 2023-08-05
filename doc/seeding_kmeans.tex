@@ -3,6 +3,8 @@
 \usepackage[giveninits=true]{biblatex}
 \usepackage{amsthm, amssymb, amsfonts, amsmath, geometry, enumerate}
 \usepackage{url}
+\usepackage[]{graphicx}
+\usepackage[font=small,labelfont=bf]{caption}
 %\geometry{left=1in,right=1in,top=.5in,bottom=1in,headheight=4pt,headsep=0.3in}
 
 \newtheorem{lemma}{Lemma}
@@ -22,29 +24,65 @@
 
 \addbibresource{ref.bib}
 
+\newcommand{\scale}{.33}
+
 \begin{document}
 	\maketitle
 		\begin{abstract}%
-			k-means is a popular clustering algorithm that aims to reduce the sum of minimum squared distances from data points to the centers. It is well established by now that seeding centers is better than choosing centers uniformly. In this paper, we first express our concerns about the results presented in k-means++ paper. Then we suggest an improvement, discuss various types of seeding methods and compare their performances. We also establish an upper bound on the inertia function associated with kmeans clustering. The author does not claim any originality regarding the improvement because the author found out later that another paper already considered the improvement suggested in this paper and that {kmeans++} is essentially the same idea. Nonetheless, the paper also serves as an updated survey on the comparison of seeding methods.
+			In machine learning or data mining in general, clustering is one of the most popular methods to extract valuable insights into the data. It becomes even more important when the data is high dimensional that can provide information regarding user behavior or underlying structure or affinity towards a certain direction. KMeans is a popular clustering algorithm that aims to solve the clustering problem by reducing the sum of minimum squared distances from data points to the centers. It is well established by now that seeding centers is better than choosing centers uniformly. In this paper, we first express our concerns about the results presented in k-means++ paper. Then we suggest an improvement, discuss various types of seeding methods and compare their performances. We also establish an upper bound on the inertia function associated with kmeans clustering. The author does not claim any originality regarding the improvement because the author found out later that another paper already considered the improvement suggested in this paper and that {kmeans++} is essentially the same idea. Nonetheless, the paper also serves as an updated survey on the comparison of seeding methods.
 		\end{abstract}
 
 		%\begin{keywords}
 		%	clustering, \texttt{k-means}, seeding centers, inertia optimization, \texttt{k-means++}
 		%\end{keywords}
 	\section{Introduction}
-	Widely regarded as the most popular clustering techniques, \texttt{k-means} remains a humble interesting topic in machine learning as well as computational geometry. Roughly the problem is: given a set of points $\X$ in $\mathbb{R}^d$. Find a set of centers $\mathcal{C}$ such that the function \textit{inertia}
+	Widely regarded as the most popular clustering techniques, \texttt{k-means} remains a humble interesting topic in machine learning as well as computational geometry. Clustering is still an active field of research as there are a lot of recent developments in this area including some ideas that involve deep learning. Roughly the problem of clustering from the point of view of KMeans is: given a set of points $\X$ in $\mathbb{R}^d$. Find a set of centers $\mathcal{C}$ such that the function \textit{inertia}
 		\begin{align*}
 			\mathcal{I} & = \sum_{\x\in\X}\min_{\c\in\C}(\|\c-\x\|^2)
 		\end{align*}
 	is minimum where $\|\cdot\|$ is the $L_2$ norm\footnote{$\|c-x\|$ or $L_2$ norm of $\c-\x$ is the distance between the center $\c$ and point $\x$ or the magnitude of the vector $\c-\x$.}.
 
-	Default \texttt{k-means} algorithm starts with random centers and then converge based on minimum distances of the centers from the data points. New centers are calculated based on the centroid. This is known as Lloyd's algorithm \textcite{lloyd_1982}. We repeat this process until no more change is possible. \textcite{ostrovsky_rabani_schulman_swamy_2012} and \textcite{arthur_vassilvitskii_2007} take it one step further by choosing the initial centers with a probability. And today, \texttt{k-means++} is without a doubt the most popular clustering technique. We intend to introduce other ways of initialization and compare their performances in terms of inertia, convergence speed and CPU time taken.
+	Default \texttt{k-means} algorithm starts with random centers and then converge based on minimum distances of the centers from the data points. New centers are calculated based on the centroid. This is known as Lloyd's algorithm \textcite{lloyd_1982}. We repeat this process until no more change is possible. \textcite{forgy_1965} is one of the pioneers of seeding methods in Llyod's algorithm. \textcite{ostrovsky_rabani_schulman_swamy_2012} and \textcite{arthur_vassilvitskii_2007} take it one step further by choosing the initial centers with a probability. And today, \texttt{k-means++} is without a doubt the most popular clustering technique. We intend to introduce other ways of initialization and compare their performances in terms of inertia, convergence speed and CPU time taken.
 
 	First, we will discuss a sensitive issue regarding \texttt{k-means++} algorithm. Then we discuss the initialization methods used to compare the performance of clustering. We also prove a theorem that provides an upper bound for the inertia when \texttt{k-means} is done using seeded centers. Finally, we show experimental results for both our argument regarding \texttt{k-means++} and performance of initialization methods. For experimental results, we assumed that an algorithm converges only when the centers do not change anymore, that is, the algorithm absolutely stops changing centers altogether. There are some available techniques of stopping \texttt{k-means} algorithms but we chose not to use any of them as they might produce unreliable results.
 	\section{Related Work}
-	There has been multiple surveys and a lot of work on \texttt{k-means} in the literature. For our context, probably the most relevant work is done in \textcite{celebi_kingravi_vela_2013}. However, most of the algorithms used in that paper are practically not very useful. The same was also noted by the authors themselves. They concluded that \texttt{k-means++} and its greedy version work better than most. They also mention that probabilistic algorithms perform better than deterministic ones. Therefore, our primary focus has been on non-deterministic algorithms in this paper. We take this chance to introduce the not so popular algorithm \textcite{ostrovsky_rabani_schulman_swamy_2012} (\texttt{ORSS}). \texttt{ORSS} was not considered in their experiments. As we will show, \texttt{ORSS} is actually a very relevant topic in this regard.
+	There has been multiple surveys and a lot of work on \texttt{k-means} in the literature. For our context, probably the most relevant work is done in \textcite{celebi_kingravi_vela_2013}. However, most of the algorithms used in that paper are practically not very useful. The same was also noted by the authors themselves. They concluded that \texttt{k-means++} and its greedy version work better than most. They also mention that probabilistic algorithms perform better than deterministic ones. Therefore, our primary focus has been on non-deterministic algorithms in this paper. We take this chance to introduce the not so popular algorithm \textcite{ostrovsky_rabani_schulman_swamy_2012} (\texttt{ORSS}). \texttt{ORSS} was not considered in their experiments. As we will show, \texttt{ORSS} is actually a very relevant topic in this regard. Note that we do not  consider Gaussian Mixture Model for the experiment because it has been noted to be significantly slow for practical purposes, see \textcite{Patel_Kushwaha_2020} for a detailed discussion.
 
 	We would like to point out that to our knowledge no surveys were done after removing linear dependency prior to running the experiments. This is a very important step if we are to get a meaningful clustering out of \texttt{k-means} algorithm. We can achieve this using some known algorithm such as \textbf{principle component analysis} (PCA, see \textcite{pearson_1901}, \textcite{hotelling_1933}) . We opted for PCA in this paper. PCA decomposes the existing data points into orthogonal\footnote{It is well known that orthogonal vectors are linearly independent.} ones. If we use PCA before running a clustering algorithm, we can redefine the variables into linearly independent ones. For our experiment, we have used PCA on every data set before running cluster algorithm. However, we did not reduce dimensions in order to preserve the originality of the data set. We only used PCA for removing linear dependency among variables. We strongly believe this strengthens our result over other available results.
+	\section{A Brief Comparison on Synthetic Data}
+	As a refresher we will mention some well known algorithms and compare their performances for practical purposes\footnote{The code used for this experiment is based on scikit-learn library and the code is a modified form of \url{https://scikit-learn.org/stable/auto_examples/cluster/plot_cluster_comparison.html#sphx-glr-auto-examples-cluster-plot-cluster-comparison-py}}. \textcite{Frey_Dueck_2007} discusses a similarity based clustering method but as we will show later, it is very slow and does not scale. But more importantly, the data points do not necessarily always converge as noted in this experiment. There are also hierarchical algorithms such as DBSCAN by \textcite{Ester_Kriegel_Sander_Xu_1996}, HDBSCAN by \textcite{Campello_Moulavi_Sander_2013}, and improvements on DBSCAN and HDBSCAN by \textcite{McInnes_Healy_2017}. OPTICS by \textcite{Ankerst_Breunig_Kriegel_Sander_1999} is a generalization of DBSCAN which aims to build some sort of reachability graph to understand the inner structure of the data points. But for large datasets, similar results can be obtained using HDBSCAN so we do not use OPTICS. \textcite{Comaniciu_Meer_2002} is a robust technique that tries to show convergence of underlying density function and performs relatively well but not as good as KMeans. A comparatively efficient version of \textcite{Yu_Shi_2003} by \textcite{Damle_Minden_Ying_2018} discusses a spectral clustering based on Eigen decomposition although it struggles to scale. \textcite{forgy_1965} also discusses There is also BIRCH by \textcite{Zhang_Ramakrishnan_Livny_1996} which is based on a tree called cluster feature tree. However, it also struggles with high dimensional data, specially if the dimension is over $20$.
+
+	\begin{center}
+		\begin{minipage}{\linewidth}
+			\includegraphics[width=\linewidth]{../clustering_result_500}
+			\captionof{figure}{Time taken for 500 points}
+		\end{minipage}%
+		\hfill
+		\begin{minipage}{\linewidth}
+			\includegraphics[width=\linewidth]{../clustering_result_1000}
+			\captionof{figure}{Time taken for 1000 points}
+		\end{minipage}
+	\end{center}
+
+	\begin{center}
+		\begin{minipage}{.8\linewidth}
+			\includegraphics[width=\linewidth]{../clustering_result_2000}
+			\captionof{figure}{Time taken for 2000 points}
+		\end{minipage}%
+		\hfill
+		\begin{minipage}{.8\linewidth}
+			\includegraphics[width=\linewidth]{../clustering_result_5000}
+			\captionof{figure}{Time taken for 5000 points}
+		\end{minipage}
+	\end{center}
+
+	\begin{center}
+		\begin{minipage}{\linewidth}
+			\includegraphics[width=\linewidth]{../clustering_result_10000}
+			\captionof{figure}{Time taken for 10000 points}
+		\end{minipage}
+	\end{center}
+
 	\section{Concerns Regarding \texttt{k-means++}}\label{sec:kmeans++vsorss}
 	Given how simple Lloyd's algorithm is, it seems very justified that it is the most popular algorithm for \texttt{k-means}. And nowadays most of the times initial centers are chosen with a seeded probability rather than at random. This idea has gained much popularity in recent years. Even in the very well known scientific python package \texttt{scikit-learn} \textcite{pedregosa__et_al_2011}, \texttt{k-means++} initialization is supported by default. And it is no surprise considering the theoretical and experimental results are presented in \textcite{arthur_vassilvitskii_2007}. For example, \textcite{arthur_vassilvitskii_2007} claim \texttt{k-means++} is $\log{k}$ competitive which is a very lucrative result without any doubt. Moreover, they show experimental results that \texttt{k-means++} performs tenfold or even better in most data sets. These are all properties we look for in an ideal algorithm. However, the validity of these results seems to be questionable.
 	\subsection{\texttt{k-means++} and \texttt{ORSS}}
@@ -60,7 +98,7 @@
 		\end{lemma}
 	The statement seems a bit vague to us for the reason mentioned below. Therefore, it is possible that we did not fully understand what they meant in this lemma. However, based on our interpretation, this lemma is wrong.
 
-	They claim in the proof that $D(a_0)\leq D(a)+\|a-a_0\|$. Our concern is whether this is necessarily true or not. First, they take an arbitrary cluster $A$ from the optimal set of centers $\C_{opt}$. Then they choose a point $a_0$ from $A$ with $D^2$ weighting to be added to $\C$, which is an arbitrary clustering. This is the part where our argument lies. Since a center is being added to $\C$ and not $\C_{opt}$, here $D(a)$ is the minimum distance from $a$ to $\C$. If we consider $D(a)=\min(\|a-\C_{opt}\|)$, then the inequality $D(a_0)\leq D(a)+\|a-a_0\|$ holds true. However, in this case $D(a)=\min(\|a-\C\|)$ should be used instead since the center is being added to $\C$. By definition $D(x)$ is the minimum distance from $x$ to the centers in $\C$ and not $\C_{opt}$. Therefore in the inequality, $D(a)$ and $D(a_0)$ are not distances from the same center and hence, it is not directly implied by triangle inequality. Although nitpicking, we would like to mention that the inequality $\dfrac{a^2+b^2}{2} \geq \left(\dfrac{a+b}{2}\right)^2$ is not the \textit{power mean inequality}. This inequality can be derived in many ways, including power mean inequality, but it itself is not power mean inequality. Power mean inequality states that for any $r\leq s$ and $n$ real numbers $a_1,\cdots,a_n$,
+	They claim in the proof that $D(a_0)\leq D(a)+\|a-a_0\|$. Our concern is whether this is necessarily true or not. First, they take an arbitrary cluster $A$ from the optimal set of centers $\C_{opt}$. Then they choose a point $a_0$ from $A$ with $D^2$ weighting to be added to $\C$, which is an arbitrary clustering. This is the part where our argument lies. Since a center is being added to $\C$ and not $\C_{opt}$, here $D(a)$ is the minimum distance from $a$ to $\C$. If we consider $D(a)=\min(\|a-\C_{opt}\|)$, then the inequality $D(a_0)\leq D(a)+\|a-a_0\|$ holds true. However, in this case $D(a)=\min(\|a-\C\|)$ should be used instead since the center is being added to $\C$. By definition $D(x)$ is the minimum distance from $x$ to the centers in $\C$ and not $\C_{opt}$. Therefore in the inequality, $D(a)$ and $D(a_0)$ are not distances from the same center and hence, it is not directly implied by triangle inequality. Although nitpicking, we would like to mention that the inequality $\dfrac{a^2+b^2}{2} \geq \left(\dfrac{a+b}{2}\right)^2$ is not the \textit{power mean inequality}. This inequality can be derived in many ways, including power mean inequality, but it itself is not the power mean inequality. For reference, power mean inequality (see \textcite{hardy_littlewood_polya_1934}) states that for any $r\leq s$ and $n$ real numbers $a_1,\cdots,a_n$,
 		\begin{align*}
 			\left(\dfrac{a_1^r+a_2^r+\cdots+a_n^r}{n}\right)^{\frac{1}{r}} & \leq \left(\dfrac{a_1^s+a_2^s+\cdots+a_n^s}{n}\right)^{\frac{1}{s}}
 		\end{align*}

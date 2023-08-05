@@ -211,8 +211,6 @@ def compare(n_samples: int):
 
 
 if __name__ == "__main__":
-    samples = [
-        500,
-    ]
+    samples = [500, 1000, 2000, 5000, 10000]
     for sample in samples:
         compare(n_samples=sample)
