@@ -1,0 +1,29 @@
+[tool.poetry]
+name = "clustering"
+version = "0.1.0"
+description = ""
+authors = ["Masum Billal <proafxin@users.noreply.github.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.10"
+pandas = "^2.0.3"
+scikit-learn = "^1.3.0"
+jupyter = "^1.0.0"
+matplotlib = "^3.7.2"
+seaborn = "^0.12.2"
+
+
+[tool.poetry.group.formatting.dependencies]
+black = "^23.7.0"
+ruff = "^0.0.282"
+isort = "^5.12.0"
+mypy = "^1.4.1"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+
+[tool.poetry.isort]
+profile = "black"
